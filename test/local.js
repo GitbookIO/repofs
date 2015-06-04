@@ -6,7 +6,7 @@ var DriverLocal = require('../lib/drivers/local');
 
 describe('Local Driver', function() {
     var fs = repofs(DriverLocal, {
-        root: path.resolve(__dirname, './fixtures')
+        root: path.resolve(__dirname, '../')
     });
 
     describe('fs.stat', function() {
@@ -22,7 +22,7 @@ describe('Local Driver', function() {
 
     describe('fs.read', function() {
         it('should correctly read from master', function() {
-            return fs.read('README.md').should.eventually.equal('# Hello');
+            return fs.read('README.md').should.be.fulfilled;
         });
 
         it('should fail for file out of the repo', function() {
