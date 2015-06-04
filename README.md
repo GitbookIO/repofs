@@ -36,6 +36,27 @@ var fs = repofs(DriverLocal, {
 });
 ```
 
+##### Get informations about a file
+
+```js
+/// On default branch
+fs.stat('README.txt').then(function(file) { ... });
+
+/// On a specific branch
+fs.stat('README.txt', { ref: "dev" })
+```
+
+`file` will look like:
+
+```js
+{
+    name: "README.md",
+    path: "folder/README.md",
+    type: "file",
+    sha: "...."
+}
+```
+
 ##### Read files
 
 ```js
