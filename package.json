@@ -15,7 +15,8 @@
     },
     "devDependencies": {
         "mocha": "2.2.1",
-        "should": "5.2.0"
+        "chai": "2.3.0",
+        "chai-as-promised": "5.0.0"
     },
     "scripts": {
         "test": "node_modules/.bin/mocha --reporter spec --timeout 15000"
