@@ -46,6 +46,20 @@ fs.read('README.txt').then(function(content) { ... });
 fs.read('README.txt', { ref: "dev" })
 ```
 
+##### Write files
+
+```js
+/// On default branch
+fs.write('README.txt', 'My new content')
+
+/// On a specific branch
+fs.write('README.txt', 'My new content', { ref: "dev" })
+
+// With a specific commit message
+fs.write('README.txt', 'My new content', { message: "My super commit" })
+```
+
+
 ##### Working with branches
 
 ```js
@@ -63,7 +77,7 @@ fs.removeBranch('dev')
 
 // Merge a branch into another one
 fs.mergeBranches("dev", "master", {
-    "commit_message": "Shipped cool_feature!"
+    message: "Shipped cool_feature!"
 })
 ```
 
