@@ -51,5 +51,14 @@ describe('GitHub Driver', function() {
             });
         });
     });
+
+    describe('fs.exists', function() {
+        it('should return true if file exists', function() {
+            return fs.exists('README.md').should.eventually.equal(true);
+        });
+        it('should return false if file is not existing', function() {
+            return fs.exists('README_test.md').should.eventually.equal(false);
+        });
+    });
 });
 

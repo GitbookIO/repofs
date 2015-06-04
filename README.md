@@ -36,7 +36,7 @@ var fs = repofs(DriverLocal, {
 });
 ```
 
-##### Get informations about a file
+##### fs.stat: Get informations about a file
 
 ```js
 /// On default branch
@@ -57,7 +57,7 @@ fs.stat('README.txt', { ref: "dev" })
 }
 ```
 
-##### Read files
+##### fs.read: Read file's content
 
 ```js
 /// On default branch
@@ -67,7 +67,7 @@ fs.read('README.txt').then(function(content) { ... });
 fs.read('README.txt', { ref: "dev" })
 ```
 
-##### Write files
+##### fs.write: Update file content
 
 ```js
 /// On default branch
@@ -81,7 +81,17 @@ fs.write('README.txt', 'My new content', { ref: "dev" })
 fs.write('README.txt', 'My new content', { message: "My super commit" })
 ```
 
-##### Read directory
+##### fs.exists: Check if a file exists
+
+```js
+/// On default branch
+fs.exists('README.txt').then(function(exist) { ... });
+
+/// On a specific branch
+fs.exists('README.txt', { ref: "dev" })
+```
+
+##### fs.readdir: List directory content
 
 ```js
 /// On default branch
