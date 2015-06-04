@@ -56,6 +56,7 @@ fs.write('README.txt', 'My new content')
 fs.write('README.txt', 'My new content', { ref: "dev" })
 
 // With a specific commit message
+// By default, the message will be "Update <path>"
 fs.write('README.txt', 'My new content', { message: "My super commit" })
 ```
 
