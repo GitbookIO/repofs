@@ -105,6 +105,26 @@ fs.readdir('myfolder', { ref: "dev" })
 
 `files` is a map fo `fileName => fileInfos`.
 
+#### fs.unlink: Delete a file
+
+```js
+/// On default branch
+fs.unlink('README.txt').then(function() { ... });
+
+/// On a specific branch
+fs.unlink('README.txt', { ref: "dev" })
+```
+
+#### fs.move: Rename a file
+
+```js
+/// On default branch
+fs.move('README.txt', 'README2.txt').then(function() { ... });
+
+/// On a specific branch
+fs.move('README.txt', 'README2.txt', { ref: "dev" })
+```
+
 ##### Working with branches
 
 ```js
