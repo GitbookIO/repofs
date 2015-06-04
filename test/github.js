@@ -60,5 +60,12 @@ describe('GitHub Driver', function() {
             return fs.exists('README_test.md').should.eventually.equal(false);
         });
     });
+
+    describe('fs.write', function() {
+        it('should fail to write non existant file', function() {
+            return fs.write('README_nonexistant.md', 'test').should.be.rejected;
+        });
+    });
+
 });
 

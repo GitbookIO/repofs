@@ -69,6 +69,8 @@ fs.read('README.txt', { ref: "dev" })
 
 ##### fs.write: Update file content
 
+This method will fail if the file doesnt't exist. If the file doesn't exists, you should use `fs.create`.
+
 ```js
 /// On default branch
 fs.write('README.txt', 'My new content')
