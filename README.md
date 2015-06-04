@@ -85,8 +85,8 @@ fs.mergeBranches("dev", "master", {
 
 ### Drivers
 
-| Name | Browser | Node.js | Init |
+| Driver | Browser | Node.js |
 | ---- | ------- | ------- | ---- |
-| Local | no | **yes** | `repofs.local()` |
-| GitHub | **yes** | **yes** | `repofs.github()` |
+| `var DriverLocal = require('repofs/drivers/local');` | no | **yes** | `repofs.local()` |
+| `var DriverGitHub = require('repofs/drivers/github');` | **yes** | **yes**  |
 
