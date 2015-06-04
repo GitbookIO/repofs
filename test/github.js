@@ -1,4 +1,5 @@
 var Q = require('q');
+var _ = require('lodash');
 var path = require('path');
 
 var repofs = require('../');
@@ -39,6 +40,14 @@ describe('GitHub Driver', function() {
                 files['README.md'].type.should.equal('file');
                 files['README.md'].name.should.equal('README.md');
                 files['README.md'].path.should.equal('README.md');
+            });
+        });
+
+        it('should correctly read a sub-directory', function() {
+            return fs.readdir('./lib')
+            .then(function(files) {
+                files.should.not.have.property('README.md');
+                (_.size(files) > 0).should.equal(true);
             });
         });
     });
