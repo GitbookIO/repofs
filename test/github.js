@@ -29,5 +29,18 @@ describe('GitHub Driver', function() {
             return fs.read('error-repofs.js').should.be.rejected;
         });
     });
+
+    describe('fs.readdir', function() {
+        it('should correctly read the root directory', function() {
+            return fs.readdir()
+            .then(function(files) {
+                files.should.have.property('README.md');
+
+                files['README.md'].type.should.equal('file');
+                files['README.md'].name.should.equal('README.md');
+                files['README.md'].path.should.equal('README.md');
+            });
+        });
+    });
 });
 

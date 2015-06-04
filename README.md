@@ -81,6 +81,17 @@ fs.write('README.txt', 'My new content', { ref: "dev" })
 fs.write('README.txt', 'My new content', { message: "My super commit" })
 ```
 
+##### Read directory
+
+```js
+/// On default branch
+fs.readdir('myfolder').then(function(files) { ... });
+
+/// On a specific branch
+fs.readdir('myfolder', { ref: "dev" })
+```
+
+`files` is a map fo `fileName => fileInfos`.
 
 ##### Working with branches
 
