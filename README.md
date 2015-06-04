@@ -105,7 +105,7 @@ fs.readdir('myfolder', { ref: "dev" })
 
 `files` is a map fo `fileName => fileInfos`.
 
-#### fs.unlink: Delete a file
+##### fs.unlink: Delete a file
 
 ```js
 /// On default branch
@@ -115,7 +115,7 @@ fs.unlink('README.txt').then(function() { ... });
 fs.unlink('README.txt', { ref: "dev" })
 ```
 
-#### fs.move: Rename a file
+##### fs.move: Rename a file
 
 ```js
 /// On default branch
@@ -146,6 +146,13 @@ fs.mergeBranches("dev", "master", {
 })
 ```
 
+##### Working with commits
+
+```js
+// List commits
+fs.listCommits({ ref: "dev" }).then(function(commits) { ... });
+
+```
 
 ### Drivers
 
