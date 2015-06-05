@@ -1,8 +1,8 @@
 # repofs
 
-`fs` like api to work with Git repositories, both locally and on GitHub. This library can work in the browser using the GitHub API.
+This module provides a simple and unified API to manipulate Git repositories, locally or using GitHub API. This module can be use in Node.JS and in the browser.
 
-The API provided by this module is Pronise-based.
+The API provided by this module is Promise-based.
 
 ### Installation
 
