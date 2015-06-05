@@ -22,13 +22,25 @@ var DriverLocal = require('repofs/drivers/local');
 var DriverGitHub = require('repofs/drivers/github');
 ```
 
-The first step is to create an fs instance,
-
-For example to connect to a local git repository:
+The first step is to create an fs instance, for example to connect to a local git repository:
 
 ```js
 var fs = repofs(DriverLocal, {
     root: './mygitrepo',
+    commiter: {
+        name: "John Doe",
+        email: "johndoe@gmail.com"
+    }
+});
+```
+
+or a remote GitHub repository:
+
+```js
+var fs = repofs(DriverGitHub, {
+    repository: 'MyUsername/myrepository',
+    username: 'MyUsername',
+    token: 'MyPasswordOrMyApiToken',
     commiter: {
         name: "John Doe",
         email: "johndoe@gmail.com"
