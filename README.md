@@ -149,6 +149,15 @@ fs.mergeBranches("dev", "master", {
 })
 ```
 
+A branch is defined by:
+
+```js
+{
+    name: "master",
+    commit: "..."
+}
+```
+
 ##### Working with commits
 
 ```js
