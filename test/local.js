@@ -10,6 +10,10 @@ describe('Local Driver', function() {
         root: path.resolve(__dirname, '../')
     });
 
+    it('should have correct type "local"', function() {
+        fs.type.should.equal('local');
+    });
+
     describe('fs.stat', function() {
         it('should correctly return info for a file', function() {
             return fs.stat('README.md')

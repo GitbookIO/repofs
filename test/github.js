@@ -10,6 +10,10 @@ describe('GitHub Driver', function() {
         repository: 'GitbookIO/gitbook'
     });
 
+    it('should have correct type "github"', function() {
+        fs.type.should.equal('github');
+    });
+
     describe('fs.stat', function() {
         it('should correctly return info for a file', function() {
             return fs.stat('README.md')
