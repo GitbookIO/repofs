@@ -67,5 +67,14 @@ describe('Local Driver', function() {
         });
     });
 
+    describe('fs.listBranches', function() {
+        it('should correctly return branches', function() {
+            return fs.listBranches()
+            .then(function(branches) {
+                _.find(branches, { name: "master"}).should.have.property('commit');
+            });
+        });
+    });
+
 });
 
