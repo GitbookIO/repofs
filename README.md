@@ -53,6 +53,7 @@ fs.stat('README.txt', { ref: "dev" })
     name: "README.md",
     path: "folder/README.md",
     type: "file",
+    isDirectory: false,
     sha: "...."
 }
 ```
