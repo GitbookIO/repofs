@@ -1,9 +1,9 @@
 {
     "name": "repofs",
-    "version": "0.0.0",
+    "version": "1.0.0",
     "main": "lib/index.js",
     "author": "GitBook <contact@gitbook.com>",
-    "description": "",
+    "description": "Simple and unified API to manipulate Git repositories",
     "bugs": "https://github.com/GitbookIO/repofs/issues",
     "license": "Apache-2.0",
     "engines": {
