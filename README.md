@@ -84,7 +84,7 @@ fs.read('README.txt', { ref: "dev" })
 
 ##### fs.write: Update file content
 
-This method will fail if the file doesnt't exist. If the file doesn't exists, you should use `fs.create`.
+This method will fail if the file doesnt't exist. If the file doesn't exists, you should use `fs.create`. You can also use `fs.update` to orce creation if file doesn't exist.
 
 ```js
 /// On default branch
@@ -131,6 +131,8 @@ fs.unlink('README.txt', { ref: "dev" })
 ```
 
 ##### fs.move: Rename a file
+
+(`fs.rename` is an alias of this method).
 
 ```js
 /// On default branch
