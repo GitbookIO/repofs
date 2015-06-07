@@ -180,6 +180,17 @@ fs.listCommits({ ref: "dev" }).then(function(commits) { ... });
 
 ```
 
+##### Events
+
+```js
+// File watcher
+// Path of the file is accessible using e.path
+fs.on('watch.add', function(e) {  });
+fs.on('watch.unlink', function(e) {  })
+fs.on('watch.change', function(e) {  })
+```
+
+
 ### Drivers
 
 | Driver | Browser | Node.js |
