@@ -197,4 +197,5 @@ fs.on('watch.change', function(e) {  })
 | ---- | ------- | ------- | ---- |
 | `var DriverLocal = require('repofs/drivers/local');` | no | **yes** | `repofs.local()` |
 | `var DriverGitHub = require('repofs/drivers/github');` | **yes** | **yes**  |
-
+| `var DriverMemory = require('repofs/drivers/memory');` | **yes** | **yes**  |
+| `var DriverLocalStorage = require('repofs/drivers/localstorage');` | **yes** | no  |
