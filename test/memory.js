@@ -47,6 +47,10 @@ describe('Memory Driver', function() {
         it('should correctly create a file', function() {
             return fs.create('lib/main.js', 'test 2').should.be.fulfilled;
         });
+
+        it('should correctly create a file inside a folder', function() {
+            return fs.create('lib/test/main.js', 'test 2').should.be.fulfilled;
+        });
     });
 
     describe('fs.readdir', function() {
@@ -66,6 +70,8 @@ describe('Memory Driver', function() {
             .then(function(files) {
                 files.should.not.have.property('README.md');
                 files.should.have.property('main.js');
+                files.should.have.property('test');
+                files.test.isDirectory.should.equal(true);
                 (_.size(files) > 0).should.equal(true);
             });
         });
