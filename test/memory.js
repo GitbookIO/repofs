@@ -5,7 +5,7 @@ var _ = require('lodash');
 var repofs = require('../');
 var DriverMemory = require('../lib/drivers/memory');
 
-describe('Memory Driver', function() {
+describe.only('Memory Driver', function() {
     var fs = repofs(DriverMemory, {
         files: {
             'README.md': "Hello world"
