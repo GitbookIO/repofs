@@ -172,12 +172,25 @@ A branch is defined by:
 }
 ```
 
-##### Working with commits
+##### List commits on the repository
 
 ```js
 // List commits
 fs.listCommits({ ref: "dev" }).then(function(commits) { ... });
+```
 
+`commits` will be a list like of object like:
+
+```js
+{
+    "sha": "...",
+    "author": {
+        "name": "Samy Pesse",
+        "email": "samypesse@gmail.com"
+    },
+    "message": "Create file hello.js",
+    "date": [Date Object]
+}
 ```
 
 ##### Events
