@@ -193,7 +193,7 @@ fs.listCommits({ ref: "dev" }).then(function(commits) { ... });
 }
 ```
 
-##### Get specific commit
+##### Get a single commit
 
 ```js
 fs.getCommit("sha", { ref: "dev" }).then(function(commit) { ... });
