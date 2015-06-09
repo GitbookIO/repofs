@@ -193,6 +193,33 @@ fs.listCommits({ ref: "dev" }).then(function(commits) { ... });
 }
 ```
 
+##### Get specific commit
+
+```js
+fs.getCommit("sha", { ref: "dev" }).then(function(commit) { ... });
+```
+
+`commit` will also include a `files` attribute, example:
+
+```js
+{
+    "sha": "415ab40ae9b7cc4e66d6769cb2c08106e8293b48",
+    "author": {
+        "name": "John Doe",
+        "email": "johndoe@gmail.com"
+    },
+    "message": "Initial commit",
+    "date": "2015-06-09T08:10:38.260Z",
+    "files": [
+        {
+            "path": "README.md",
+            "content": "@@ -0,0 +1,11 @@\n+Hello world\n"
+        }
+    ]
+}
+
+```
+
 ##### Events
 
 ```js
