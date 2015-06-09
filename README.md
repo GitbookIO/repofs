@@ -212,8 +212,8 @@ fs.getCommit("sha", { ref: "dev" }).then(function(commit) { ... });
     "date": "2015-06-09T08:10:38.260Z",
     "files": [
         {
-            "path": "README.md",
-            "content": "@@ -0,0 +1,11 @@\n+Hello world\n"
+            "filename": "README.md",
+            "patch": "@@ -0,0 +1,11 @@\n+Hello world\n"
         }
     ]
 }
