@@ -8,7 +8,11 @@ var GitHubLocal = require('../lib/drivers/github');
 describe('GitHub Driver', function() {
     var commit;
     var fs = repofs(GitHubLocal, {
-        repository: 'GitbookIO/gitbook'
+        repository: 'GitbookIO/gitbook',
+        commiter: {
+            name: "John Doe",
+            email: "johndoe@gmail.com"
+        }
     });
 
     it('should have correct type "github"', function() {

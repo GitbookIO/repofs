@@ -8,7 +8,11 @@ var DriverLocal = require('../lib/drivers/local');
 describe('Local Driver', function() {
     var commit;
     var fs = repofs(DriverLocal, {
-        root: path.resolve(__dirname, '../')
+        root: path.resolve(__dirname, '../'),
+        commiter: {
+            name: "John Doe",
+            email: "johndoe@gmail.com"
+        }
     });
 
     it('should have correct type "local"', function() {
