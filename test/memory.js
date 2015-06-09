@@ -5,8 +5,12 @@ var _ = require('lodash');
 var repofs = require('../');
 var DriverMemory = require('../lib/drivers/memory');
 
-describe.only('Memory Driver', function() {
+describe('Memory Driver', function() {
     var fs = repofs(DriverMemory, {
+        commiter: {
+            name: "John Doe",
+            email: "johndoe@gmail.com"
+        },
         files: {
             'README.md': "Hello world"
         }
@@ -108,6 +112,15 @@ describe.only('Memory Driver', function() {
             })
             .then(function(branches) {
                 if (_.find(branches, { name: "dev"})) throw "error";
+            });
+        });
+    });
+
+    describe('fs.listCommits', function() {
+        it('should correctly list from master', function() {
+            return fs.listCommits()
+            .then(function(commits) {
+
             });
         });
     });
