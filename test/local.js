@@ -6,6 +6,7 @@ var repofs = require('../');
 var DriverLocal = require('../lib/drivers/local');
 
 describe('Local Driver', function() {
+    var commit;
     var fs = repofs(DriverLocal, {
         root: path.resolve(__dirname, '../')
     });
@@ -76,6 +77,24 @@ describe('Local Driver', function() {
             return fs.listBranches()
             .then(function(branches) {
                 _.find(branches, { name: "master"}).should.have.property('commit');
+            });
+        });
+    });
+
+    describe('fs.listCommits', function() {
+        it('should correctly list from master', function() {
+            return fs.listCommits()
+            .then(function(commits) {
+                commit = _.first(commits);
+            });
+        });
+    });
+
+    describe('fs.getCommit', function() {
+        it('should correctly get a commit', function() {
+            return fs.getCommit(commit.sha)
+            .then(function(_commit) {
+                _commit.message.should.equal(commit.message);
             });
         });
     });

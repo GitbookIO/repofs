@@ -6,6 +6,7 @@ var repofs = require('../');
 var DriverMemory = require('../lib/drivers/memory');
 
 describe('Memory Driver', function() {
+    var commit;
     var fs = repofs(DriverMemory, {
         commiter: {
             name: "John Doe",
@@ -120,7 +121,16 @@ describe('Memory Driver', function() {
         it('should correctly list from master', function() {
             return fs.listCommits()
             .then(function(commits) {
+                commit = _.first(commits);
+            });
+        });
+    });
 
+    describe('fs.getCommit', function() {
+        it('should correctly get a commit', function() {
+            return fs.getCommit(commit.sha)
+            .then(function(_commit) {
+                _commit.message.should.equal(commit.message);
             });
         });
     });
