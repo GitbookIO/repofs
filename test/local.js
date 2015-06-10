@@ -6,7 +6,7 @@ var exec = require('child_process').exec;
 var repofs = require('../');
 var DriverLocal = require('../lib/drivers/local');
 
-describe('Local Driver', function() {
+describe.only('Local Driver', function() {
     var commit, fs;
 
     before(function() {
@@ -111,10 +111,23 @@ describe('Local Driver', function() {
         });
     });
 
+    describe('fs.createBranch', function() {
+        it('should correctly create a branch', function() {
+            return fs.createBranch("dev");
+        });
+    });
+
+    describe('fs.removeBranch', function() {
+        it('should correctly remove a branch', function() {
+            return fs.removeBranch("dev");
+        });
+    });
+
     describe('fs.listCommits', function() {
         it('should correctly list from master', function() {
             return fs.listCommits()
             .then(function(commits) {
+                commits.length.should.be.gt(1);
                 commit = _.first(commits);
             });
         });
