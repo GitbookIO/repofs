@@ -44,17 +44,26 @@ describe('Memory Driver', function() {
 
     describe('fs.write', function() {
         it('should correctly write existing file', function() {
-            return fs.write('README.md', 'test').should.be.fulfilled;
+            return fs.write('README.md', 'test')
+            .then(function() {
+                return fs.read('README.md').should.eventually.equal("test");
+            });
         });
     });
 
     describe('fs.create', function() {
         it('should correctly create a file', function() {
-            return fs.create('lib/main.js', 'test 2').should.be.fulfilled;
+            return fs.create('lib/main.js', 'test 2')
+            .then(function() {
+                return fs.read('lib/main.js').should.eventually.equal("test 2");
+            });
         });
 
         it('should correctly create a file inside a folder', function() {
-            return fs.create('lib/test/main.js', 'test 2').should.be.fulfilled;
+            return fs.create('lib/test/main.js', 'test 2')
+            .then(function() {
+                return fs.read('lib/test/main.js').should.eventually.equal("test 2");
+            });
         });
     });
 
