@@ -82,9 +82,13 @@ fs.stat('README.txt', { ref: "dev" })
     isDirectory: false,
     size: 546,
     sha: "....",
-    content: "...."
+    content: "....",
+    mime: "application/octet-stream",
+    url: "file://..."
 }
 ```
+
+The `url` can be an `http(s)` url (for GitHub), or a `data` url (for Memory and LocalStore).
 
 ##### fs.read: Read file's content
 

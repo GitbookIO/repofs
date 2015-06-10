@@ -6,7 +6,7 @@ var exec = require('child_process').exec;
 var repofs = require('../');
 var DriverLocal = require('../lib/drivers/local');
 
-describe.only('Local Driver', function() {
+describe('Local Driver', function() {
     var commit, fs;
 
     before(function() {
