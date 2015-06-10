@@ -1,5 +1,8 @@
 # repofs
 
+[![NPM version](https://badge.fury.io/js/repofs.svg)](http://badge.fury.io/js/repofs)
+[![Build Status](https://travis-ci.org/GitbookIO/repofs.png?branch=master)](https://travis-ci.org/GitbookIO/repofs)
+
 This module provides a simple and unified API to manipulate Git repositories, locally or using GitHub API. This module can be use in Node.JS and in the browser.
 
 The API provided by this module is Promise-based.
