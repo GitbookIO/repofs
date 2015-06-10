@@ -51,6 +51,17 @@ var fs = repofs(DriverGitHub, {
 });
 ```
 
+
+##### Drivers
+
+| Driver | Browser | Node.js |
+| ---- | ------- | ------- | ---- |
+| `var DriverLocal = require('repofs/drivers/local');` | no | **yes** | `repofs.local()` |
+| `var DriverGitHub = require('repofs/drivers/github');` | **yes** | **yes**  |
+| `var DriverMemory = require('repofs/drivers/memory');` | **yes** | **yes**  |
+| `var DriverLocalStorage = require('repofs/drivers/localstorage');` | **yes** | no  |
+
+
 ##### fs.stat: Get informations about a file
 
 ```js
@@ -242,13 +253,3 @@ fs.on('watch.add', function(e) {  });
 fs.on('watch.unlink', function(e) {  })
 fs.on('watch.change', function(e) {  })
 ```
-
-
-### Drivers
-
-| Driver | Browser | Node.js |
-| ---- | ------- | ------- | ---- |
-| `var DriverLocal = require('repofs/drivers/local');` | no | **yes** | `repofs.local()` |
-| `var DriverGitHub = require('repofs/drivers/github');` | **yes** | **yes**  |
-| `var DriverMemory = require('repofs/drivers/memory');` | **yes** | **yes**  |
-| `var DriverLocalStorage = require('repofs/drivers/localstorage');` | **yes** | no  |
