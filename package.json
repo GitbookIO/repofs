@@ -13,7 +13,6 @@
         "q": "1.3.0",
         "lodash": "^3.9.3",
         "axios": "0.5.4",
-        "js-base64": "2.1.8",
         "gittle": "0.2.4",
         "diff-match-patch-node": "0.9.1"
     },

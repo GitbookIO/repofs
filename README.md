@@ -82,6 +82,13 @@ fs.read('README.txt').then(function(content) { ... });
 fs.read('README.txt', { ref: "dev" })
 ```
 
+By default content is returned as an utf8 string, to read file's content as an `ArrayBuffer`, you can use the `encoding` option:
+
+```js
+// Get content as an ArrayBuffer
+fs.read('README.txt', { encoding: null })
+```
+
 ##### fs.write: Update file content
 
 This method will fail if the file doesnt't exist. If the file doesn't exists, you should use `fs.create`. You can also use `fs.update` to orce creation if file doesn't exist.
@@ -96,6 +103,9 @@ fs.write('README.txt', 'My new content', { ref: "dev" })
 // With a specific commit message
 // By default, the message will be "Update <path>"
 fs.write('README.txt', 'My new content', { message: "My super commit" })
+
+// With an binary array buffer
+fs.write('image.png', new ArrayBuffer(10));
 ```
 
 ##### fs.exists: Check if a file exists
