@@ -54,16 +54,13 @@ describe('Memory Driver', function() {
     describe('fs.create', function() {
         it('should correctly create a file', function() {
             return fs.create('lib/main.js', 'test 2')
-            .then(function() {
-                return fs.read('lib/main.js').should.eventually.equal("test 2");
+            .then(function(fp) {
+                fp.content.should.equal('test 2');
             });
         });
 
         it('should correctly create a file inside a folder', function() {
-            return fs.create('lib/test/main.js', 'test 2')
-            .then(function() {
-                return fs.read('lib/test/main.js').should.eventually.equal("test 2");
-            });
+            return fs.create('lib/test/main.js', 'test 2');
         });
     });
 
