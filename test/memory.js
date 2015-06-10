@@ -34,7 +34,7 @@ describe('Memory Driver', function() {
 
     describe('fs.read', function() {
         it('should correctly read from master', function() {
-            return fs.read('README.md').should.be.fulfilled;
+            return fs.read('README.md').should.eventually.equal("Hello world");
         });
 
         it('should fail for file out of the repo', function() {
