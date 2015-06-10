@@ -100,6 +100,10 @@ describe.only('Local Driver', function() {
         it('should fail to write non existant file', function() {
             return fs.write('README_nonexistant.md', 'test').should.be.rejected;
         });
+
+        it('should fail to write in a non existant branch', function() {
+            return fs.write('README.md', 'test', { ref: "invalid" }).should.be.rejected;
+        });
     });
 
     describe('fs.listBranches', function() {
@@ -114,6 +118,13 @@ describe.only('Local Driver', function() {
     describe('fs.createBranch', function() {
         it('should correctly create a branch', function() {
             return fs.createBranch("dev");
+        });
+
+        it('should correctly write to a new branch', function() {
+            return fs.create('README.md', 'Hello 2', { ref: "dev" })
+            .then(function(fp) {
+                fp.content.should.equal('Hello 2');
+            });
         });
     });
 
