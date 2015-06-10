@@ -1,18 +1,27 @@
 var Q = require('q');
 var path = require('path');
 var _ = require('lodash');
+var exec = require('child_process').exec;
 
 var repofs = require('../');
 var DriverLocal = require('../lib/drivers/local');
 
 describe('Local Driver', function() {
-    var commit;
-    var fs = repofs(DriverLocal, {
-        root: path.resolve(__dirname, '../'),
-        commiter: {
-            name: "John Doe",
-            email: "johndoe@gmail.com"
-        }
+    var commit, fs;
+
+    before(function() {
+        var repoRoot = path.resolve(__dirname, './_local');
+
+        return Q.nfcall(exec, 'rm -rf _local && git init _local && cd _local && touch README.md && git add README.md && git commit -m "Initial commit"', { cwd: __dirname })
+        .then(function() {
+            fs = repofs(DriverLocal, {
+                root: repoRoot,
+                commiter: {
+                    name: "John Doe",
+                    email: "johndoe@gmail.com"
+                }
+            });
+        });
     });
 
     it('should have correct type "local"', function() {
@@ -26,14 +35,30 @@ describe('Local Driver', function() {
                 file.type.should.equal('file');
                 file.name.should.equal('README.md');
                 file.path.should.equal('README.md');
-                file.content.should.have.string('repofs');
+                file.content.should.equal('');
+            });
+        });
+    });
+
+    describe('fs.create', function() {
+        it('should correctly create a file', function() {
+            return fs.create('README.md', 'Hello')
+            .then(function(fp) {
+                fp.content.should.equal('Hello');
+            });
+        });
+
+        it('should correctly create a file in a subdirectory', function() {
+            return fs.create('lib/main.js', 'Hello 2')
+            .then(function(fp) {
+                fp.content.should.equal('Hello 2');
             });
         });
     });
 
     describe('fs.read', function() {
         it('should correctly read from master', function() {
-            return fs.read('README.md').should.eventually.have.string('repofs');
+            return fs.read('README.md').should.eventually.equal('Hello');
         });
 
         it('should fail for file out of the repo', function() {
