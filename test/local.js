@@ -26,13 +26,14 @@ describe('Local Driver', function() {
                 file.type.should.equal('file');
                 file.name.should.equal('README.md');
                 file.path.should.equal('README.md');
+                file.content.should.have.string('repofs');
             });
         });
     });
 
     describe('fs.read', function() {
         it('should correctly read from master', function() {
-            return fs.read('README.md').should.be.fulfilled;
+            return fs.read('README.md').should.eventually.have.string('repofs');
         });
 
         it('should fail for file out of the repo', function() {
