@@ -253,7 +253,11 @@ fs.getCommit("sha", { ref: "dev" }).then(function(commit) { ... });
 ```js
 // File watcher
 // Path of the file is accessible using e.path
-fs.on('watch.add', function(e) {  });
-fs.on('watch.unlink', function(e) {  })
-fs.on('watch.change', function(e) {  })
+fs.on('watcher.add', function(e) {  });
+fs.on('watcher.unlink', function(e) {  })
+fs.on('watcher.change', function(e) {  })
+
+// Or watch all changes (add, unlink and change):
+// e.type is the type of change
+fs.on('watcher', function(e) {  });
 ```
