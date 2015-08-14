@@ -4,6 +4,7 @@ var _ = require('lodash');
 var exec = require('child_process').exec;
 
 var repofs = require('../');
+var Gittle = require('gittle');
 var DriverLocal = require('../lib/drivers/local');
 
 describe('Local Driver', function() {
@@ -15,7 +16,7 @@ describe('Local Driver', function() {
         return Q.nfcall(exec, 'rm -rf _local && git init _local && cd _local && touch README.md && git add README.md && git commit -m "Initial commit"', { cwd: __dirname })
         .then(function() {
             fs = repofs(DriverLocal, {
-                root: repoRoot,
+                repo: new Gittle(repoRoot),
                 commiter: {
                     name: "John Doe",
                     email: "johndoe@gmail.com"

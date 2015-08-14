@@ -20,16 +20,17 @@ To use `repofs` in the browser, include it using browserify.
 ```js
 var repofs = require('repofs');
 
-// Require drivers
-var DriverLocal = require('repofs/drivers/local');
-var DriverGitHub = require('repofs/drivers/github');
+// Require the driver
+var DriverGitHub = require('repofs/lib/drivers/github');
 ```
 
-The first step is to create an fs instance, for example to connect to a local git repository:
+The first step is to create an fs instance, for example to connect to a remote GitHub repository:
 
 ```js
-var fs = repofs(DriverLocal, {
-    root: './mygitrepo',
+var fs = repofs(DriverGitHub, {
+    repository: 'MyUsername/myrepository',
+    username: 'MyUsername',
+    token: 'MyPasswordOrMyApiToken',
     commiter: {
         name: "John Doe",
         email: "johndoe@gmail.com"
@@ -37,13 +38,14 @@ var fs = repofs(DriverLocal, {
 });
 ```
 
-or a remote GitHub repository:
+To use it with a local repository, you'll need to install `gittle`:
 
 ```js
-var fs = repofs(DriverGitHub, {
-    repository: 'MyUsername/myrepository',
-    username: 'MyUsername',
-    token: 'MyPasswordOrMyApiToken',
+var DriverLocal = require('repofs/lib/drivers/local');
+var Gittle = require('gittle');
+
+var fs = repofs(DriverLocal, {
+    repo: new Gittle('./myrepo'),
     commiter: {
         name: "John Doe",
         email: "johndoe@gmail.com"
