@@ -21,7 +21,7 @@ To use `repofs` in the browser, include it using browserify.
 var repofs = require('repofs');
 
 // Require the driver
-var DriverGitHub = require('repofs/drivers/github');
+var DriverGitHub = require('repofs/lib/drivers/github');
 ```
 
 The first step is to create an fs instance, for example to connect to a remote GitHub repository:
@@ -41,7 +41,7 @@ var fs = repofs(DriverGitHub, {
 To use it with a local repository, you'll need to install `gittle`:
 
 ```js
-var DriverLocal = require('repofs/drivers/local');
+var DriverLocal = require('repofs/lib/drivers/local');
 var Gittle = require('gittle');
 
 var fs = repofs(DriverLocal, {
