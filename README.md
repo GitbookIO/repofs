@@ -250,6 +250,31 @@ fs.getCommit("sha", { ref: "dev" }).then(function(commit) { ... });
 
 ```
 
+
+##### Push/Pull
+
+```js
+// Push a branch to origin
+fs.push({
+    branch: "dev"
+})
+
+// Push to a specific remote
+fs.push({
+    remote: {
+        name: "myremote",
+        url: "https://github.com/GitbookIO/repofs.git"
+    }
+})
+
+// Force push
+fs.push({
+    force: true
+})
+```
+
+`fs.pull` uses the same options as `fs.push`
+
 ##### Events
 
 ```js
