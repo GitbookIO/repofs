@@ -8,7 +8,7 @@ var DriverMemory = require('../lib/drivers/memory');
 describe('Memory Driver', function() {
     var commit;
     var fs = repofs(DriverMemory, {
-        commiter: {
+        committer: {
             name: "John Doe",
             email: "johndoe@gmail.com"
         },

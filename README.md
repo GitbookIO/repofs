@@ -31,7 +31,7 @@ var fs = repofs(DriverGitHub, {
     repository: 'MyUsername/myrepository',
     username: 'MyUsername',
     token: 'MyPasswordOrMyApiToken',
-    commiter: {
+    committer: {
         name: "John Doe",
         email: "johndoe@gmail.com"
     }
@@ -46,7 +46,7 @@ var Gittle = require('gittle');
 
 var fs = repofs(DriverLocal, {
     repo: new Gittle('./myrepo'),
-    commiter: {
+    committer: {
         name: "John Doe",
         email: "johndoe@gmail.com"
     }

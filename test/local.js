@@ -17,7 +17,7 @@ describe('Local Driver', function() {
         .then(function() {
             fs = repofs(DriverLocal, {
                 repo: new Gittle(repoRoot),
-                commiter: {
+                committer: {
                     name: "John Doe",
                     email: "johndoe@gmail.com"
                 }

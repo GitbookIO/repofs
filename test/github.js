@@ -9,7 +9,7 @@ describe('GitHub Driver', function() {
     var commit;
     var fs = repofs(GitHubLocal, {
         repository: 'GitbookIO/gitbook',
-        commiter: {
+        committer: {
             name: "John Doe",
             email: "johndoe@gmail.com"
         }
