@@ -3,11 +3,10 @@ var _ = require('lodash');
 var path = require('path');
 
 var repofs = require('../');
-var GitHubLocal = require('../lib/drivers/github');
 
 describe('GitHub Driver', function() {
     var commit;
-    var fs = repofs(GitHubLocal, {
+    var fs = repofs({
         repository: 'GitbookIO/gitbook',
         committer: {
             name: "John Doe",
@@ -99,6 +98,16 @@ describe('GitHub Driver', function() {
             return fs.getCommit(commit.sha)
             .then(function(_commit) {
                 _commit.message.should.equal(commit.message);
+            });
+        });
+    });
+
+    describe.only('fs.compareCommits', function() {
+        it('should correctly compare two commits', function() {
+            return fs.compareCommits('cefd8fc50f1285ab4be2bd869503282b2a9fa5ae', 'a972b327694b8facd2295cdca17886a6da27c2cb')
+            .then(function(result) {
+                result.status.should.equal('ahead');
+                result.total_commits.should.equal(6);
             });
         });
     });
