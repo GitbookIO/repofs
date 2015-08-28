@@ -3,11 +3,10 @@ var _ = require('lodash');
 var path = require('path');
 
 var repofs = require('../');
-var GitHubLocal = require('../lib/drivers/github');
 
 describe('GitHub Driver', function() {
     var commit;
-    var fs = repofs(GitHubLocal, {
+    var fs = repofs({
         repository: 'GitbookIO/gitbook',
         committer: {
             name: "John Doe",
