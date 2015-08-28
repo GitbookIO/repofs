@@ -7,6 +7,13 @@ This module provides a simple and unified API to manipulate Git repositories, lo
 
 The API provided by this module is Promise-based.
 
+### Features
+
+- :sparkles: Promise-based API
+- :sparkles: Easy to use API
+- :sparkles: Supports ArrayBuffer for reading/writing files
+- :soon: Bundle multiple changes in one commit
+
 ### Installation
 
 ```
@@ -19,15 +26,12 @@ To use `repofs` in the browser, include it using browserify.
 
 ```js
 var repofs = require('repofs');
-
-// Require the driver
-var DriverGitHub = require('repofs/lib/drivers/github');
 ```
 
 The first step is to create an fs instance, for example to connect to a remote GitHub repository:
 
 ```js
-var fs = repofs(DriverGitHub, {
+var fs = repofs({
     repository: 'MyUsername/myrepository',
     username: 'MyUsername',
     token: 'MyPasswordOrMyApiToken',
@@ -37,32 +41,6 @@ var fs = repofs(DriverGitHub, {
     }
 });
 ```
-
-To use it with a local repository, you'll need to install `gittle`:
-
-```js
-var DriverLocal = require('repofs/lib/drivers/local');
-var Gittle = require('gittle');
-
-var fs = repofs(DriverLocal, {
-    repo: new Gittle('./myrepo'),
-    committer: {
-        name: "John Doe",
-        email: "johndoe@gmail.com"
-    }
-});
-```
-
-
-##### Drivers
-
-| Driver | Browser | Node.js |
-| ---- | ------- | ------- | ---- |
-| `var DriverLocal = require('repofs/drivers/local');` | no | **yes** | `repofs.local()` |
-| `var DriverGitHub = require('repofs/drivers/github');` | **yes** | **yes**  |
-| `var DriverMemory = require('repofs/drivers/memory');` | **yes** | **yes**  |
-| `var DriverLocalStorage = require('repofs/drivers/localstorage');` | **yes** | no  |
-
 
 ##### fs.stat: Get informations about a file
 
@@ -247,8 +225,15 @@ fs.getCommit("sha", { ref: "dev" }).then(function(commit) { ... });
         }
     ]
 }
-
 ```
+
+##### Compare two commits
+
+```js
+fs.compareCommits("hubot:branchname", "octocat:branchname").then(function(result) { ... });
+```
+
+`result` will also include `files` and `commits` attribute.
 
 
 ##### Push/Pull
