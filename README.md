@@ -236,7 +236,7 @@ fs.compareCommits("hubot:branchname", "octocat:branchname").then(function(result
 `result` will also include `files` and `commits` attribute.
 
 
-##### Push/Pull
+##### Working with remotes
 
 ```js
 // Push a branch to origin
@@ -249,6 +249,18 @@ fs.push({
     remote: {
         name: "myremote",
         url: "https://github.com/GitbookIO/repofs.git"
+    }
+})
+
+// Fetch a specific remote with authentication
+fs.fetch({
+    remote: {
+        name: "myremote",
+        url: "https://github.com/GitbookIO/repofs.git"
+    },
+    auth: {
+        username: "John",
+        password: "mysecret"
     }
 })
 
