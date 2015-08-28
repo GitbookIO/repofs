@@ -177,7 +177,7 @@ A branch is defined by:
 ```js
 {
     name: "master",
-    commit: "..."
+    commit: { ... }
 }
 ```
 
