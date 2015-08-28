@@ -271,7 +271,7 @@ fs.push({
 })
 ```
 
-`fs.pull` uses the same options as `fs.push`
+`fs.pull` uses the same options as `fs.push`. You can also use `fs.sync` whic is equivalent to pushing then pulling changes.
 
 ##### Events
 
