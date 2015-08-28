@@ -11,7 +11,8 @@ The API provided by this module is Promise-based.
 
 - :sparkles: Promise-based API
 - :sparkles: Easy to use API
-- :sparkles: Supports ArrayBuffer for reading/writing files
+- :sparkles: Supports ArrayBuffer for reading/writing files without encoding issues
+- :sparkles: Parse patches
 - :soon: Bundle multiple changes in one commit
 
 ### Installation
