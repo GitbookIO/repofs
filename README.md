@@ -286,6 +286,25 @@ fs.push({
 
 `fs.pull` uses the same options as `fs.push`. You can also use `fs.sync` whic is equivalent to pushing then pulling changes.
 
+##### Uncommited changes
+
+Uncommited changes can be listed:
+
+```js
+var changes = fs.listChanges({ ref: 'master' });
+// changes will be a map: filanem -> {type, buffer}
+```
+
+And revert:
+
+```js
+// Revert change on a file
+fs.revertChange('README.md', { ref: 'master' });
+
+// Revert all pending changes
+fs.revertAllChanges({ ref: 'master' });
+```
+
 ##### Operations
 
 Repofs has a concept of "operations stack", to easily group changes:
