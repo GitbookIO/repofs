@@ -286,6 +286,28 @@ fs.push({
 
 `fs.pull` uses the same options as `fs.push`. You can also use `fs.sync` whic is equivalent to pushing then pulling changes.
 
+##### Operations
+
+Repofs has a concept of "operations stack", to easily group changes:
+
+```js
+fs.operation('First commit', function() {
+    return Q.all([
+        fs.write('package.json', '{ ... }'),
+        fs.write('index.js', '...'),
+        fs.write('README.md', '...')
+    ]);
+});
+```
+
+We can also automatically commit once the stack is empty:
+
+```js
+fs.on('operations.allcompleted', function() {
+    fs.commit();
+});
+```
+
 ##### Events
 
 ```js
