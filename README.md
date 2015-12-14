@@ -107,6 +107,19 @@ fs.write('README.txt', 'My new content', { message: "My super commit" })
 fs.write('image.png', new ArrayBuffer(10));
 ```
 
+##### fs.commit: Commit changes
+
+Commit all changes to the driver.
+
+```js
+// Commit changes on a specific branch
+// Commit message will be the last change's message
+fs.commit("master")
+
+// Commit with a different message
+fs.commit("master", { message: 'My Commit' })
+```
+
 ##### fs.exists: Check if a file exists
 
 ```js
