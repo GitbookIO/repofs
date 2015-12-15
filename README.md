@@ -13,7 +13,7 @@ The API provided by this module is Promise-based.
 - :sparkles: Easy to use API
 - :sparkles: Supports ArrayBuffer for reading/writing files without encoding issues
 - :sparkles: Parse patches
-- :soon: Bundle multiple changes in one commit
+- :sparkles: Bundle multiple changes in one commit
 
 ### Installation
 
@@ -314,14 +314,33 @@ fs.on('operations.allcompleted', function() {
 
 ##### Events
 
-```js
-// File watcher
-// Path of the file is accessible using e.path
-fs.on('watcher.add', function(e) {  });
-fs.on('watcher.unlink', function(e) {  })
-fs.on('watcher.change', function(e) {  })
+File watcher (Path of the file is accessible using `e.path`):
 
-// Or watch all changes (add, unlink and change):
+```js
+fs.on('watcher.create', function(e) {  })
+fs.on('watcher.remove', function(e) {  })
+fs.on('watcher.update', function(e) {  })
+
+// Or watch all changes (create, remove and update):
 // e.type is the type of change
-fs.on('watcher', function(e) {  });
+fs.on('watcher', function(e) {  })
 ```
+
+Branches:
+
+```js
+fs.on('branches.add', function(e) {  })
+fs.on('branches.remove', function(e) {  })
+
+// e.type is the type of change
+fs.on('branches')
+```
+
+Operations:
+
+```js
+fs.on('operations.started', function(e) { })
+fs.on('operations.completed', function(e) { })
+fs.on('operations.allcompleted', function(e) { })
+```
+
