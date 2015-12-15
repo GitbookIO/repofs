@@ -43,14 +43,18 @@ var fs = repofs({
 });
 ```
 
+##### fs.checkout: Select a branch
+
+The first step is to select a branch to use:
+
+```js
+fs.checkout('master').then(function() { ... })
+```
+
 ##### fs.stat: Get informations about a file
 
 ```js
-/// On default branch
 fs.stat('README.txt').then(function(file) { ... });
-
-/// On a specific branch
-fs.stat('README.txt', { ref: "dev" })
 ```
 
 `file` will look like:
@@ -74,11 +78,7 @@ The `url` can be an `http(s)` url (for GitHub), or a `data` url (for Memory and 
 ##### fs.read: Read file's content
 
 ```js
-/// On default branch
 fs.read('README.txt').then(function(content) { ... });
-
-/// On a specific branch
-fs.read('README.txt', { ref: "dev" })
 ```
 
 By default content is returned as an utf8 string, to read file's content as an `ArrayBuffer`, you can use the `encoding` option:
@@ -96,9 +96,6 @@ This method will fail if the file doesnt't exist. If the file doesn't exists, yo
 /// On default branch
 fs.write('README.txt', 'My new content')
 
-/// On a specific branch
-fs.write('README.txt', 'My new content', { ref: "dev" })
-
 // With a specific commit message
 // By default, the message will be "Update <path>"
 fs.write('README.txt', 'My new content', { message: "My super commit" })
@@ -114,10 +111,10 @@ Commit all changes to the driver.
 ```js
 // Commit changes on a specific branch
 // Commit message will be the last change's message
-fs.commit("master")
+fs.commit()
 
 // Commit with a different message
-fs.commit("master", { message: 'My Commit' })
+fs.commit({ message: 'My Commit' })
 ```
 
 ##### fs.exists: Check if a file exists
@@ -125,9 +122,6 @@ fs.commit("master", { message: 'My Commit' })
 ```js
 /// On default branch
 fs.exists('README.txt').then(function(exist) { ... });
-
-/// On a specific branch
-fs.exists('README.txt', { ref: "dev" })
 ```
 
 ##### fs.readdir: List directory content
@@ -135,9 +129,6 @@ fs.exists('README.txt', { ref: "dev" })
 ```js
 /// On default branch
 fs.readdir('myfolder').then(function(files) { ... });
-
-/// On a specific branch
-fs.readdir('myfolder', { ref: "dev" })
 ```
 
 `files` is a map fo `fileName => fileInfos`.
@@ -147,9 +138,6 @@ fs.readdir('myfolder', { ref: "dev" })
 ```js
 /// On default branch
 fs.unlink('README.txt').then(function() { ... });
-
-/// On a specific branch
-fs.unlink('README.txt', { ref: "dev" })
 ```
 
 ##### fs.move: Rename a file
@@ -159,9 +147,6 @@ fs.unlink('README.txt', { ref: "dev" })
 ```js
 /// On default branch
 fs.move('README.txt', 'README2.txt').then(function() { ... });
-
-/// On a specific branch
-fs.move('README.txt', 'README2.txt', { ref: "dev" })
 ```
 
 ##### Working with branches
@@ -218,7 +203,7 @@ fs.listCommits({ ref: "dev" }).then(function(commits) { ... });
 ##### Get a single commit
 
 ```js
-fs.getCommit("sha", { ref: "dev" }).then(function(commit) { ... });
+fs.getCommit("sha").then(function(commit) { ... });
 ```
 
 `commit` will also include a `files` attribute, example:
