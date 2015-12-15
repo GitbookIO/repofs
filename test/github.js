@@ -18,6 +18,12 @@ describe('GitHub Driver', function() {
         fs.type.should.equal('github');
     });
 
+    describe('fs.checkout', function() {
+        it('should correctly change branch', function() {
+            return fs.checkout('master');
+        });
+    });
+
     describe('fs.stat', function() {
         it('should correctly return info for a file', function() {
             return fs.stat('README.md')
