@@ -138,15 +138,38 @@ describe('GitHub Driver', function() {
         });
     });
 
-    /*describe('fs.compareCommits', function() {
-        it('should correctly compare two commits', function() {
-            return fs.compareCommits('cefd8fc50f1285ab4be2bd869503282b2a9fa5ae', 'a972b327694b8facd2295cdca17886a6da27c2cb')
-            .then(function(result) {
-                result.status.should.equal('ahead');
-                result.total_commits.should.equal(6);
-            });
+    describe('Changes', function() {
+        it('should select a branch', function() {
+            return fs.checkout('master');
         });
-    });*/
 
+        it('should create a file', function() {
+            return fs.create('TEST.md', 'test create').should.be.fulfilled;
+        });
+
+        it('should signal that file has been created', function() {
+            var changes = fs.listChanges();
+            changes.should.have.property('TEST.md');
+            changes['TEST.md'].type.should.equal('create');
+            changes.should.not.have.property('README.md');
+        });
+
+        it('should edit a file', function() {
+            return fs.write('README.md', 'test edit').should.be.fulfilled;
+        });
+
+        it('should signal that file has been edited', function() {
+            var changes = fs.listChanges();
+            changes.should.have.property('TEST.md');
+            changes.should.have.property('README.md');
+            changes['README.md'].type.should.equal('update');
+        });
+
+        it('should correctly commit change', function() {
+            return fs.commit({
+                message: 'Test commit'
+            }).should.be.fulfilled;
+        });
+    });
 });
 
