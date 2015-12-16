@@ -13,7 +13,7 @@ The API provided by this module is Promise-based.
 - :sparkles: Easy to use API
 - :sparkles: Supports ArrayBuffer for reading/writing files without encoding issues
 - :sparkles: Parse patches
-- :soon: Bundle multiple changes in one commit
+- :sparkles: Bundle multiple changes in one commit
 
 ### Installation
 
@@ -43,14 +43,18 @@ var fs = repofs({
 });
 ```
 
+##### fs.checkout: Select a branch
+
+The first step is to select a branch to use:
+
+```js
+fs.checkout('master').then(function() { ... })
+```
+
 ##### fs.stat: Get informations about a file
 
 ```js
-/// On default branch
 fs.stat('README.txt').then(function(file) { ... });
-
-/// On a specific branch
-fs.stat('README.txt', { ref: "dev" })
 ```
 
 `file` will look like:
@@ -74,11 +78,7 @@ The `url` can be an `http(s)` url (for GitHub), or a `data` url (for Memory and 
 ##### fs.read: Read file's content
 
 ```js
-/// On default branch
 fs.read('README.txt').then(function(content) { ... });
-
-/// On a specific branch
-fs.read('README.txt', { ref: "dev" })
 ```
 
 By default content is returned as an utf8 string, to read file's content as an `ArrayBuffer`, you can use the `encoding` option:
@@ -96,9 +96,6 @@ This method will fail if the file doesnt't exist. If the file doesn't exists, yo
 /// On default branch
 fs.write('README.txt', 'My new content')
 
-/// On a specific branch
-fs.write('README.txt', 'My new content', { ref: "dev" })
-
 // With a specific commit message
 // By default, the message will be "Update <path>"
 fs.write('README.txt', 'My new content', { message: "My super commit" })
@@ -107,14 +104,24 @@ fs.write('README.txt', 'My new content', { message: "My super commit" })
 fs.write('image.png', new ArrayBuffer(10));
 ```
 
+##### fs.commit: Commit changes
+
+Commit all changes to the driver.
+
+```js
+// Commit changes on a specific branch
+// Commit message will be the last change's message
+fs.commit()
+
+// Commit with a different message
+fs.commit({ message: 'My Commit' })
+```
+
 ##### fs.exists: Check if a file exists
 
 ```js
 /// On default branch
 fs.exists('README.txt').then(function(exist) { ... });
-
-/// On a specific branch
-fs.exists('README.txt', { ref: "dev" })
 ```
 
 ##### fs.readdir: List directory content
@@ -122,9 +129,6 @@ fs.exists('README.txt', { ref: "dev" })
 ```js
 /// On default branch
 fs.readdir('myfolder').then(function(files) { ... });
-
-/// On a specific branch
-fs.readdir('myfolder', { ref: "dev" })
 ```
 
 `files` is a map fo `fileName => fileInfos`.
@@ -134,9 +138,6 @@ fs.readdir('myfolder', { ref: "dev" })
 ```js
 /// On default branch
 fs.unlink('README.txt').then(function() { ... });
-
-/// On a specific branch
-fs.unlink('README.txt', { ref: "dev" })
 ```
 
 ##### fs.move: Rename a file
@@ -146,9 +147,6 @@ fs.unlink('README.txt', { ref: "dev" })
 ```js
 /// On default branch
 fs.move('README.txt', 'README2.txt').then(function() { ... });
-
-/// On a specific branch
-fs.move('README.txt', 'README2.txt', { ref: "dev" })
 ```
 
 ##### Working with branches
@@ -205,7 +203,7 @@ fs.listCommits({ ref: "dev" }).then(function(commits) { ... });
 ##### Get a single commit
 
 ```js
-fs.getCommit("sha", { ref: "dev" }).then(function(commit) { ... });
+fs.getCommit("sha").then(function(commit) { ... });
 ```
 
 `commit` will also include a `files` attribute, example:
@@ -273,16 +271,76 @@ fs.push({
 
 `fs.pull` uses the same options as `fs.push`. You can also use `fs.sync` whic is equivalent to pushing then pulling changes.
 
-##### Events
+##### Uncommited changes
+
+Uncommited changes can be listed:
 
 ```js
-// File watcher
-// Path of the file is accessible using e.path
-fs.on('watcher.add', function(e) {  });
-fs.on('watcher.unlink', function(e) {  })
-fs.on('watcher.change', function(e) {  })
-
-// Or watch all changes (add, unlink and change):
-// e.type is the type of change
-fs.on('watcher', function(e) {  });
+var changes = fs.listChanges({ ref: 'master' });
+// changes will be a map: filanem -> {type, buffer}
 ```
+
+And revert:
+
+```js
+// Revert change on a file
+fs.revertChange('README.md', { ref: 'master' });
+
+// Revert all pending changes
+fs.revertAllChanges({ ref: 'master' });
+```
+
+##### Operations
+
+Repofs has a concept of "operations stack", to easily group changes:
+
+```js
+fs.operation('First commit', function() {
+    return Q.all([
+        fs.write('package.json', '{ ... }'),
+        fs.write('index.js', '...'),
+        fs.write('README.md', '...')
+    ]);
+});
+```
+
+We can also automatically commit once the stack is empty:
+
+```js
+fs.on('operations.allcompleted', function() {
+    fs.commit();
+});
+```
+
+##### Events
+
+File watcher (Path of the file is accessible using `e.path`):
+
+```js
+fs.on('watcher.create', function(e) {  })
+fs.on('watcher.remove', function(e) {  })
+fs.on('watcher.update', function(e) {  })
+
+// Or watch all changes (create, remove and update):
+// e.type is the type of change
+fs.on('watcher', function(e) {  })
+```
+
+Branches:
+
+```js
+fs.on('branches.add', function(e) {  })
+fs.on('branches.remove', function(e) {  })
+
+// e.type is the type of change
+fs.on('branches')
+```
+
+Operations:
+
+```js
+fs.on('operations.started', function(e) { })
+fs.on('operations.completed', function(e) { })
+fs.on('operations.allcompleted', function(e) { })
+```
+

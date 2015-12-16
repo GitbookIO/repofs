@@ -1,21 +1,59 @@
 var Q = require('q');
 var _ = require('lodash');
-var path = require('path');
 
+var Octocat = require('octocat');
 var repofs = require('../');
+
+var GH_REPO = process.env.GITHUB_REPO;
+var GH_TOKEN = process.env.GITHUB_TOKEN;
+
+if (!GH_TOKEN || !GH_REPO) throw new Error('Testing require github configuration');
+
+var client = new Octocat({
+    token: GH_TOKEN
+});
 
 describe('GitHub Driver', function() {
     var commit;
     var fs = repofs({
-        repository: 'GitbookIO/gitbook',
+        repository: GH_REPO,
+        token: GH_TOKEN,
         committer: {
-            name: "John Doe",
-            email: "johndoe@gmail.com"
+            name: 'John Doe',
+            email: 'johndoe@gmail.com'
         }
+    });
+
+    // Setup base repo
+    before(function() {
+        var repo = client.repo(GH_REPO);
+
+        return repo.destroy()
+        .fail(function(err) {
+            return Q();
+        })
+        .then(function() {
+            return client.createRepo({
+                name: _.last(GH_REPO.split('/')),
+                auto_init: true
+            });
+        });
+    });
+
+    // Destroy repository after tests
+    after(function() {
+        var repo = client.repo(GH_REPO);
+        return repo.destroy();
     });
 
     it('should have correct type "github"', function() {
         fs.type.should.equal('github');
+    });
+
+    describe('fs.checkout', function() {
+        it('should correctly change branch', function() {
+            return fs.checkout('master');
+        });
     });
 
     describe('fs.stat', function() {
@@ -50,14 +88,6 @@ describe('GitHub Driver', function() {
                 files['README.md'].path.should.equal('README.md');
             });
         });
-
-        it('should correctly read a sub-directory', function() {
-            return fs.readdir('./lib')
-            .then(function(files) {
-                files.should.not.have.property('README.md');
-                (_.size(files) > 0).should.equal(true);
-            });
-        });
     });
 
     describe('fs.exists', function() {
@@ -70,8 +100,14 @@ describe('GitHub Driver', function() {
     });
 
     describe('fs.write', function() {
-        it('should fail to write non existant file', function() {
+        it('should fail to write non-existing file', function() {
             return fs.write('README_nonexistant.md', 'test').should.be.rejected;
+        });
+    });
+
+    describe('fs.create', function() {
+        it('should fail to create existing file', function() {
+            return fs.create('README.md', 'test').should.be.rejected;
         });
     });
 
@@ -79,7 +115,7 @@ describe('GitHub Driver', function() {
         it('should correctly return branches', function() {
             return fs.listBranches()
             .then(function(branches) {
-                _.find(branches, { name: "master"}).should.have.property('commit');
+                _.find(branches, { name: 'master'}).should.have.property('commit');
             });
         });
     });
@@ -102,15 +138,43 @@ describe('GitHub Driver', function() {
         });
     });
 
-    describe('fs.compareCommits', function() {
-        it('should correctly compare two commits', function() {
-            return fs.compareCommits('cefd8fc50f1285ab4be2bd869503282b2a9fa5ae', 'a972b327694b8facd2295cdca17886a6da27c2cb')
-            .then(function(result) {
-                result.status.should.equal('ahead');
-                result.total_commits.should.equal(6);
-            });
+    describe('Changes', function() {
+        it('should select a branch', function() {
+            return fs.checkout('master');
+        });
+
+        it('should create a file', function() {
+            return fs.create('TEST.md', 'test create').should.be.fulfilled;
+        });
+
+        it('should signal that file has been created', function() {
+            var changes = fs.listChanges();
+            changes.should.have.property('TEST.md');
+            changes['TEST.md'].type.should.equal('create');
+            changes.should.not.have.property('README.md');
+        });
+
+        it('should edit a file', function() {
+            return fs.write('README.md', 'test edit').should.be.fulfilled;
+        });
+
+        it('should signal that file has been edited', function() {
+            var changes = fs.listChanges();
+            changes.should.have.property('TEST.md');
+            changes.should.have.property('README.md');
+            changes['README.md'].type.should.equal('update');
+        });
+
+        it('should correctly commit change', function() {
+            return fs.commit({
+                message: 'Test commit'
+            }).should.be.fulfilled;
+        });
+
+        it('should have cleared changes', function() {
+            var changes = fs.listChanges();
+            _.size(changes).should.equal(0);
         });
     });
-
 });
 
