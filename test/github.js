@@ -170,6 +170,11 @@ describe('GitHub Driver', function() {
                 message: 'Test commit'
             }).should.be.fulfilled;
         });
+
+        it('should have cleared changes', function() {
+            var changes = fs.listChanges();
+            _.size(changes).should.equal(0);
+        });
     });
 });
 
