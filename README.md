@@ -120,14 +120,12 @@ fs.commit({ message: 'My Commit' })
 ##### fs.exists: Check if a file exists
 
 ```js
-/// On default branch
 fs.exists('README.txt').then(function(exist) { ... });
 ```
 
 ##### fs.readdir: List directory content
 
 ```js
-/// On default branch
 fs.readdir('myfolder').then(function(files) { ... });
 ```
 
@@ -136,8 +134,13 @@ fs.readdir('myfolder').then(function(files) { ... });
 ##### fs.unlink: Delete a file
 
 ```js
-/// On default branch
 fs.unlink('README.txt').then(function() { ... });
+```
+
+##### fs.rmdir: Delete a folder
+
+```js
+fs.rmdir('lib').then(function() { ... });
 ```
 
 ##### fs.move: Rename a file
@@ -145,7 +148,6 @@ fs.unlink('README.txt').then(function() { ... });
 (`fs.rename` is an alias of this method).
 
 ```js
-/// On default branch
 fs.move('README.txt', 'README2.txt').then(function() { ... });
 ```
 
