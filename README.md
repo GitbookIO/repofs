@@ -143,12 +143,18 @@ fs.unlink('README.txt').then(function() { ... });
 fs.rmdir('lib').then(function() { ... });
 ```
 
-##### fs.move: Rename a file
+##### fs.move: Move/Rename a file
 
 (`fs.rename` is an alias of this method).
 
 ```js
 fs.move('README.txt', 'README2.txt').then(function() { ... });
+```
+
+##### fs.mvdir: Move/Rename a directory
+
+```js
+fs.mvdir('lib', 'lib2').then(function() { ... });
 ```
 
 ##### Working with branches
