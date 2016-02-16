@@ -296,7 +296,7 @@ And revert:
 fs.revertChange('README.md', { ref: 'master' });
 
 // Revert all pending changes
-fs.revertAllChanges({ ref: 'master' });
+fs.revertChanges({ ref: 'master' });
 ```
 
 ##### Operations
