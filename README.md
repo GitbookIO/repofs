@@ -158,7 +158,7 @@ fs.move('README.txt', 'README2.txt').then(function() { ... });
 fs.mvdir('lib', 'lib2').then(function() { ... });
 ```
 
-##### Working with branches
+##### Manipulating with branches
 
 ```js
 // List branches
@@ -172,11 +172,6 @@ fs.createBranch('fix/2', 'dev')
 
 // Delete a branch
 fs.removeBranch('dev')
-
-// Merge a branch into another one
-fs.mergeBranches("dev", "master", {
-    message: "Shipped cool_feature!"
-})
 ```
 
 A branch is defined by:
@@ -185,6 +180,36 @@ A branch is defined by:
 {
     name: "master",
     commit: { ... }
+}
+```
+
+##### Merging branches
+
+To merge a head branch into a base branch, the usual workflow is the following :
+
+1. Compare the two branches
+2. Determine the tree resulting from merging (might need to solve conflicts)
+3. Create the merge commit on the base branch, with base and head as parents
+
+###### Comparing two branches
+
+``` js
+// Compare two branches
+fs.compareBranches("master", "dev")
+```
+
+This returns the two trees. The non-conflicting files on the one hand, the conflicting files on the other hand.
+
+``` js
+{
+    status: 'identical' | 'ahead' | 'behind' | 'diverged',
+    conflicts: [
+        {
+            status: 'deleted-by-them' | 'deleted-by-us' | 'both-modified'
+            our: "sha..." | null
+            their: "sha..." | null
+        }
+    ]
 }
 ```
 
