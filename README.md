@@ -198,7 +198,7 @@ To merge a head branch into a base branch, the usual workflow is the following :
 fs.compareBranches("master", "dev")
 ```
 
-This returns the two trees. The non-conflicting files on the one hand, the conflicting files on the other hand.
+This returns one of the possible status between the two branches, along with the list of conflicts:
 
 ``` js
 {
