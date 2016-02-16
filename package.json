@@ -26,7 +26,7 @@
         "octocat": "0.6.0"
     },
     "scripts": {
-        "test": "node_modules/.bin/mocha -b --reporter spec --timeout 15000"
+        "test": "node_modules/.bin/mocha -b --reporter spec --bail --timeout 15000"
     },
     "repository": {
         "type": "git",
