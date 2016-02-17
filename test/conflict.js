@@ -2,6 +2,26 @@ var conflict = require('../lib/conflict');
 
 describe('Conflict module', function() {
 
+    it('should detect unchanged files between two trees', function() {
+        var baseTreeEntries = [{
+            'path': 'unchangedfile',
+            'sha': 'unchanged'
+        }];
+        var headTreeEntries = [{
+            'path': 'unchangedfile',
+            'sha': 'unchanged'
+        }];
+        var conflicts = conflict.listConflicts(baseTreeEntries, headTreeEntries);
+        conflicts.should.eql({
+            unchangedfile: {
+                base: 'unchanged',
+                head: 'unchanged',
+                path: 'unchangedfile',
+                status: conflict.FILE.UNCHANGED
+            }
+        });
+    });
+
     it('should detect conflicts between two trees', function() {
         var shaUnchanged = 'shaUnchanged';
         var shaMoved = 'shaMoved';
@@ -10,7 +30,7 @@ describe('Conflict module', function() {
         var shaDeletedInHead = 'shaDeletedInHead';
         var shaDeletedInBase = 'shaDeletedInBase';
 
-        var baseTree = [
+        var baseTreeEntries = [
             {
                 'path': 'unchanged',
                 'sha': shaUnchanged
@@ -27,7 +47,7 @@ describe('Conflict module', function() {
                 'path': 'deletedInHead',
                 'sha': shaDeletedInHead
             }];
-        var headTree = [
+        var headTreeEntries = [
             {
                 'path': 'unchanged',
                 'sha': shaUnchanged
@@ -45,7 +65,7 @@ describe('Conflict module', function() {
                 'sha': shaDeletedInBase
             }];
 
-        var conflicts = conflict.listConflicts(baseTree, headTree);
+        var conflicts = conflict.listConflicts(baseTreeEntries, headTreeEntries);
 
         conflicts.should.eql({
             unchanged:
