@@ -176,5 +176,83 @@ describe('GitHub Driver', function() {
             _.size(changes).should.equal(0);
         });
     });
+
+    describe('Handling branches', function() {
+        var dir = 'branchdir/';
+
+        // Structure of the directory for merging tests
+        // branchdir
+        // ├── appendfile	Both modified without conflict
+        // ├── branchfile	Created by branch only
+        // ├── conflictfile	Both modified with conflict
+        // └── masterfile	Created by master only
+
+        before(function() {
+            return fs.checkout('master')
+                .then(function () {
+                    return fs.update(dir + 'masterfile', 'Only master writes here');
+                })
+                .then(function () {
+                    return fs.update(dir + 'appendfile', 'Both will write without conflict');
+                })
+                .then(function () {
+                    return fs.update(dir + 'conflictfile', 'Both will write with conflict');
+                })
+                .then(function () {
+                    return fs.commit();
+                })
+                .then(function () {
+                    // Branch without conflict
+                    return fs.createBranch('no-conflict');
+                })
+                .then(function () {
+                    return fs.checkout('no-conflict');
+                })
+                .then(function () {
+                    return fs.update(dir + 'branchfile', 'Only the branch is writing');
+                })
+                .then(function () {
+                    return fs.read(dir + 'appendfile');
+                })
+                .then(function append(content) {
+                    return fs.update(dir + 'appendfile', ' Branch safely append here');
+                })
+                .then(function () {
+                    return fs.commit();
+                })
+                .then(function () {
+                    return fs.checkout('master');
+                })
+                .then(function () {
+                    // Branch with conflicts
+                    return fs.createBranch('conflict');
+                })
+                .then(function () {
+                    return fs.checkout('conflict');
+                })
+                .then(function () {
+                    return fs.update(dir + 'conflictfile', 'Replacing content for conflicts');
+                })
+                .then(function () {
+                    return fs.commit();
+                })
+                .then(function () {
+                    return fs.checkout('master');
+                });
+        });
+
+        afterEach(function () {
+            fs.checkout('master');
+        });
+
+        it('should compare non conflicting-branches branches', function() {
+        });
+        it('should compare non fast-forwardable branches (behind)', function() {
+        });
+        it('should compare non fast-forwardable branches (ahead)', function() {
+        });
+        it('should compare conflicting-branches branches', function() {
+        });
+    });
 });
 
