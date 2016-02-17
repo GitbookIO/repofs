@@ -3,6 +3,7 @@ var _ = require('lodash');
 
 var Octocat = require('octocat');
 var repofs = require('../');
+var conflict = require('../lib/conflict');
 
 var GH_REPO = process.env.GITHUB_REPO;
 var GH_TOKEN = process.env.GITHUB_TOKEN;
@@ -199,7 +200,11 @@ describe('GitHub Driver', function() {
                     return fs.update(dir + 'conflictfile', 'Both will write with conflict');
                 })
                 .then(function () {
-                    return fs.commit();
+                    return fs.commit({ message: 'Files setup'});
+                })
+                .then(function () {
+                    // Branch with conflicts
+                    return fs.createBranch('conflict');
                 })
                 .then(function () {
                     // Branch without conflict
@@ -218,14 +223,7 @@ describe('GitHub Driver', function() {
                     return fs.update(dir + 'appendfile', ' Branch safely append here');
                 })
                 .then(function () {
-                    return fs.commit();
-                })
-                .then(function () {
-                    return fs.checkout('master');
-                })
-                .then(function () {
-                    // Branch with conflicts
-                    return fs.createBranch('conflict');
+                    return fs.commit({ message: 'Creates branchfile. Appends to appendfile'});
                 })
                 .then(function () {
                     return fs.checkout('conflict');
@@ -234,24 +232,51 @@ describe('GitHub Driver', function() {
                     return fs.update(dir + 'conflictfile', 'Replacing content for conflicts');
                 })
                 .then(function () {
-                    return fs.commit();
+                    return fs.commit({ message: 'Conflicting write to conflictfile'});
                 })
                 .then(function () {
                     return fs.checkout('master');
                 });
         });
 
-        afterEach(function () {
-            fs.checkout('master');
+        it('should detect identical branches', function() {
+            return fs.detectConflicts('master', 'master')
+                .then(function (r) {
+                    r.status.should.eql(conflict.REFS.IDENTICAL);
+                    r.base.should.eql('master');
+                    r.head.should.eql('master');
+                });
+        });
+
+        it('should detect diverging branches', function() {
+            return fs.detectConflicts('master', 'conflict')
+                .then(function (r) {
+                    r.status.should.eql(conflict.REFS.DIVERGED);
+                    r.base.should.eql('master');
+                    r.head.should.eql('conflict');
+                    r.conflicts[dir + 'conflictfile'].should.eql({
+                        base: 'f7cc72ae06a267b2bf77ba9c58e7f98414d7fedf',
+                        head: '81c5b0431d975eae942bea623c4cf812887adc77',
+                        path: dir + 'conflictfile',
+                        status: conflict.FILE.BOTH_MODIFIED
+                    });
+                });
         });
 
         it('should compare non conflicting-branches branches', function() {
+            // TODO
         });
+
         it('should compare non fast-forwardable branches (behind)', function() {
+            // TODO
         });
+
         it('should compare non fast-forwardable branches (ahead)', function() {
+            // TODO
         });
+
         it('should compare conflicting-branches branches', function() {
+            // TODO
         });
     });
 });

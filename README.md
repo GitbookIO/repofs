@@ -187,29 +187,31 @@ A branch is defined by:
 
 To merge a head branch into a base branch, the usual workflow is the following :
 
-1. Compare the two branches
+1. Look for conflicts between the two branches 
 2. Determine the tree resulting from merging (might need to solve conflicts)
 3. Create the merge commit on the base branch, with base and head as parents
 
-###### Comparing two branches
+###### Detecting conflicts between refs
 
 ``` js
-// Compare two branches
-fs.compareBranches("master", "dev")
+// Detect conflicts between two refs (branch name or sha)
+fs.detectConflicts("master", "dev")
 ```
 
-This returns one of the possible status between the two branches, along with the list of conflicts:
+This returns one of the possible status between the two refs, along with the list of conflicts:
 
 ``` js
 {
     status: 'identical' | 'ahead' | 'behind' | 'diverged',
-    conflicts: [
-        {
-            status: 'deleted-by-them' | 'deleted-by-us' | 'both-modified'
-            our: "sha..." | null
-            their: "sha..." | null
-        }
-    ]
+    conflicts: {
+        <path>: {
+            path: <path>
+            status: 'absent-on-base' | absent-on-head' | 'both-modified' | 'unchanged'
+            base: "sha..." | null
+            head: "sha..." | null
+        },
+        ...
+    }
 }
 ```
 
