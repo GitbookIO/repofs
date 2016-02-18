@@ -206,7 +206,7 @@ This returns one of the possible status between the two refs, along with the lis
     conflicts: {
         <path>: {
             path: <path>
-            status: 'absent-on-base' | absent-on-head' | 'both-modified'
+            status: 'both-modified' | 'absent-on-base' | 'absent-on-head'
             base: "sha..." | null
             head: "sha..." | null
         },
