@@ -70,7 +70,7 @@ describe('GitHub Driver', function() {
 
     describe('fs.read', function() {
         it('should correctly read from master', function() {
-            return fs.read('README.md').should.be.fulfilled;
+            return fs.read('README.md').should.be.fulfilled();
         });
 
         it('should fail for non-existant file', function() {
@@ -145,7 +145,7 @@ describe('GitHub Driver', function() {
         });
 
         it('should create a file', function() {
-            return fs.create('TEST.md', 'test create').should.be.fulfilled;
+            return fs.create('TEST.md', 'test create').should.be.fulfilled();
         });
 
         it('should signal that file has been created', function() {
@@ -156,7 +156,7 @@ describe('GitHub Driver', function() {
         });
 
         it('should edit a file', function() {
-            return fs.write('README.md', 'test edit').should.be.fulfilled;
+            return fs.write('README.md', 'test edit').should.be.fulfilled();
         });
 
         it('should signal that file has been edited', function() {
@@ -169,7 +169,7 @@ describe('GitHub Driver', function() {
         it('should correctly commit change', function() {
             return fs.commit({
                 message: 'Test commit'
-            }).should.be.fulfilled;
+            }).should.be.fulfilled();
         });
 
         it('should have cleared changes', function() {
