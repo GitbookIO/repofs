@@ -11,7 +11,7 @@ describe('Conflict module', function() {
             'path': 'unchangedfile',
             'sha': 'unchanged'
         }];
-        var conflicts = conflict.listConflicts(baseTreeEntries, headTreeEntries);
+        var conflicts = conflict.listConflicts(baseTreeEntries, headTreeEntries, { stripe: false });
         conflicts.should.eql({
             unchangedfile: {
                 base: 'unchanged',
@@ -68,11 +68,6 @@ describe('Conflict module', function() {
         var conflicts = conflict.listConflicts(baseTreeEntries, headTreeEntries);
 
         conflicts.should.eql({
-            unchanged:
-            { base: 'shaUnchanged',
-              head: 'shaUnchanged',
-              path: 'unchanged',
-              status: conflict.FILE.UNCHANGED },
             moved1:
             { base: 'shaMoved',
               path: 'moved1',
