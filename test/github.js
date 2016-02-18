@@ -74,7 +74,7 @@ describe('GitHub Driver', function() {
         });
 
         it('should fail for non-existant file', function() {
-            return fs.read('error-repofs.js').should.be.rejected;
+            return fs.read('error-repofs.js').should.be.rejected();
         });
     });
 
@@ -102,13 +102,13 @@ describe('GitHub Driver', function() {
 
     describe('fs.write', function() {
         it('should fail to write non-existing file', function() {
-            return fs.write('README_nonexistant.md', 'test').should.be.rejected;
+            return fs.write('README_nonexistant.md', 'test').should.be.rejected();
         });
     });
 
     describe('fs.create', function() {
         it('should fail to create existing file', function() {
-            return fs.create('README.md', 'test').should.be.rejected;
+            return fs.create('README.md', 'test').should.be.rejected();
         });
     });
 
