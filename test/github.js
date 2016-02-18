@@ -70,11 +70,11 @@ describe('GitHub Driver', function() {
 
     describe('fs.read', function() {
         it('should correctly read from master', function() {
-            return fs.read('README.md').should.be.fulfilled;
+            return fs.read('README.md').should.be.fulfilled();
         });
 
         it('should fail for non-existant file', function() {
-            return fs.read('error-repofs.js').should.be.rejected;
+            return fs.read('error-repofs.js').should.be.rejected();
         });
     });
 
@@ -102,13 +102,13 @@ describe('GitHub Driver', function() {
 
     describe('fs.write', function() {
         it('should fail to write non-existing file', function() {
-            return fs.write('README_nonexistant.md', 'test').should.be.rejected;
+            return fs.write('README_nonexistant.md', 'test').should.be.rejected();
         });
     });
 
     describe('fs.create', function() {
         it('should fail to create existing file', function() {
-            return fs.create('README.md', 'test').should.be.rejected;
+            return fs.create('README.md', 'test').should.be.rejected();
         });
     });
 
@@ -145,22 +145,22 @@ describe('GitHub Driver', function() {
         });
 
         it('should create a file', function() {
-            return fs.create('TEST.md', 'test create').should.be.fulfilled;
+            return fs.create('TEST.md', 'test create').should.be.fulfilled();
         });
 
         it('should signal that file has been created', function() {
-            var changes = fs.listChanges();
+            var changes = fs.working.listChanges();
             changes.should.have.property('TEST.md');
             changes['TEST.md'].type.should.equal('create');
             changes.should.not.have.property('README.md');
         });
 
         it('should edit a file', function() {
-            return fs.write('README.md', 'test edit').should.be.fulfilled;
+            return fs.write('README.md', 'test edit').should.be.fulfilled();
         });
 
         it('should signal that file has been edited', function() {
-            var changes = fs.listChanges();
+            var changes = fs.working.listChanges();
             changes.should.have.property('TEST.md');
             changes.should.have.property('README.md');
             changes['README.md'].type.should.equal('update');
@@ -169,11 +169,11 @@ describe('GitHub Driver', function() {
         it('should correctly commit change', function() {
             return fs.commit({
                 message: 'Test commit'
-            }).should.be.fulfilled;
+            }).should.be.fulfilled();
         });
 
         it('should have cleared changes', function() {
-            var changes = fs.listChanges();
+            var changes = fs.working.listChanges();
             _.size(changes).should.equal(0);
         });
     });

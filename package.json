@@ -20,9 +20,8 @@
     },
     "devDependencies": {
         "eslint": "1.10.1",
-        "mocha": "2.2.1",
-        "chai": "2.3.0",
-        "chai-as-promised": "5.0.0",
+        "mocha": "2.4.5",
+        "should": "8.2.2",
         "octocat": "0.6.0"
     },
     "scripts": {
