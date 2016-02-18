@@ -180,6 +180,7 @@ describe('GitHub Driver', function() {
 
     describe('Handling branches', function() {
         var dir = 'branchdir/';
+        var appendContent = 'Both will write without conflict';
 
         // Structure of the directory for merging tests
         // branchdir
@@ -194,7 +195,7 @@ describe('GitHub Driver', function() {
                     return fs.update(dir + 'masterfile', 'Only master writes here');
                 })
                 .then(function () {
-                    return fs.update(dir + 'appendfile', 'Both will write without conflict');
+                    return fs.update(dir + 'appendfile', appendContent);
                 })
                 .then(function () {
                     return fs.update(dir + 'conflictfile', 'Both will write with conflict');
@@ -217,10 +218,8 @@ describe('GitHub Driver', function() {
                     return fs.update(dir + 'branchfile', 'Only the branch is writing');
                 })
                 .then(function () {
-                    return fs.read(dir + 'appendfile');
-                })
-                .then(function append(content) {
-                    return fs.update(dir + 'appendfile', ' Branch safely append here');
+                    return fs.update(dir + 'appendfile', appendContent
+                                     + ' Branch safely append here');
                 })
                 .then(function () {
                     return fs.commit({ message: 'Creates branchfile. Appends to appendfile'});
@@ -239,27 +238,58 @@ describe('GitHub Driver', function() {
                 });
         });
 
-        it('should detect identical branches', function() {
-            return fs.detectConflicts('master', 'master')
-                .then(function (r) {
-                    r.status.should.eql(conflict.REFS.IDENTICAL);
-                    r.base.should.eql('master');
-                    r.head.should.eql('master');
+        describe('The conflict module', function () {
+            it('should compare identical branches', function() {
+                return fs.detectConflicts('master', 'master')
+                    .then(function (r) {
+                        r.status.should.eql(conflict.REFS.IDENTICAL);
+                        r.base.should.eql('master');
+                        r.head.should.eql('master');
+                    });
+            });
+
+            it('should compare diverging branches', function() {
+                return fs.detectConflicts('master', 'conflict')
+                    .then(function (r) {
+                        r.status.should.eql(conflict.REFS.DIVERGED);
+                        r.base.should.eql('master');
+                        r.head.should.eql('conflict');
+                        r.conflicts[dir + 'conflictfile'].should.eql({
+                            base: 'f7cc72ae06a267b2bf77ba9c58e7f98414d7fedf',
+                            head: '81c5b0431d975eae942bea623c4cf812887adc77',
+                            path: dir + 'conflictfile',
+                            status: conflict.FILE.BOTH_MODIFIED
+                        });
+                    });
+            });
+        });
+
+        it('should automatically merge non-conflicting branches', function() {
+            return fs.createBranch('merge-no-conflict') // = master
+                .then(function () {
+                    return fs.checkout('merge-no-conflict');
+                })
+                .then(function() {
+                    return fs.mergeBranches('merge-no-conflict', 'no-conflict');
+                })
+                .then(function() {
+                    return fs.checkout('master');
                 });
         });
 
-        it('should detect diverging branches', function() {
-            return fs.detectConflicts('master', 'conflict')
-                .then(function (r) {
-                    r.status.should.eql(conflict.REFS.DIVERGED);
-                    r.base.should.eql('master');
-                    r.head.should.eql('conflict');
-                    r.conflicts[dir + 'conflictfile'].should.eql({
-                        base: 'f7cc72ae06a267b2bf77ba9c58e7f98414d7fedf',
-                        head: '81c5b0431d975eae942bea623c4cf812887adc77',
-                        path: dir + 'conflictfile',
-                        status: conflict.FILE.BOTH_MODIFIED
-                    });
+        it('should raise a conflict merging conflicting branches', function() {
+            fs.on('conflicts.resolve.needed', function(conflicts, next) {
+                throw 'All good';
+            });
+            fs.createBranch('merge-conflict') // = master
+                .then(function () {
+                    return fs.checkout('merge-conflict');
+                })
+                .then(function() {
+                    return fs.mergeBranches('merge-conflict', 'conflict');
+                })
+                .fin(function() {
+                    return fs.checkout('master');
                 });
         });
 
