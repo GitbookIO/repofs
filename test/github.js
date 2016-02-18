@@ -149,7 +149,7 @@ describe('GitHub Driver', function() {
         });
 
         it('should signal that file has been created', function() {
-            var changes = fs.listChanges();
+            var changes = fs.working.listChanges();
             changes.should.have.property('TEST.md');
             changes['TEST.md'].type.should.equal('create');
             changes.should.not.have.property('README.md');
@@ -160,7 +160,7 @@ describe('GitHub Driver', function() {
         });
 
         it('should signal that file has been edited', function() {
-            var changes = fs.listChanges();
+            var changes = fs.working.listChanges();
             changes.should.have.property('TEST.md');
             changes.should.have.property('README.md');
             changes['README.md'].type.should.equal('update');
@@ -173,7 +173,7 @@ describe('GitHub Driver', function() {
         });
 
         it('should have cleared changes', function() {
-            var changes = fs.listChanges();
+            var changes = fs.working.listChanges();
             _.size(changes).should.equal(0);
         });
     });
