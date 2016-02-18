@@ -158,7 +158,7 @@ fs.move('README.txt', 'README2.txt').then(function() { ... });
 fs.mvdir('lib', 'lib2').then(function() { ... });
 ```
 
-##### Manipulating with branches
+##### Working with branches
 
 ```js
 // List branches
@@ -172,6 +172,9 @@ fs.createBranch('fix/2', 'dev')
 
 // Delete a branch
 fs.removeBranch('dev')
+
+// Merge a branch into another one
+fs.mergeBranches('dev', 'master', { message: 'Merges dev into master' })
 ```
 
 A branch is defined by:
@@ -183,13 +186,14 @@ A branch is defined by:
 }
 ```
 
-##### Merging branches
+##### Handling conflicts
 
-To merge a head branch into a base branch, the usual workflow is the following :
+When commiting, or merging two branches, and conflicts occur, `fs` emits a `'conflicts.needs.resolved'` event. You can add a single listener to this event that will be responsible for resolving the conflict (see [events](#events)). Two parameters are handed:
 
-1. Look for conflicts between the two branches 
-2. Determine the tree resulting from merging (might need to solve conflicts)
-3. Create the merge commit on the base branch, with base and head as parents
+- `conflicts`: the result of comparing the conflicting refs (see `fs.detectConflicts()`)
+- `next`: callback method, expecting a new commit object
+
+If no one is listening, the operations will simply fail.
 
 ###### Detecting conflicts between refs
 
@@ -202,7 +206,7 @@ This returns one of the possible status between the two refs, along with the lis
 
 ``` js
 {
-    status: 'identical' | 'ahead' | 'behind' | 'diverged',
+    status: 'identical' | 'diverged',
     conflicts: {
         <path>: {
             path: <path>
@@ -380,3 +384,8 @@ fs.on('operations.completed', function(e) { })
 fs.on('operations.allcompleted', function(e) { })
 ```
 
+Conflicts:
+
+``` js
+fs.on('conflicts.needs.resolved', function(conflicts, next) { })
+```
