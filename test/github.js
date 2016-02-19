@@ -12,8 +12,6 @@ var TOKEN = process.env.REPOFS_TOKEN;
 
 if (!REPO || !HOST) throw new Error('Testing require github/uhub configuration');
 
-console.log(REPO);
-
 var client = new Octocat({
     token: TOKEN
 });

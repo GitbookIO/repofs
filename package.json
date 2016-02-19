@@ -27,7 +27,9 @@
         "github-releases": "0.3.2"
     },
     "scripts": {
-        "test": "./scripts/test.sh"
+        "test": "./scripts/test-uhub.sh; ./scripts/test-github.sh",
+        "test-uhub": "./scripts/test-uhub.sh",
+        "test-github": "./scripts/test-github.sh"
     },
     "repository": {
         "type": "git",
