@@ -287,7 +287,7 @@ describe('GitHub Driver', function() {
                 // Deleting everything is a good way of solving conflicts.
                 // Thinking about making it the default... ;)
                 next(null, {
-                    message: "Cleaned up",
+                    message: 'Cleaned up',
                     conflicts: {
                     }
                 });
@@ -306,7 +306,6 @@ describe('GitHub Driver', function() {
 
         it('should solve conflicts when merging', function() {
             fs.once('conflicts.resolve.needed', function(conflicts, next) {
-                console.log('MERGED FAILED');
                 next(null, {
                     message: 'Merge message',
                     conflicts: {
