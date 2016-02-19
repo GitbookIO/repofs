@@ -304,11 +304,11 @@ describe('GitHub Driver', function() {
             });
         });
 
-        it.only('should solve conflicts when merging', function() {
+        it('should solve conflicts when merging', function() {
             fs.once('conflicts.resolve.needed', function(conflicts, next) {
                 console.log('MERGED FAILED');
                 next(null, {
-                    message: "Merge message",
+                    message: 'Merge message',
                     conflicts: {
                         'branchdir/conflictfile': {
                             path: dir+'conflictfile',
