@@ -7,6 +7,11 @@ set -o pipefail
 #     - GITHUB_TOKEN
 #     - GITHUB_REPO
 
+# Random repository name
+if [ -z ${GITHUB_REPO+x} ]; then
+    GITHUB_REPO=$GITHUB_USER/repofs-test-$(( ( RANDOM % 10 )  + 1 ))
+fi
+
 # Run tests on GitHub
 echo "Run tests with GitHub, using $GITHUB_REPO"
 export REPOFS_MODE=github
