@@ -43,10 +43,9 @@ git commit -m "Initial commit"
 cd ../..
 
 REPO_PATH=$(pwd)/.tmp/repo/
-REPO_BASE64=$(printf $REPO_PATH | base64)
 
 # Start uhub
-./uhub --mode=absolute --port=127.0.0.1:6666 > /dev/null  &
+./uhub --mode=single --root=$REPO_PATH --port=127.0.0.1:6666 > /dev/null  &
 UHUBPID=$!
 trap 'kill -s 9 $UHUBPID' EXIT
 
@@ -57,7 +56,7 @@ sleep 2
 echo "Run tests for uhub"
 export REPOFS_MODE=uhub
 export REPOFS_HOST=http://localhost:6666
-export REPOFS_REPO=_/$REPO_BASE64
+export REPOFS_REPO=user/repo
 export REPOFS_TOKEN=
 
 mocha -b --reporter spec --bail --timeout 15000
