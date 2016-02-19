@@ -132,7 +132,7 @@ describe('Conflict module', function() {
         })
     };
 
-    var headTree = {
+    /* var headTree = {
         sha: 'b4f5c3ce6f4bb532fd65ebbbf7d8a4951439f7f8',
         entries: _.extend({}, commonEntries, {
             'branchdir/conflictfile': {
@@ -142,18 +142,18 @@ describe('Conflict module', function() {
                 mode: '100644',
                 type: 'blob' }
         })
-    };
+    }; */
 
     it('should leave a tree unchanged with empty solved conflicts', function() {
         conflicter.mergeInTree({
-            message: "Nothing solved",
+            message: 'Nothing solved',
             conflicts: {}
         }, baseTree).should.eql(baseTree);
     });
 
     it('should merge solved conflicts into a tree', function() {
         var mergedTree = conflicter.mergeInTree({
-            message: "This is solved",
+            message: 'This is solved',
             conflicts: {
                 'branchdir/conflictfile': {
                     path: 'branchdir/conflictfile',
