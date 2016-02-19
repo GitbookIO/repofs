@@ -5,20 +5,26 @@ var Octocat = require('octocat');
 var repofs = require('../');
 var conflicter = require('../lib/conflicter');
 
-var GH_REPO = process.env.GITHUB_REPO;
-var GH_TOKEN = process.env.GITHUB_TOKEN;
+var MODE = process.env.REPOFS_MODE || 'github';
+var REPO = process.env.REPOFS_REPO;
+var HOST = process.env.REPOFS_HOST;
+var TOKEN = process.env.REPOFS_TOKEN;
 
-if (!GH_TOKEN || !GH_REPO) throw new Error('Testing require github configuration');
+if (!REPO || !HOST) throw new Error('Testing require github/uhub configuration');
+
+console.log(REPO);
 
 var client = new Octocat({
-    token: GH_TOKEN
+    token: TOKEN
 });
 
-describe('GitHub Driver', function() {
+describe('GitHub/uHub Driver', function() {
     var commit;
+    var repo = client.repo(REPO);
     var fs = repofs({
-        repository: GH_REPO,
-        token: GH_TOKEN,
+        repository: REPO,
+        token: TOKEN,
+        host: HOST,
         committer: {
             name: 'John Doe',
             email: 'johndoe@gmail.com'
@@ -27,7 +33,7 @@ describe('GitHub Driver', function() {
 
     // Setup base repo
     before(function() {
-        var repo = client.repo(GH_REPO);
+        if (MODE != 'github') return;
 
         return repo.destroy()
         .fail(function(err) {
@@ -35,7 +41,7 @@ describe('GitHub Driver', function() {
         })
         .then(function() {
             return client.createRepo({
-                name: _.last(GH_REPO.split('/')),
+                name: _.last(REPO.split('/')),
                 auto_init: true
             });
         });
@@ -43,7 +49,7 @@ describe('GitHub Driver', function() {
 
     // Destroy repository after tests
     after(function() {
-        var repo = client.repo(GH_REPO);
+        if (MODE != 'github') return;
         return repo.destroy();
     });
 

@@ -23,10 +23,11 @@
         "eslint": "1.10.1",
         "mocha": "2.4.5",
         "should": "8.2.2",
-        "octocat": "0.6.0"
+        "octocat": "0.6.0",
+        "github-releases": "0.3.2"
     },
     "scripts": {
-        "test": "node_modules/.bin/mocha -b --reporter spec --bail --timeout 15000"
+        "test": "./scripts/test.sh"
     },
     "repository": {
         "type": "git",
