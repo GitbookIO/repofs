@@ -1,4 +1,4 @@
-var conflict = require('../lib/conflict');
+var conflicter = require('../lib/conflicter');
 
 describe('Conflict module', function() {
 
@@ -11,13 +11,13 @@ describe('Conflict module', function() {
             'path': 'unchangedfile',
             'sha': 'unchanged'
         }];
-        var conflicts = conflict.listConflicts(baseTreeEntries, headTreeEntries, { stripe: false });
+        var conflicts = conflicter.listConflicts(baseTreeEntries, headTreeEntries, { stripe: false });
         conflicts.should.eql({
             unchangedfile: {
                 base: 'unchanged',
                 head: 'unchanged',
                 path: 'unchangedfile',
-                status: conflict.FILE.UNCHANGED
+                status: conflicter.FILE.UNCHANGED
             }
         });
     });
@@ -65,33 +65,33 @@ describe('Conflict module', function() {
                 'sha': shaDeletedInBase
             }];
 
-        var conflicts = conflict.listConflicts(baseTreeEntries, headTreeEntries);
+        var conflicts = conflicter.listConflicts(baseTreeEntries, headTreeEntries);
 
         conflicts.should.eql({
             moved1:
             { base: 'shaMoved',
               path: 'moved1',
-              status: conflict.FILE.ABSENT_FROM_HEAD,
+              status: conflicter.FILE.ABSENT_FROM_HEAD,
               head: null },
             modified:
             { base: 'shaModified1',
               head: 'shaModified2',
               path: 'modified',
-              status: conflict.FILE.BOTH_MODIFIED },
+              status: conflicter.FILE.BOTH_MODIFIED },
             deletedInHead:
             { base: 'shaDeletedInHead',
               path: 'deletedInHead',
-              status: conflict.FILE.ABSENT_FROM_HEAD,
+              status: conflicter.FILE.ABSENT_FROM_HEAD,
               head: null },
             moved2:
             { head: 'shaMoved',
               path: 'moved2',
-              status: conflict.FILE.ABSENT_FROM_BASE,
+              status: conflicter.FILE.ABSENT_FROM_BASE,
               base: null },
             deletedInBase:
             { head: 'shaDeletedInBase',
               path: 'deletedInBase',
-              status: conflict.FILE.ABSENT_FROM_BASE,
+              status: conflicter.FILE.ABSENT_FROM_BASE,
               base: null }
         });
     });

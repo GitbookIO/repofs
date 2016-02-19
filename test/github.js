@@ -3,7 +3,7 @@ var _ = require('lodash');
 
 var Octocat = require('octocat');
 var repofs = require('../');
-var conflict = require('../lib/conflict');
+var conflicter = require('../lib/conflicter');
 
 var GH_REPO = process.env.GITHUB_REPO;
 var GH_TOKEN = process.env.GITHUB_TOKEN;
@@ -240,25 +240,25 @@ describe('GitHub Driver', function() {
 
         describe('The conflict module', function () {
             it('should compare identical branches', function() {
-                return fs.detectConflicts('master', 'master')
+                return fs._detectConflicts('master', 'master')
                     .then(function (r) {
-                        r.status.should.eql(conflict.REFS.IDENTICAL);
+                        r.status.should.eql(conflicter.REFS.IDENTICAL);
                         r.base.should.eql('master');
                         r.head.should.eql('master');
                     });
             });
 
             it('should compare diverging branches', function() {
-                return fs.detectConflicts('master', 'conflict')
+                return fs._detectConflicts('master', 'conflict')
                     .then(function (r) {
-                        r.status.should.eql(conflict.REFS.DIVERGED);
+                        r.status.should.eql(conflicter.REFS.DIVERGED);
                         r.base.should.eql('master');
                         r.head.should.eql('conflict');
                         r.conflicts[dir + 'conflictfile'].should.eql({
                             base: 'f7cc72ae06a267b2bf77ba9c58e7f98414d7fedf',
                             head: '81c5b0431d975eae942bea623c4cf812887adc77',
                             path: dir + 'conflictfile',
-                            status: conflict.FILE.BOTH_MODIFIED
+                            status: conflicter.FILE.BOTH_MODIFIED
                         });
                     });
             });
