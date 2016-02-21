@@ -3,9 +3,14 @@
 set -e
 set -o pipefail
 
-# This script requires the following env:
-#     - GITHUB_TOKEN
-#     - GITHUB_REPO
+if [ -z "$GITHUB_TOKEN" ] || [ -z "$GITHUB_REPO" ]; then
+    cat <<EOF
+The github test script requires the following env:
+ - GITHUB_TOKEN
+ - GITHUB_REPO
+EOF
+    exit 1
+fi;
 
 # Random repository name
 if [ -z ${GITHUB_REPO+x} ]; then
