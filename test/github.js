@@ -341,6 +341,20 @@ describe('GitHub/uHub Driver', function() {
             });
         });
 
+        it('should fail if conflicts are not resolved', function() {
+            fs.once('conflicts.resolve.needed', function(conflicts, next) {
+                next(new Error('Failed, because of reasons'));
+            });
+            return fs.createBranch('merge-conflict-fail') // = master
+            .then(function () {
+                return fs.checkout('merge-conflict-fail');
+            })
+            .then(function () {
+                return fs.mergeBranches('conflict', 'merge-conflict-fail');
+            })
+            .should.be.rejected();
+        });
+
         it('should compare non conflicting-branches branches', function() {
             // TODO
         });
