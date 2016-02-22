@@ -312,7 +312,7 @@ describe('GitHub/uHub Driver', function() {
             fs.once('conflicts.resolve.needed', function(conflicts, next) {
                 next(null, {
                     message: 'Merge message',
-                    conflicts: {
+                    files: {
                         'branchdir/conflictfile': {
                             path: dir+'conflictfile',
                             buffer: 'Merged content' }

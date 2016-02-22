@@ -191,7 +191,23 @@ A branch is defined by:
 When commiting, or merging two branches, and conflicts occur, `fs` emits a `'conflicts.needs.resolved'` event. You can add a single listener to this event that will be responsible for resolving the conflict (see [events](#events)). Two parameters are handed:
 
 - `conflicts`: the result of comparing the conflicting refs (see `fs.detectConflicts()`)
-- `next`: callback method, expecting a new commit object
+- `next`: callback method, expecting the resolved object:
+
+``` js
+// Provides err to fail
+next = function (err, resolved)
+
+var resolved = {
+    message: 'Commit message'
+    files: {
+        <path>: {
+            path: <path>,
+            buffer: 'Merged content'
+        },
+        ...
+    }
+}
+```
 
 If no one is listening, the operations will simply fail.
 

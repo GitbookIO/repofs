@@ -154,7 +154,7 @@ describe('Conflict module', function() {
     it('should merge solved conflicts into a tree', function() {
         var mergedTree = conflicter.mergeInTree({
             message: 'This is solved',
-            conflicts: {
+            files: {
                 'branchdir/conflictfile': {
                     path: 'branchdir/conflictfile',
                     buffer: 'Cool merged buffer' // size 18
