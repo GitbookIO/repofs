@@ -3,11 +3,10 @@
 set -e
 set -o pipefail
 
-if [ -z "$GITHUB_TOKEN" ] || [ -z "$GITHUB_REPO" ]; then
+if [ -z "$GITHUB_TOKEN" ]; then
     cat <<EOF
 The uhub test script requires the following env:
  - GITHUB_TOKEN
- - GITHUB_REPO
 EOF
     exit 1
 fi;
