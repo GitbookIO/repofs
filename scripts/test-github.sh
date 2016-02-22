@@ -3,11 +3,11 @@
 set -e
 set -o pipefail
 
-if [ -z "$GITHUB_TOKEN" ] || [ -z "$GITHUB_REPO" ]; then
+if [ -z "$GITHUB_TOKEN" ] || [ [ -z "$GITHUB_REPO" ]  && [ -z  "$GITHUB_USER"] ]; then
     cat <<EOF
 The github test script requires the following env:
  - GITHUB_TOKEN
- - GITHUB_REPO
+ - GITHUB_REPO, or GITHUB_USER and the repo is generated randomly
 EOF
     exit 1
 fi;
