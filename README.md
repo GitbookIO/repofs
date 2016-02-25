@@ -223,12 +223,14 @@ This returns one of the possible status between the two refs, along with the lis
 ``` js
 {
     status: 'identical' | 'diverged',
+    base: "branch" | "sha"
+    head: "branch" | "sha"
     conflicts: {
         <path>: {
             path: <path>
             status: 'both-modified' | 'absent-on-base' | 'absent-on-head'
-            base: "sha..." | null
-            head: "sha..." | null
+            base: "blob's sha..." | null
+            head: "blob's sha..." | null
         },
         ...
     }
@@ -242,7 +244,7 @@ This returns one of the possible status between the two refs, along with the lis
 fs.listCommits({ ref: "dev" }).then(function(commits) { ... });
 ```
 
-`commits` will be a list like of object like:
+`commits` will be a list of objects like:
 
 ```js
 {
