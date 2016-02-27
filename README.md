@@ -174,9 +174,7 @@ fs.createBranch('fix/2', 'dev')
 fs.removeBranch('dev')
 
 // Merge a branch into another one
-fs.mergeBranches("dev", "master", {
-    message: "Shipped cool_feature!"
-})
+fs.mergeBranches('dev', 'master', { message: 'Merges dev into master' })
 ```
 
 A branch is defined by:
@@ -188,6 +186,57 @@ A branch is defined by:
 }
 ```
 
+##### Handling conflicts
+
+When commiting, or merging two branches, and conflicts occur, `fs` emits a `'conflicts.needs.resolved'` event. You can add a single listener to this event that will be responsible for resolving the conflict (see [events](#events)). Two parameters are handed:
+
+- `conflicts`: the result of comparing the conflicting refs (see `fs.detectConflicts()`)
+- `next`: callback method, expecting the resolved object:
+
+``` js
+// Provides err to fail
+next = function (err, resolved)
+
+var resolved = {
+    message: 'Commit message'
+    files: {
+        <path>: {
+            path: <path>,
+            buffer: 'Merged content'
+        },
+        ...
+    }
+}
+```
+
+If no one is listening, the operations will simply fail.
+
+###### Detecting conflicts between refs
+
+``` js
+// Detect conflicts between two refs (branch name or sha)
+fs.detectConflicts("master", "dev")
+```
+
+This returns one of the possible status between the two refs, along with the list of conflicts:
+
+``` js
+{
+    status: 'identical' | 'diverged',
+    base: "branch" | "sha"
+    head: "branch" | "sha"
+    conflicts: {
+        <path>: {
+            path: <path>
+            status: 'both-modified' | 'absent-on-base' | 'absent-on-head'
+            base: "blob's sha..." | null
+            head: "blob's sha..." | null
+        },
+        ...
+    }
+}
+```
+
 ##### List commits on the repository
 
 ```js
@@ -195,7 +244,7 @@ A branch is defined by:
 fs.listCommits({ ref: "dev" }).then(function(commits) { ... });
 ```
 
-`commits` will be a list like of object like:
+`commits` will be a list of objects like:
 
 ```js
 {
@@ -296,7 +345,7 @@ And revert:
 fs.revertChange('README.md', { ref: 'master' });
 
 // Revert all pending changes
-fs.revertAllChanges({ ref: 'master' });
+fs.revertChanges({ ref: 'master' });
 ```
 
 ##### Operations
@@ -353,3 +402,8 @@ fs.on('operations.completed', function(e) { })
 fs.on('operations.allcompleted', function(e) { })
 ```
 
+Conflicts:
+
+``` js
+fs.on('conflicts.needs.resolved', function(conflicts, next) { })
+```
