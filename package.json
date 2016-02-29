@@ -1,6 +1,6 @@
 {
     "name": "repofs",
-    "version": "6.0.1",
+    "version": "6.0.2",
     "main": "lib/index.js",
     "author": "GitBook <contact@gitbook.com>",
     "description": "Simple and unified API to manipulate Git repositories",
