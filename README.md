@@ -15,6 +15,7 @@ The API provided by this module is Promise-based.
 - :sparkles: Easy to use API
 - :sparkles: Supports ArrayBuffer for reading/writing files without encoding issues
 - :sparkles: Bundle multiple changes in one commit
+- :sparkles: Merge conflicts and "Can not fast forward"
 
 ### Installation
 
@@ -406,4 +407,6 @@ Conflicts:
 
 ``` js
 fs.on('conflicts.needs.resolved', function(conflicts, next) { })
+fs.on('conflicts.resolve.succees', function() { })
+fs.on('conflicts.resolve.failed', function() { })
 ```
