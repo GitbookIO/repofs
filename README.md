@@ -51,13 +51,13 @@ var fs = repofs({
 The first step is to select a branch to use:
 
 ```js
-fs.checkout('master').then(function() { ... })
+fs.checkout(repoState, 'master').then(function() { ... })
 ```
 
 ##### fs.stat: Get informations about a file
 
 ```js
-fs.stat('README.txt').then(function(file) { ... });
+fs.stat(repoState, 'README.txt').then(function(file) { ... });
 ```
 
 `file` will look like:
@@ -81,30 +81,30 @@ The `url` can be an `http(s)` url (for GitHub), or a `data` url (for Memory and 
 ##### fs.read: Read file's content
 
 ```js
-fs.read('README.txt').then(function(content) { ... });
+fs.read(repoState, 'README.txt').then(function(content) { ... });
 ```
 
 By default content is returned as an utf8 string, to read file's content as an `ArrayBuffer`, you can use the `encoding` option:
 
 ```js
 // Get content as an ArrayBuffer
-fs.read('README.txt', { encoding: null })
+fs.read(repoState, 'README.txt', { encoding: null })
 ```
 
 ##### fs.write: Update file content
 
-This method will fail if the file doesnt't exist. If the file doesn't exists, you should use `fs.create`. You can also use `fs.update` to orce creation if file doesn't exist.
+This method will fail if the file doesnt't exist. If the file doesn't exists, you should use `fs.create`. You can also use `fs.update` to force creation if file doesn't exist.
 
 ```js
 /// On default branch
-fs.write('README.txt', 'My new content')
+fs.write(repoState, 'README.txt', 'My new content')
 
 // With a specific commit message
 // By default, the message will be "Update <path>"
-fs.write('README.txt', 'My new content', { message: "My super commit" })
+fs.write(repoState, 'README.txt', 'My new content', { message: "My super commit" })
 
 // With an binary array buffer
-fs.write('image.png', new ArrayBuffer(10));
+fs.write(repoState, 'image.png', new ArrayBuffer(10));
 ```
 
 ##### fs.commit: Commit changes
@@ -114,36 +114,36 @@ Commit all changes to the driver.
 ```js
 // Commit changes on a specific branch
 // Commit message will be the last change's message
-fs.commit()
+fs.commit(repoState)
 
 // Commit with a different message
-fs.commit({ message: 'My Commit' })
+fs.commit(repoState, { message: 'My Commit' })
 ```
 
 ##### fs.exists: Check if a file exists
 
 ```js
-fs.exists('README.txt').then(function(exist) { ... });
+fs.exists(repoState, 'README.txt').then(function(exist) { ... });
 ```
 
 ##### fs.readdir: List directory content
 
 ```js
-fs.readdir('myfolder').then(function(files) { ... });
+fs.readdir(repoState, 'myfolder').then(function(files) { ... });
 ```
 
-`files` is a map fo `fileName => fileInfos`.
+`files` is a map of `fileName => fileInfos`.
 
 ##### fs.unlink: Delete a file
 
 ```js
-fs.unlink('README.txt').then(function() { ... });
+fs.unlink(repoState, 'README.txt').then(function(newState) { ... });
 ```
 
 ##### fs.rmdir: Delete a folder
 
 ```js
-fs.rmdir('lib').then(function() { ... });
+fs.rmdir(repoState, 'lib').then(function(newState) { ... });
 ```
 
 ##### fs.move: Move/Rename a file
@@ -151,32 +151,32 @@ fs.rmdir('lib').then(function() { ... });
 (`fs.rename` is an alias of this method).
 
 ```js
-fs.move('README.txt', 'README2.txt').then(function() { ... });
+fs.move(repoState, 'README.txt', 'README2.txt').then(function(newState) { ... });
 ```
 
 ##### fs.mvdir: Move/Rename a directory
 
 ```js
-fs.mvdir('lib', 'lib2').then(function() { ... });
+fs.mvdir(repoState, 'lib', 'lib2').then(function(newState) { ... });
 ```
 
 ##### Working with branches
 
 ```js
 // List branches
-fs.listBranches().then(function(branches) { ... });
+fs.listBranches(repoState, ).then(function(branches) { ... });
 
 // Create a new branch from master
-fs.createBranch('dev')
+fs.createBranch(repoState, 'dev')
 
 // or create a new branch from another branch
-fs.createBranch('fix/2', 'dev')
+fs.createBranch(repoState, 'fix/2', 'dev')
 
 // Delete a branch
-fs.removeBranch('dev')
+fs.removeBranch(repoState, 'dev')
 
 // Merge a branch into another one
-fs.mergeBranches('dev', 'master', { message: 'Merges dev into master' })
+fs.mergeBranches(repoState, 'dev', 'master', { message: 'Merges dev into master' })
 ```
 
 A branch is defined by:
@@ -194,10 +194,11 @@ When commiting, or merging two branches, and conflicts occur, `fs` emits a `'con
 
 - `conflicts`: the result of comparing the conflicting refs (see `fs.detectConflicts()`)
 - `next`: callback method, expecting the resolved object:
+// TODO provide a fail callback too ?
 
 ``` js
 // Provides err to fail
-next = function (err, resolved)
+next = function (err, resolved) // TODO pass a new editor state instead of just resolved ?
 
 var resolved = {
     message: 'Commit message'
@@ -217,7 +218,7 @@ If no one is listening, the operations will simply fail.
 
 ``` js
 // Detect conflicts between two refs (branch name or sha)
-fs.detectConflicts("master", "dev")
+fs.detectConflicts(repoState, "master", "dev")
 ```
 
 This returns one of the possible status between the two refs, along with the list of conflicts:
@@ -243,7 +244,7 @@ This returns one of the possible status between the two refs, along with the lis
 
 ```js
 // List commits
-fs.listCommits({ ref: "dev" }).then(function(commits) { ... });
+fs.listCommits(repoState, { ref: "dev" }).then(function(commits) { ... });
 ```
 
 `commits` will be a list of objects like:
@@ -263,7 +264,7 @@ fs.listCommits({ ref: "dev" }).then(function(commits) { ... });
 ##### Get a single commit
 
 ```js
-fs.getCommit("sha").then(function(commit) { ... });
+fs.getCommit(repoState, "sha").then(function(commit) { ... });
 ```
 
 `commit` will also include a `files` attribute, example:
@@ -289,7 +290,7 @@ fs.getCommit("sha").then(function(commit) { ... });
 ##### Compare two commits
 
 ```js
-fs.compareCommits("hubot:branchname", "octocat:branchname").then(function(result) { ... });
+fs.compareCommits(repoState, "hubot:branchname", "octocat:branchname").then(function(result) { ... });
 ```
 
 `result` will also include `files` and `commits` attribute.
@@ -299,12 +300,12 @@ fs.compareCommits("hubot:branchname", "octocat:branchname").then(function(result
 
 ```js
 // Push a branch to origin
-fs.push({
+fs.push(repoState, {
     branch: "dev"
 })
 
 // Push to a specific remote
-fs.push({
+fs.push(repoState, {
     remote: {
         name: "myremote",
         url: "https://github.com/GitbookIO/repofs.git"
@@ -312,7 +313,7 @@ fs.push({
 })
 
 // Fetch a specific remote with authentication
-fs.fetch({
+fs.fetch(repoState, {
     remote: {
         name: "myremote",
         url: "https://github.com/GitbookIO/repofs.git"
@@ -324,7 +325,7 @@ fs.fetch({
 })
 
 // Force push
-fs.push({
+fs.push(repoState, {
     force: true
 })
 ```
@@ -336,7 +337,7 @@ fs.push({
 Uncommited changes can be listed:
 
 ```js
-var changes = fs.listChanges({ ref: 'master' });
+var changes = fs.listChanges(repoState, { ref: 'master' });
 // changes will be a map: filanem -> {type, buffer}
 ```
 
@@ -344,27 +345,39 @@ And revert:
 
 ```js
 // Revert change on a file
-fs.revertChange('README.md', { ref: 'master' });
+fs.revertChange(repoState, 'README.md', { ref: 'master' });
 
 // Revert all pending changes
-fs.revertChanges({ ref: 'master' });
+fs.revertChanges(repoState, { ref: 'master' });
 ```
 
 ##### Operations
 
 Repofs has a concept of "operations stack", to easily group changes:
 
-```js
+// TODO this feature might not be kept, at least not in this form
+``` js
 fs.operation('First commit', function() {
     return Q.all([
         fs.write('package.json', '{ ... }'),
         fs.write('index.js', '...'),
         fs.write('README.md', '...')
-    ]);
-});
+     ]);
+ });
 ```
 
-We can also automatically commit once the stack is empty:
+// TODO this would be the alternative form
+```js
+fs.operation(repoState, 'First commit', function() {
+    fs.write(repoState, 'package.json', '{ ... }')
+    .then(function (newState) {
+        return fs.write(newState, 'index.js', '...')
+    })
+    .then(function (newState) {
+        return fs.write(newState, README.js', '...')
+    })
+}).then(function (finalState) { ... })
+```
 
 ```js
 fs.on('operations.allcompleted', function() {
@@ -373,6 +386,8 @@ fs.on('operations.allcompleted', function() {
 ```
 
 ##### Events
+
+// TODO we must define how we refactor events...
 
 File watcher (Path of the file is accessible using `e.path`):
 
