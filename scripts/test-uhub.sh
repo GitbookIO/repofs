@@ -11,7 +11,7 @@ EOF
     exit 1
 fi;
 
-UHUB_VERSION=2.2.3
+UHUB_VERSION=2.2.9
 
 # Download Uhub
 if [ "$(uname)" == "Darwin" ]; then
