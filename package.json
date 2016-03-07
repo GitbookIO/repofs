@@ -29,6 +29,7 @@
     },
     "scripts": {
         "test": "./scripts/test-uhub.sh; ./scripts/test-github.sh",
+        "test-internal": "./scripts/test-internal.sh",
         "test-uhub": "./scripts/test-uhub.sh",
         "test-github": "./scripts/test-github.sh"
     },
