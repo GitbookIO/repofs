@@ -29,4 +29,4 @@ node_modules
 
 test/_local
 .tmp
-uhub
+uhub*
