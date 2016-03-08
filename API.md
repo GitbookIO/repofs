@@ -65,7 +65,7 @@ File = Record<{
     type: String, // "file", etc?
     isDirectory: Boolean,
     size: Number, // Characters count
-    sha: Sha,
+    sha: Sha, // Sha of the file's blob
     content: String,
     mime: String, // like "application/octet-stream"
     url: String // "protocol://..."
@@ -75,12 +75,13 @@ With protocol being `http(s)` (for GitHub), or `data` (for Memory and LocalStore
 
 ## Errors
 
-The RepoFs API defines a list of errors that you might want to handle. All errors inherit `Error` and have at least a `message` attribute:
+The RepoFs API defines a list of errors that you might want to handle. All errors inherit `Error` and have at least a `message` and a `code` attribute that you can check against these constants:
 
 ``` js
-RepoFs.ERR_CONFLICTS = 
+RepoFs.ERR_CONFLICTS
 RepoFs.ERR_FILE_NOT_FOUND
 ```
+
 
 ## `Store`
 An object that must implement the following instance methods:
@@ -184,22 +185,63 @@ RepoFs.removeBranch(repoState, localRef)
 ```
 
 #### `mergeBranches`
-``` js
+```js
 // Merge a ref into another one
 // Options object:
 // - message: String. Specify the commit message
-// Can fail with `ERR_CONFLICTS`
+// Can fail with code `RepoFs.ERR_CONFLICTS`
 // RepoState, Ref, Ref, (Object) -> Promise(RepoState, Error)
 RepoFs.mergeBranches(repoState, refFrom, refInto, options)
 ```
 
 See [handling conflicts](#handling-conflicts) to learn how to handle ERR_CONFLICTS.
 
-```
+##### Handling conflicts
+
+When a merge conflict occurs (after commiting or merging two branches), `RepoFs` fails with a `RepoFs.ERR_CONFLICTS` error. This error inherits `Error` and has some additional attributes to allow conflict resolution:
 
 ```js
-// RepoState, Ref -> RepoState
-RepoFs.checkout = function (repoState, ref)
+conflictError = {
+    code: RepoFs.ERR_CONFLICTS,
+    message: String,
+    conflicts: Conflict
+    resolve: Function // see below
+}
+```
+
+The `conflicts` contains all the info about the conflict that happened:
+
+```js
+Conflict = {
+    status: 'identical' | 'diverged',
+    base: Ref | Sha,
+    head: Ref | Sha, // Can be a Sha after committing in non fast forward
+    conflicts: {
+        <path>: {
+            path: <path>,
+            status: 'both-modified' | 'absent-on-base' | 'absent-on-head',
+            base: Sha | null, // Sha of the corresponding blob, or null if inexistant
+            head: Sha | null
+        },
+        ...
+    }
+}
+```
+
+Lastly, the `resolve` callback allows to provide a conflict resolution, and returns a Promise of the resulting RepoState:
+
+```js
+// (Object), Resolved -> Promise(RepoState)
+conflictErr.resolve = function (err, resolved)
+
+// Where `resolved` contains the revoled content for all conflicting files
+resolved = {
+    <path>: {
+        path: <path>,
+        buffer: 'Merged content'
+    },
+    ...
+}
 ```
 
 ### Files
@@ -229,7 +271,7 @@ By default content is returned as an utf8 string, to read file's content as an `
 
 ```js
 // Set a file's content, on current ref. Fails if the file doesn't exist
-// Can fail with `ERR_FILE_NOT_FOUND`
+// Can fail with code `RepoFs.ERR_FILE_NOT_FOUND`
 // RepoState, Path, String -> Promise(RepoState, Error)
 RepoFs.write(repoState, path, newContent)
 ```
@@ -240,7 +282,7 @@ This method will fail if the file doesnt't exist. You can first create the file 
 
 ```js
 // Same as `write` with a binary array buffer
-// Can fail with `ERR_FILE_NOT_FOUND`
+// Can fail with code `RepoFs.ERR_FILE_NOT_FOUND`
 // RepoState, Path, ArrayBuffer -> Promise(RepoState, Error)
 RepoFs.writeBuffer(repoState, path, contentBuffer)
 ```
