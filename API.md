@@ -15,7 +15,7 @@ It contains the following data:
 - `RepoConfig` instance
 - Current branch name
 - `Trees` for every branch (cached)
-- Pending changes for trees
+- The list of pending changes for trees
 - `Store` instance
 
 ## Tree
@@ -44,9 +44,13 @@ Maybe we will need to keep a virtual store index (immutable) to keep track of ea
 
 ## Types
 
+In addition to Immutable types, these are types references used in this doc
+
 ```js
-// As in Git. Has a name and type: remote, tag, head...
-Ref = String
+Ref = Record<{
+    type: String, // such as 'remote', 'tag', 'head'
+    name: String // such as 'master'
+}>
 
 // A SHA hash
 Sha = String
@@ -55,7 +59,7 @@ Sha = String
 Path = String
 
 // A file and its info
-File = {
+File = Record<{
     name: String,
     path: Path,
     type: String, // "file", etc?
@@ -65,11 +69,18 @@ File = {
     content: String,
     mime: String, // like "application/octet-stream"
     url: String // "protocol://..."
-
-}
+}>
 ```
+With protocol being `http(s)` (for GitHub), or `data` (for Memory and LocalStore).
 
-with protocol being The `url` can be an `http(s)` url (for GitHub), or a `data` url (for Memory and LocalStore).
+## Errors
+
+The RepoFs API defines a list of errors that you might want to handle. All errors inherit `Error` and have at least a `message` attribute:
+
+``` js
+RepoFs.ERR_CONFLICTS = 
+RepoFs.ERR_FILE_NOT_FOUND
+```
 
 ## `Store`
 An object that must implement the following instance methods:
@@ -118,6 +129,8 @@ state.getConfig()
 // () -> Ref
 state.getCurrentRef()
 
+// List all known refs, local and remote.
+// TODO Should return a Immutable.Iterable instead ?
 // () -> [Ref]
 state.listRefs()
 
@@ -135,9 +148,53 @@ state._getStore()
 
 ## RepoFs
 
+### Initialization
+
+#### `createFromConfig`
+
 ```js
 // RepoConfig -> RepoState
-RepoFs.createFromConfig = function (repoConfig)
+RepoFs.createFromConfig(repoConfig)
+```
+
+### Refs
+
+#### `checkout`
+
+```js
+// RepoState, Ref -> Promise(RepoState)
+RepoFs.checkout(repoState, ref)
+```
+
+#### `createRef`
+
+```js
+// Creates a new local ref, pointing on the current ref.
+// Optionnaly provides a base ref
+// RepoState, String, (Ref) -> Promise(RepoState)
+RepoFs.createBranch(repoState, name, baseRef)
+```
+
+#### `removeBranch`
+
+```js
+// Deletes a local ref
+// RepoState, Ref -> Promise(RepoState)
+RepoFs.removeBranch(repoState, localRef)
+```
+
+#### `mergeBranches`
+``` js
+// Merge a ref into another one
+// Options object:
+// - message: String. Specify the commit message
+// Can fail with `ERR_CONFLICTS`
+// RepoState, Ref, Ref, (Object) -> Promise(RepoState, Error)
+RepoFs.mergeBranches(repoState, refFrom, refInto, options)
+```
+
+See [handling conflicts](#handling-conflicts) to learn how to handle ERR_CONFLICTS.
+
 ```
 
 ```js
@@ -145,8 +202,95 @@ RepoFs.createFromConfig = function (repoConfig)
 RepoFs.checkout = function (repoState, ref)
 ```
 
+### Files
+
+#### `stat`
+
 ```js
-// Get information about a file
+// Get information about a file, on current ref
 // RepoState, Path -> Promise(File)
 RepoFs.stat(repoState, path)
+```
+
+#### `read`
+
+```js
+// Get file's content, on current ref
+// Options:
+// - encoding: String. Default to utf8, provide null to receive an ArrayBuffer
+// RepoState, Path -> Promise(String | ArrayBuffer)
+RepoFs.read(repoState, path)
+```
+
+By default content is returned as an utf8 string, to read file's content as an `ArrayBuffer`, use the `encoding` option.
+
+
+#### `write`
+
+```js
+// Set a file's content, on current ref. Fails if the file doesn't exist
+// Can fail with `ERR_FILE_NOT_FOUND`
+// RepoState, Path, String -> Promise(RepoState, Error)
+RepoFs.write(repoState, path, newContent)
+```
+
+This method will fail if the file doesnt't exist. You can first create the file with  `RepoFs.create`. You can also use `RepoFs.update` to force creation if the file doesn't exist.
+
+### `writeBuffer`
+
+```js
+// Same as `write` with a binary array buffer
+// Can fail with `ERR_FILE_NOT_FOUND`
+// RepoState, Path, ArrayBuffer -> Promise(RepoState, Error)
+RepoFs.writeBuffer(repoState, path, contentBuffer)
+```
+
+### `exists`
+
+```js
+// Indicates if a file exists on current ref.
+// RepoState, Path -> Promise(Boolean)
+RepoFs.exists(repoState, path)
+```
+
+### `readdir`
+
+```js
+// List files in a folder from the current ref
+// RepoState, Path -> Promise(Map<Path, File>)
+RepoFs.readdir(repoState, folderPath)
+```
+
+### `unlink`
+
+```js
+// Remove a file from the current ref
+// RepoState, Path -> Promise(RepoState)
+RepoFs.remove(repoState, 'README.txt')
+```
+
+### `rmdir`
+
+```js
+// Remove a directory recursively
+// RepoState, Path -> Promise(RepoState)
+RepoFs.rmdir(repoState, dirPath)
+```
+
+### `move`
+
+```js
+// Move, or rename a file from the current ref.
+// RepoState, Path, Path -> Promise(RepoState)
+RepoFs.move(repoState, path, newPath)
+```
+
+Alias `rename`.
+
+### `mvdir`
+
+```js
+// Move/rename a directory
+// RepoState, Path, Path -> Promise(RepoState)
+RepoFs.mvdir(repoState, path, newPath)
 ```
