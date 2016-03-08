@@ -1,5 +1,7 @@
 This document describes the refactored API of `repofs`. We will eventually export it in a proper doc using gitbook.
 
+TODO mark methods that truely modify the repo (like committing, pushing etc.)
+
 # Overview
 
 ## RepoFs
@@ -21,8 +23,11 @@ It contains the following data:
 ## Tree
 TODO
 
-## Entry
+## TreeChange
 TODO
+
+## Entry
+TODO ?
 
 ## RepoConfig
 
@@ -117,8 +122,24 @@ createStore(namespace)
 ### Static methods
 
 ```js
-TODO
+// Dumps the whole state to a plain JS object that can be serialized
+// RepoState -> Object
+RepoState.dump(state)
+
+// Restores an instance of RepoState from a dump
+// Object -> RepoState
+RepoState.fromDump(dump)
+
+// Reverts changes for the given file
+// RepoState, Ref, Path -> RepoState
+RepoState.reverChange(repoState, ref, path)
+
+// Drops all changes to the given path
+// RepoState, Ref -> RepoState
+RepoState.reverChange(repoState, ref)
 ```
+
+The functions `dump` and `fromDump` are inverse operations.
 
 ### Instance methods
 
@@ -140,7 +161,7 @@ state.listRefs()
 state.getTree(ref)
 
 // optional ref param
-// (Ref) -> Tree // TODO return a Tree ?
+// (Ref) -> TreeChanges
 state.getPendingChanges(ref)
 
 // () -> Store
@@ -158,91 +179,7 @@ state._getStore()
 RepoFs.createFromConfig(repoConfig)
 ```
 
-### Refs
-
-#### `checkout`
-
-```js
-// RepoState, Ref -> Promise(RepoState)
-RepoFs.checkout(repoState, ref)
-```
-
-#### `createRef`
-
-```js
-// Creates a new local ref, pointing on the current ref.
-// Optionnaly provides a base ref
-// RepoState, String, (Ref) -> Promise(RepoState)
-RepoFs.createBranch(repoState, name, baseRef)
-```
-
-#### `removeBranch`
-
-```js
-// Deletes a local ref
-// RepoState, Ref -> Promise(RepoState)
-RepoFs.removeBranch(repoState, localRef)
-```
-
-#### `mergeBranches`
-```js
-// Merge a ref into another one
-// Options object:
-// - message: String. Specify the commit message
-// Can fail with code `RepoFs.ERR_CONFLICTS`
-// RepoState, Ref, Ref, (Object) -> Promise(RepoState, Error)
-RepoFs.mergeBranches(repoState, refFrom, refInto, options)
-```
-
-See [handling conflicts](#handling-conflicts) to learn how to handle ERR_CONFLICTS.
-
-##### Handling conflicts
-
-When a merge conflict occurs (after commiting or merging two branches), `RepoFs` fails with a `RepoFs.ERR_CONFLICTS` error. This error inherits `Error` and has some additional attributes to allow conflict resolution:
-
-```js
-conflictError = {
-    code: RepoFs.ERR_CONFLICTS,
-    message: String,
-    conflicts: Conflict
-    resolve: Function // see below
-}
-```
-
-The `conflicts` contains all the info about the conflict that happened:
-
-```js
-Conflict = {
-    status: 'identical' | 'diverged',
-    base: Ref | Sha,
-    head: Ref | Sha, // Can be a Sha after committing in non fast forward
-    conflicts: {
-        <path>: {
-            path: <path>,
-            status: 'both-modified' | 'absent-on-base' | 'absent-on-head',
-            base: Sha | null, // Sha of the corresponding blob, or null if inexistant
-            head: Sha | null
-        },
-        ...
-    }
-}
-```
-
-Lastly, the `resolve` callback allows to provide a conflict resolution, and returns a Promise of the resulting RepoState:
-
-```js
-// (Object), Resolved -> Promise(RepoState)
-conflictErr.resolve = function (err, resolved)
-
-// Where `resolved` contains the revoled content for all conflicting files
-resolved = {
-    <path>: {
-        path: <path>,
-        buffer: 'Merged content'
-    },
-    ...
-}
-```
+Most of RepoFs' methods will need a current ref, so you might want to [`checkout`](#checkout) after that.
 
 ### Files
 
@@ -258,10 +195,12 @@ RepoFs.stat(repoState, path)
 
 ```js
 // Get file's content, on current ref
-// Options:
-// - encoding: String. Default to utf8, provide null to receive an ArrayBuffer
 // RepoState, Path -> Promise(String | ArrayBuffer)
 RepoFs.read(repoState, path)
+
+options = {
+    encoding: String // Default to utf8, provide null to receive an ArrayBuffer
+}
 ```
 
 By default content is returned as an utf8 string, to read file's content as an `ArrayBuffer`, use the `encoding` option.
@@ -270,7 +209,8 @@ By default content is returned as an utf8 string, to read file's content as an `
 #### `write`
 
 ```js
-// Set a file's content, on current ref. Fails if the file doesn't exist
+// Updates a file's content, on current ref. Fails if the file doesn't exist.
+// This is added to the list of pending changes, but not commited.
 // Can fail with code `RepoFs.ERR_FILE_NOT_FOUND`
 // RepoState, Path, String -> Promise(RepoState, Error)
 RepoFs.write(repoState, path, newContent)
@@ -335,4 +275,242 @@ Alias `rename`.
 // Move/rename a directory
 // RepoState, Path, Path -> Promise(RepoState)
 RepoFs.mvdir(repoState, path, newPath)
+```
+
+## Committing
+
+### `commit`
+
+Commit all pending changes.
+
+```js
+// Commit pending changes on a specific branch
+// RepoState, (Object) -> Promise(RepoState)
+RepoFs.commit(repoState, options)
+
+options = {
+    message: String // Commit message. Default to the last change's message
+}
+```
+
+
+##### List commits on the repository
+
+```js
+// List commits
+RepoFs.listCommits(repoState, { ref: "dev" }).then(function(commits) { ... });
+```
+
+`commits` will be a list of objects like:
+
+```js
+{
+    "sha": "...",
+    "author": {
+        "name": "Samy Pesse",
+        "email": "samypesse@gmail.com"
+    },
+    "message": "Create file hello.js",
+    "date": [Date Object]
+}
+```
+
+##### Get a single commit
+
+```js
+RepoFs.getCommit(repoState, "sha").then(function(commit) { ... });
+```
+
+`commit` will also include a `files` attribute, example:
+
+```js
+{
+    "sha": "415ab40ae9b7cc4e66d6769cb2c08106e8293b48",
+    "author": {
+        "name": "John Doe",
+        "email": "johndoe@gmail.com"
+    },
+    "message": "Initial commit",
+    "date": "2015-06-09T08:10:38.260Z",
+    "files": [
+        {
+            "filename": "README.md",
+            "patch": "@@ -0,0 +1,11 @@\n+Hello world\n"
+        }
+    ]
+}
+```
+
+##### Compare two commits
+
+```js
+RepoFs.compareCommits(repoState, "hubot:branchname", "octocat:branchname").then(function(result) { ... });
+```
+
+`result` will also include `files` and `commits` attribute.
+
+
+### Refs
+
+#### `checkout`
+
+```js
+// Changes the current Ref
+// RepoState, Ref -> Promise(RepoState)
+RepoFs.checkout(repoState, ref)
+```
+
+#### `createRef`
+
+```js
+// Creates a new local ref, pointing to a base ref.
+// RepoState, String, (Object) -> Promise(RepoState)
+RepoFs.createBranch(repoState, name, options)
+
+options = {
+    baseRef: Ref // Provides a base ref, default to current ref
+}
+```
+
+#### `removeBranch`
+
+```js
+// Deletes a local ref
+// RepoState, Ref -> Promise(RepoState)
+RepoFs.removeBranch(repoState, localRef)
+```
+
+#### `mergeBranches`
+```js
+// Merge a ref into another one.
+// Can fail with code `RepoFs.ERR_CONFLICTS`
+// RepoState, Ref, Ref, (Object) -> Promise(RepoState, Error)
+RepoFs.mergeBranches(repoState, refFrom, refInto, options)
+
+options = {
+    message: String // Specify the commit message
+}
+```
+
+See [handling conflicts](#handling-conflicts) to learn how to handle ERR_CONFLICTS.
+
+##### Handling conflicts
+
+When a merge conflict occurs (after commiting or merging two branches), `RepoFs` fails with a `RepoFs.ERR_CONFLICTS` error. This error inherits `Error` and has some additional attributes to allow conflict resolution:
+
+```js
+conflictError = {
+    code: RepoFs.ERR_CONFLICTS,
+    message: String,
+    conflicts: Conflict
+    resolve: Function // see below
+}
+```
+
+The `conflicts` contains all the info about the conflict that happened:
+
+```js
+Conflict = {
+    status: 'identical' | 'diverged',
+    base: Ref | Sha,
+    head: Ref | Sha, // Can be a Sha after committing in non fast forward
+    conflicts: {
+        <path>: {
+            path: <path>,
+            status: 'both-modified' | 'absent-on-base' | 'absent-on-head',
+            base: Sha | null, // Sha of the corresponding blob, or null if inexistant
+            head: Sha | null
+        },
+        ...
+    }
+}
+```
+
+Lastly, the `resolve` callback allows to provide a conflict resolution, and returns a Promise of the resulting RepoState:
+
+```js
+// (Object), Resolved -> Promise(RepoState)
+// Pass `err` as null to resolve the conflicts
+conflictErr.resolve = function (err, resolved)
+
+// Where `resolved` contains the revoled content for all conflicting files
+resolved = {
+    <path>: {
+        path: <path>,
+        buffer: 'Merged content'
+    },
+    ...
+}
+```
+
+### Working with remotes
+
+#### `push`
+
+```js
+// Pushes a branch to a remote
+// RepoState, Object -> Promise(RepoState)
+RepoFs.push(repoState, options)
+
+options = {
+    branch: Ref // The branch to push
+    force: Boolean // Same as the git force option. Defaults to 'false'
+    remote: {
+        name: String, // Defaults to 'origin'
+        url: String,
+    },
+    auth: { // For authentication
+        username: String,
+        password: String,
+    }
+}
+```
+
+#### `fetch`
+
+```js
+// Fetches a specific remote with authentication
+// RepoState, Object -> Promise(RepoState)
+RepoFs.fetch(repoState, options)
+
+options = {
+    remote: {
+        name: String, // Defaults to 'origin'
+        url: String, // ex: "https://github.com/User/repo.git"
+    },
+    auth: {
+        username: String,
+        password: String
+    }
+})
+```
+
+#### `pull`
+
+```js
+// Updates a ref from a remote
+// RepoState, Object -> Promise(RepoState)
+RepoFs.push(repoState, options)
+
+options = {
+    branch: Ref // The branch to update. Defaults to the current ref
+    handleConflicts: Boolean, // Whether to attempts merging. Defaults to 'true'
+    force: Boolean // Same as the git force option. Defaults to 'false'
+    remote: {
+        name: String, // Defaults to 'origin'
+        url: String,
+    },
+    auth: { // For authentication
+        username: String,
+        password: String,
+    }
+}
+```
+
+#### `sync`
+
+``` js
+// Equivalent to pull then push
+// RepoState, Object -> Promise(RepoState)
+RepoFs.sync(repoState, options)
 ```
