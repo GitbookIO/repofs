@@ -11,7 +11,7 @@ EOF
     exit 1
 fi;
 
-UHUB_VERSION=2.2.3
+UHUB_VERSION=2.2.9
 
 # Download Uhub
 if [ "$(uname)" == "Darwin" ]; then
@@ -22,14 +22,16 @@ elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]; then
     UHUB_NAME=uhub_windows_amd64.exe
 fi
 
-if [ -f uhub ];
+UHUB_BIN="uhub-$UHUB_VERSION"
+
+if [ -f $UHUB_BIN ];
 then
     echo "uhub already exist."
 else
-    echo "Downloading uhub"
+    echo "Downloading uhub version $UHUB_VERSION"
     github-releases --tag $UHUB_VERSION --filename $UHUB_NAME --token $GITHUB_TOKEN download GitbookIO/uhub
-    mv $UHUB_NAME uhub
-    chmod +x uhub
+    mv $UHUB_NAME $UHUB_BIN
+    chmod +x $UHUB_BIN
 fi
 
 echo "Prepare tests for uhub"
@@ -49,7 +51,7 @@ cd ../..
 REPO_PATH=$(pwd)/.tmp/repo/
 
 # Start uhub
-./uhub --mode=single --root=$REPO_PATH --port=127.0.0.1:6666 > /dev/null  &
+./$UHUB_BIN --mode=single --root=$REPO_PATH --port=127.0.0.1:6666 > /dev/null  &
 UHUBPID=$!
 trap 'kill -s 9 $UHUBPID' EXIT
 
