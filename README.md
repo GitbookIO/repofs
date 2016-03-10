@@ -380,6 +380,11 @@ fs.on('watcher.create', function(e) {  })
 fs.on('watcher.remove', function(e) {  })
 fs.on('watcher.update', function(e) {  })
 
+// Whenever the current tree is fetched
+fs.on('watcher.fetch', function(e) {
+    e.filesTreeChanged // Boolean
+})
+
 // Or watch all changes (create, remove and update):
 // e.type is the type of change
 fs.on('watcher', function(e) {  })
