@@ -7,7 +7,7 @@ This module provides a simple and unified API to manipulate Git repositories on 
 
 It allows more complex operations than the [Contents API](https://developer.github.com/v3/repos/contents/) using the [Git Data API](https://developer.github.com/v3/git/).
 
-The API provided by this module is Promise-based.
+It is powered by an immutable model. Async operations are Promise-based.
 
 ### Installation
 
@@ -52,24 +52,25 @@ repofs.RepoUtils.checkout(repoState, driver, 'master')
 })
 ```
 
-#### Reading the repository
+#### Reading files
 
-Fetch the tree:
-
-```js
-repofs.WorkingUtil.fetchTree(workingState, 'master')
-.then(function(newWorkingState) {
-    ...
-})
-```
-
-Fetch a specific file:
+Reading a file requires to fetch the content from the remote repository inside the `RepositoryState` (See [Caching](#caching)):
 
 ```js
 repofs.WorkingUtil.fetchFile(workingState, driver, 'README.md')
 .then(function(newWorkingState) {
     ...
 })
+```
+
+Then the content can be accessed using sync methods:
+
+```js
+// Read as an ArrayBuffer
+var buf = repofs.FileUtils.read(workingState, 'README.md');
+
+// Read as a String
+var content = repofs.FileUtils.readAsString(workingState, 'README.md');
 ```
 
 #### Working with files
