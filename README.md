@@ -33,12 +33,23 @@ var driver = repofs.GitHubDriver({
 });
 ```
 
-#### Create a WorkingState
+#### Initialize a Repository
 
-`WorkingState` represents a working directory
+The first step is to initialize a repository state:
 
 ```js
-var workingState = repofs.WorkingState.createEmpty();
+var repoState = repofs.RepositoryState.createEmpty();
+```
+
+#### Checkout a branch
+
+After creating an empty `RepositoryState`, the next step is to checkout a specific branch
+
+```js
+repofs.RepoUtils.checkout(repoState, driver, 'master')
+.then(function(newRepoState) {
+    ...
+})
 ```
 
 #### Reading the repository
