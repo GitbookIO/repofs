@@ -48,7 +48,7 @@ Fetch the tree:
 ```js
 repofs.WorkingUtil.fetchTree(workingState, 'master')
 .then(function(newWorkingState) {
-
+    ...
 })
 ```
 
@@ -57,11 +57,11 @@ Fetch a specific file:
 ```js
 repofs.WorkingUtil.fetchFile(workingState, driver, 'README.md')
 .then(function(newWorkingState) {
-
+    ...
 })
 ```
 
-#### Editing the repository
+#### Working with files
 
 Create a new file:
 
@@ -73,5 +73,31 @@ Write/Update the file
 
 ```js
 var newWorkingState = repofs.FileUtils.write(workingState, 'API.md');
+```
+
+Remove the file
+
+```js
+var newWorkingState = repofs.FileUtils.remove(workingState, 'API.md');
+```
+
+Rename/Move the file
+
+```js
+var newWorkingState = repofs.FileUtils.move(workingState, 'API.md', 'API2.md');
+```
+
+#### Working with directories
+
+Remove the directory
+
+```js
+var newWorkingState = repofs.DirUtils.remove(workingState, 'myfolder');
+```
+
+Rename/Move the directory
+
+```js
+var newWorkingState = repofs.DirUtils.move(workingState, 'myfolder', 'myfolder2');
 ```
 
