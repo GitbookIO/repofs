@@ -57,8 +57,8 @@ repofs.RepoUtils.checkout(repoState, driver, 'master')
 Reading a file requires to fetch the content from the remote repository inside the `RepositoryState` (See [Caching](#caching)):
 
 ```js
-repofs.WorkingUtil.fetchFile(workingState, driver, 'README.md')
-.then(function(newWorkingState) {
+repofs.WorkingUtil.fetchFile(repoState, driver, 'README.md')
+.then(function(newRepoState) {
     ...
 })
 ```
@@ -67,36 +67,50 @@ Then the content can be accessed using sync methods:
 
 ```js
 // Read as an ArrayBuffer
-var buf = repofs.FileUtils.read(workingState, 'README.md');
+var buf = repofs.FileUtils.read(repoState, 'README.md');
 
 // Read as a String
-var content = repofs.FileUtils.readAsString(workingState, 'README.md');
+var content = repofs.FileUtils.readAsString(repoState, 'README.md');
 ```
+
+#### Listing files
+
+Since repofs keeps the whole tree in its `RepositoryState`, you can access the all tree at once:
+
+```js
+// From a RepositoryState
+var tree = repoState.getCurrentTree();
+
+// From a WorkingState
+var tree = repoState.getTree();
+```
+
+
 
 #### Working with files
 
 Create a new file:
 
 ```js
-var newWorkingState = repofs.FileUtils.create(workingState, 'API.md');
+var newRepoState = repofs.FileUtils.create(repoState, 'API.md');
 ```
 
 Write/Update the file
 
 ```js
-var newWorkingState = repofs.FileUtils.write(workingState, 'API.md');
+var newRepoState = repofs.FileUtils.write(repoState, 'API.md');
 ```
 
 Remove the file
 
 ```js
-var newWorkingState = repofs.FileUtils.remove(workingState, 'API.md');
+var newRepoState = repofs.FileUtils.remove(repoState, 'API.md');
 ```
 
 Rename/Move the file
 
 ```js
-var newWorkingState = repofs.FileUtils.move(workingState, 'API.md', 'API2.md');
+var newRepoState = repofs.FileUtils.move(repoState, 'API.md', 'API2.md');
 ```
 
 #### Working with directories
@@ -104,12 +118,12 @@ var newWorkingState = repofs.FileUtils.move(workingState, 'API.md', 'API2.md');
 Remove the directory
 
 ```js
-var newWorkingState = repofs.DirUtils.remove(workingState, 'myfolder');
+var newRepoState = repofs.DirUtils.remove(repoState, 'myfolder');
 ```
 
 Rename/Move the directory
 
 ```js
-var newWorkingState = repofs.DirUtils.move(workingState, 'myfolder', 'myfolder2');
+var newRepoState = repofs.DirUtils.move(repoState, 'myfolder', 'myfolder2');
 ```
 
