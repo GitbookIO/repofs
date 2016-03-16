@@ -17,7 +17,8 @@ describe('WorkingState', function() {
                 tree: {
                     'README.md': {
                         size: 10,
-                        sha: '...'
+                        sha: '...',
+                        mode: '100644'
                     }
                 },
                 changes: {
