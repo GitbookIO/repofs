@@ -1,5 +1,6 @@
-
 var immutable = require('immutable');
+
+var bufferUtil = require('../lib/utils/arraybuffer');
 
 var Cache = require('../lib/models/cache');
 var CacheUtils = require('../lib/utils/cache');
@@ -42,13 +43,20 @@ function defaultBook() {
 
     // Already fetched blobs
     var cache = new Cache();
-    cache = CacheUtils.addBlob(cache, {sha: 'readmeSha', content:'# Introduction'});
-    cache = CacheUtils.addBlob(cache, {sha: 'summarySha', content:'# Summary'});
+    cache = CacheUtils.addBlob(cache, {
+        sha: 'readmeSha',
+        content: bufferUtil.fromString('# Introduction')
+    });
+    cache = CacheUtils.addBlob(cache, {
+        sha: 'summarySha',
+        content: bufferUtil.fromString('# Summary')
+    });
 
     return new RepositoryState({
         currentBranchName: 'master',
         workingStates: new immutable.Map().set(masterBranch.getName(), workingState),
-        branches: new immutable.Map().set(masterBranch.getName(), masterBranch)
+        branches: new immutable.Map().set(masterBranch.getName(), masterBranch),
+        cache: cache
     });
 }
 
