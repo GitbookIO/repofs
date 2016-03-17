@@ -10,7 +10,6 @@ var Branch = require('../lib/models/branch');
 var WorkingState = require('../lib/models/workingState');
 var RepositoryState = require('../lib/models/repositoryState');
 
-
 describe('Decoding, encoding', function() {
 
     var change = new Change({
