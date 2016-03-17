@@ -16,7 +16,7 @@ describe('WorkingState', function() {
             var workingState = repofs.decodeWorkingState({
                 tree: {
                     'README.md': {
-                        size: 10,
+                        blobSize: 10,
                         sha: '...',
                         mode: '100644'
                     }

@@ -7,9 +7,11 @@ var repofs = require('../');
 var Change = require('../lib/models/change');
 var TreeEntry = require('../lib/models/treeEntry');
 var Branch = require('../lib/models/branch');
+var WorkingState = require('../lib/models/workingState');
+var RepositoryState = require('../lib/models/repositoryState');
 
 
-describe('Decoding', function() {
+describe('Decoding, encoding', function() {
 
     var change = new Change({
         type: repofs.CHANGE.UPDATE,
@@ -25,50 +27,45 @@ describe('Decoding', function() {
     });
 
     var treeEntry = new TreeEntry({
-        size: 10,
+        blobSize: 10,
         sha: 'treeEntrySha',
         mode: '100644'
     });
 
+    var workingState = new WorkingState({
+        head: "headSha",
+        treeEntries: new immutable.Map({
+            "README.md": treeEntry
+        }),
+        changes: new immutable.OrderedMap({
+            "README.md": change
+        })
+    });
+
+    var repositoryState = new RepositoryState({
+        currentBranchName: branch.getName(),
+        workingStates: new immutable.Map().set(branch.getName(), workingState),
+        branches: new immutable.Map().set(branch.getName(), branch)
+    });
+
     function testDecodeEncode(type, source) {
-        var encdec = _.flow(type.encode, type.decode);
-        var degcenc = _.flow(type.decode, type.encode);
+        return function () {
+            var encdec = _.flow(type.encode, type.decode);
+            var decenc = _.flow(type.decode, type.encode);
 
-        immutable.is(source, encdec(source)).should.be.true();
+            immutable.is(source, encdec(source)).should.be.true();
 
-        var encoded = type.encode(source);
-        encoded.should.eql(decenc(encoded));
+            var encoded = type.encode(source);
+            encoded.should.eql(decenc(encoded));
+        };
     }
 
     it('should encode and decode back a Change', testDecodeEncode(Change, change));
     it('should encode and decode back a TreeEntry', testDecodeEncode(TreeEntry, treeEntry));
     it('should encode and decode back a Branch', testDecodeEncode(Branch, branch));
+    it('should encode and decode back a WorkingState', testDecodeEncode(WorkingState, workingState));
+    it('should encode and decode back a RepositoryState', testDecodeEncode(RepositoryState, repositoryState));
 
-    it('should decode a treeEntry', function() {
-        var treeEntry = decodeTreeEntry(encodedTreeEntry);
-        treeEntry.getSHA().should.equal('...');
-    });
-
-    it('should decode existing empty working state', function() {
-        var emptyWorking = repofs.decodeWorkingState({ });
-    });
-
-    it('should decode existing working state', function() {
-
-        var workingState = repofs.decodeWorkingState({
-            tree: {
-                'README.md': encodedTreeEntry
-            },
-            changes: {
-                'README.md': encodedChange
-            }
-        });
-        workingState.isClean().should.equal(false);
-        workingState.getChange('README.md').getType().should.equal(repofs.CHANGE.UPDATE);
-        workingState.getTreeEntries().get('README.md').should.be.ok();
-    });
-
-    it('should encode and decode itself', function () {
-    });
+    it('should encode and decode an empty RepositoryState', testDecodeEncode(RepositoryState, RepositoryState.createEmpty()));
 });
 
