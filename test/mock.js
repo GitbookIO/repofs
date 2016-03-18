@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var immutable = require('immutable');
 
 var bufferUtil = require('../lib/utils/arraybuffer');
@@ -10,56 +11,96 @@ var Branch = require('../lib/models/branch');
 var WorkingState = require('../lib/models/workingState');
 var RepositoryState = require('../lib/models/repositoryState');
 
-// Creates a clean repoState for a default book with branches and files already fetched
-// * SUMMARY.md "# Summary"
-// * README.md "# Introduction"
-function defaultBook() {
-    var readmeEntry = new TreeEntry({
-        blobSize: 14,
-        sha: 'readmeSha',
-        mode: '100644'
-    });
 
-    var summaryEntry = new TreeEntry({
-        blobSize: 9,
-        sha: 'summarySha',
-        mode: '100644'
-    });
-
+// Return empty repo with single master branch
+function emptyRepo() {
     var masterBranch = new Branch({
         shortName: 'master',
-        sha: 'masterSha',
+        sha: 'sha.master',
         remote: ''
     });
 
     var workingState = new WorkingState({
-        head: 'defaultBookWorkingSha',
-        treeEntries: new immutable.Map({
-            'README.md': readmeEntry,
-            'SUMMARY.md': summaryEntry
-        })
-        // No changes
-    });
-
-    // Already fetched blobs
-    var cache = new Cache();
-    cache = CacheUtils.addBlob(cache, {
-        sha: 'readmeSha',
-        content: bufferUtil.fromString('# Introduction')
-    });
-    cache = CacheUtils.addBlob(cache, {
-        sha: 'summarySha',
-        content: bufferUtil.fromString('# Summary')
+        head: 'sha.working.master',
+        treeEntries: new immutable.Map()
     });
 
     return new RepositoryState({
         currentBranchName: 'master',
         workingStates: new immutable.Map().set(masterBranch.getName(), workingState),
-        branches: new immutable.Map().set(masterBranch.getName(), masterBranch),
-        cache: cache
+        branches: new immutable.Map().set(masterBranch.getName(), masterBranch)
+        // No cache
     });
 }
 
+// Adds a file to the repo, with content equal to filepath.
+// options.fetched for already fetched in cache
+// options.branch to specify a branch
+// options.content to specify content
+function addFile(repoState, filepath, options) {
+    options = _.defaults({}, options || {}, {
+        branch: 'master',
+        fetched: true,
+        content: filepath
+    });
+
+    var treeEntry = new TreeEntry({
+        blobSize: options.content.length,
+        sha: 'sha.'+options.content,
+        mode: '100644'
+    });
+    var resultState = repoState;
+
+    // Update working state
+    var workingState = resultState.getCurrentState();
+    workingState = workingState
+        .set('treeEntries', workingState
+             .getTreeEntries().set(filepath, treeEntry));
+
+    var workingStates = resultState.getWorkingStates();
+    resultState = resultState
+        .set('workingStates', workingStates
+             .set(options.branch, workingState));
+
+    // Update cache
+    if(options.fetched) {
+        var cache = repoState.getCache();
+        cache = CacheUtils.addBlob(cache, {
+            sha: 'sha.'+options.content,
+            content: bufferUtil.fromString(options.content)
+        });
+        resultState = resultState.set('cache', cache);
+    }
+    return resultState;
+}
+
+
+// Creates a clean repoState for a default book with branches and files already fetched
+// * SUMMARY.md "# Summary"
+// * README.md "# Introduction"
+function defaultBook() {
+    var resultState = emptyRepo();
+    resultState = addFile(resultState, 'README.md', {
+        content: '# Introduction'
+    });
+    resultState = addFile(resultState, 'SUMMARY.md', {
+        content: '# Summary'
+    });
+    return resultState;
+}
+
+// Creates a nested directory structure for testing (already fetched)
+function directoryStructure() {
+    var resultState = emptyRepo();
+    resultState = addFile(resultState, 'file.root');
+    resultState = addFile(resultState, 'dir.twoItems/file1');
+    resultState = addFile(resultState, 'dir.twoItems/file2');
+    resultState = addFile(resultState, 'dir.deep.oneItem/file1');
+    resultState = addFile(resultState, 'dir.deep.oneItem/dir.oneItem/file1');
+    return resultState;
+}
+
 module.exports = {
-    defaultBook: defaultBook
+    DEFAULT_BOOK: defaultBook(),
+    NESTED_DIRECTORY: directoryStructure()
 };
