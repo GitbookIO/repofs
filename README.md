@@ -46,7 +46,9 @@ var repoState = repofs.RepositoryState.createEmpty();
 After creating an empty `RepositoryState`, the next step is to checkout a specific branch
 
 ```js
-repofs.RepoUtils.checkout(repoState, driver, 'master')
+var branch = repoState.getbranch('master');
+
+repofs.RepoUtils.checkout(repoState, driver, branch)
 .then(function(newRepoState) {
     ...
 })
@@ -158,7 +160,7 @@ var commit = repofs.CommitUtils.prepare(repoState, {
 });
 
 // Flush commit using the driver
-repofs.CommitUtils.flush(commit)
+repofs.CommitUtils.flush(repoState, driver, commit)
 .then(function() {
     ...
 });
