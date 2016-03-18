@@ -31,7 +31,7 @@ describe('FileUtils', function() {
 
         it('should read content as ArrayBuffer for modified files', function() {
             var modifiedState = FileUtils.write(defaultBook, 'README.md', 'New');
-            var read = FileUtils.read(defaultBook, 'README.md');
+            var read = FileUtils.read(modifiedState, 'README.md');
             read.should.be.an.instanceof(ArrayBuffer);
             bufferUtils.enforceString(read).should.equal('New');
         });
