@@ -90,17 +90,18 @@ function defaultBook() {
 }
 
 // Creates a nested directory structure for testing (already fetched)
-function directoryStructure() {
-    var resultState = emptyRepo();
-    resultState = addFile(resultState, 'file.root');
-    resultState = addFile(resultState, 'dir.twoItems/file1');
-    resultState = addFile(resultState, 'dir.twoItems/file2');
-    resultState = addFile(resultState, 'dir.deep.oneItem/file1');
-    resultState = addFile(resultState, 'dir.deep.oneItem/dir.oneItem/file1');
-    return resultState;
+// file.root
+// dir.twoItems/file1
+// dir.twoItems/file2
+// dir.deep.oneItem/file1
+// dir.deep.oneItem/dir.oneItem/file1
+function directoryStructure(pathList) {
+    return pathList.reduce(function (repo, path) {
+        return addFile(repo, path);
+    }, emptyRepo());
 }
 
 module.exports = {
     DEFAULT_BOOK: defaultBook(),
-    NESTED_DIRECTORY: directoryStructure()
+    directoryStructure: directoryStructure
 };
