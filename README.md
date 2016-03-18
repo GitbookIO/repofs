@@ -146,3 +146,21 @@ var newRepoState = repofs.ChangeUtils.revertForFile(repoState, 'README.md');
 var newRepoState = repofs.ChangeUtils.revertForDir(repoState, 'lib');
 ```
 
+#### Commiting changes
+
+```js
+// Create an author / committer
+var john = repofs.Author.create('John Doe', 'john.doe@gmail.com');
+
+// Create a CommitBuilder to define the commit
+var commit = repofs.CommitUtils.prepare(repoState, {
+    author: john
+});
+
+// Flush commit using the driver
+repofs.CommitUtils.flush(commit)
+.then(function() {
+    ...
+});
+```
+
