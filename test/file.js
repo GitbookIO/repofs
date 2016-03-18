@@ -1,4 +1,4 @@
-var should = require('should');
+require('should');
 
 var repofs = require('../');
 var bufferUtils = require('../lib/utils/arraybuffer');
@@ -65,7 +65,7 @@ describe('FileUtils', function() {
 
         it('should throw File Already Exists when file does exist', function() {
             (function createExisting() {
-                var read = FileUtils.create(defaultBook, 'README.md', '');
+                FileUtils.create(defaultBook, 'README.md', '');
             }).should.throw(Error, { code: repofs.ERROR.ALREADY_EXIST });
         });
     });
@@ -78,7 +78,7 @@ describe('FileUtils', function() {
 
         it('should throw File Not Found when file does not exist', function() {
             (function writeAbsent() {
-                var read = FileUtils.write(defaultBook, 'Notexist.md', '');
+                FileUtils.write(defaultBook, 'Notexist.md', '');
             }).should.throw(Error, { code: repofs.ERROR.NOT_FOUND });
         });
     });
@@ -91,7 +91,7 @@ describe('FileUtils', function() {
 
         it('should throw File Not Found when file does not exist', function() {
             (function removeAbsent() {
-                var read = FileUtils.remove(defaultBook, 'Notexist.md');
+                FileUtils.remove(defaultBook, 'Notexist.md');
             }).should.throw(Error, { code: repofs.ERROR.NOT_FOUND });
         });
     });

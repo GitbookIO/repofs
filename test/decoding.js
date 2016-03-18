@@ -32,12 +32,12 @@ describe('Decoding, encoding', function() {
     });
 
     var workingState = new WorkingState({
-        head: "headSha",
+        head: 'headSha',
         treeEntries: new immutable.Map({
-            "README.md": treeEntry
+            'README.md': treeEntry
         }),
         changes: new immutable.OrderedMap({
-            "README.md": change
+            'README.md': change
         })
     });
 

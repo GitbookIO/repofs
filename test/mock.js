@@ -33,10 +33,10 @@ function defaultBook() {
     });
 
     var workingState = new WorkingState({
-        head: "defaultBookWorkingSha",
+        head: 'defaultBookWorkingSha',
         treeEntries: new immutable.Map({
-            "README.md": readmeEntry,
-            "SUMMARY.md": summaryEntry
+            'README.md': readmeEntry,
+            'SUMMARY.md': summaryEntry
         })
         // No changes
     });
