@@ -14,7 +14,7 @@ describe('WorkingState', function() {
 
         it('should false if workingState has changes', function() {
             var repoState = mock.defaultBook();
-            repofs.FileUtils.write(repoState, 'README.md', 'New content');
+            repoState = repofs.FileUtils.write(repoState, 'README.md', 'New content');
             repoState.getCurrentState().isClean().should.equal(false);
         });
 
