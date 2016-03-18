@@ -3,9 +3,7 @@ var immutable = require('immutable');
 
 var bufferUtil = require('../lib/utils/arraybuffer');
 
-var Cache = require('../lib/models/cache');
 var CacheUtils = require('../lib/utils/cache');
-var Change = require('../lib/models/change');
 var TreeEntry = require('../lib/models/treeEntry');
 var Branch = require('../lib/models/branch');
 var WorkingState = require('../lib/models/workingState');
@@ -15,8 +13,8 @@ var RepositoryState = require('../lib/models/repositoryState');
 // Return empty repo with single master branch
 function emptyRepo() {
     var masterBranch = new Branch({
-        shortName: 'master',
-        sha: 'sha.master',
+        name: 'master',
+        sha: 'masterSha',
         remote: ''
     });
 
@@ -28,7 +26,7 @@ function emptyRepo() {
     return new RepositoryState({
         currentBranchName: 'master',
         workingStates: new immutable.Map().set(masterBranch.getName(), workingState),
-        branches: new immutable.Map().set(masterBranch.getName(), masterBranch)
+        branches: new immutable.List().push(masterBranch)
         // No cache
     });
 }
