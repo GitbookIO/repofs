@@ -1,7 +1,7 @@
 require('should');
 
 var repofs = require('../');
-var bufferUtils = require('../lib/utils/arraybuffer');
+var Blob = require('../lib/models/blob');
 var FileUtils = repofs.FileUtils;
 var mock = require('./mock');
 
@@ -23,17 +23,17 @@ describe('FileUtils', function() {
     });
 
     describe('.read', function() {
-        it('should read content as ArrayBuffer if file exists', function() {
-            var read = FileUtils.read(DEFAULT_BOOK, 'README.md');
-            read.should.be.an.instanceof(ArrayBuffer);
-            bufferUtils.enforceString(read).should.equal('# Introduction');
+        it('should read content as Blob if file exists', function() {
+            var blob = FileUtils.read(DEFAULT_BOOK, 'README.md');
+            blob.should.be.an.instanceof(Blob);
+            blob.getAsString().should.equal('# Introduction');
         });
 
-        it('should read content as ArrayBuffer for modified files', function() {
+        it('should read content as Blob for modified files', function() {
             var modifiedState = FileUtils.write(DEFAULT_BOOK, 'README.md', 'New');
-            var read = FileUtils.read(modifiedState, 'README.md');
-            read.should.be.an.instanceof(ArrayBuffer);
-            bufferUtils.enforceString(read).should.equal('New');
+            var blob = FileUtils.read(modifiedState, 'README.md');
+            blob.should.be.an.instanceof(Blob);
+            blob.getAsString().should.equal('New');
         });
 
         it('should throw File Not Found when file does not exist', function() {

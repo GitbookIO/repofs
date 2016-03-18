@@ -66,8 +66,8 @@ repofs.WorkingUtil.fetchFile(repoState, driver, 'README.md')
 Then the content can be accessed using sync methods:
 
 ```js
-// Read as an ArrayBuffer
-var buf = repofs.FileUtils.read(repoState, 'README.md');
+// Read as a blob
+var blob = repofs.FileUtils.read(repoState, 'README.md');
 
 // Read as a String
 var content = repofs.FileUtils.readAsString(repoState, 'README.md');
@@ -84,7 +84,6 @@ var tree = repoState.getCurrentTree();
 // From a WorkingState
 var tree = repoState.getTree();
 ```
-
 
 
 #### Working with files
