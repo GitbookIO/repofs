@@ -126,3 +126,23 @@ Rename/Move the directory
 var newRepoState = repofs.DirUtils.move(repoState, 'myfolder', 'myfolder2');
 ```
 
+#### Changes
+
+Until being commited, repofs keep a record of changes per files.
+
+Revert all non-commited changes using:
+
+```js
+var newRepoState = repofs.ChangeUtils.revertAll(repoState);
+```
+
+Or revert changes for a specific file or directory:
+
+```js
+// Revert change on a specific file
+var newRepoState = repofs.ChangeUtils.revertForFile(repoState, 'README.md');
+
+// Revert change on a directory
+var newRepoState = repofs.ChangeUtils.revertForDir(repoState, 'lib');
+```
+
