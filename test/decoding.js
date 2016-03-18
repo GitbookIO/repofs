@@ -20,7 +20,7 @@ describe('Decoding, encoding', function() {
     });
 
     var branch = new Branch({
-        shortName: 'branchShortName',
+        name: 'branchShortName',
         sha: 'branchSha',
         remote: 'branchRemote'
     });
@@ -44,7 +44,7 @@ describe('Decoding, encoding', function() {
     var repositoryState = new RepositoryState({
         currentBranchName: branch.getName(),
         workingStates: new immutable.Map().set(branch.getName(), workingState),
-        branches: new immutable.Map().set(branch.getName(), branch)
+        branches: new immutable.List().push(branch)
     });
 
     function testDecodeEncode(type, source) {

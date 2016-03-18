@@ -46,7 +46,9 @@ var repoState = repofs.RepositoryState.createEmpty();
 After creating an empty `RepositoryState`, the next step is to checkout a specific branch
 
 ```js
-repofs.RepoUtils.checkout(repoState, driver, 'master')
+var branch = repoState.getbranch('master');
+
+repofs.RepoUtils.checkout(repoState, driver, branch)
 .then(function(newRepoState) {
     ...
 })
@@ -66,8 +68,8 @@ repofs.WorkingUtil.fetchFile(repoState, driver, 'README.md')
 Then the content can be accessed using sync methods:
 
 ```js
-// Read as an ArrayBuffer
-var buf = repofs.FileUtils.read(repoState, 'README.md');
+// Read as a blob
+var blob = repofs.FileUtils.read(repoState, 'README.md');
 
 // Read as a String
 var content = repofs.FileUtils.readAsString(repoState, 'README.md');
@@ -84,7 +86,6 @@ var tree = repoState.getCurrentTree();
 // From a WorkingState
 var tree = repoState.getTree();
 ```
-
 
 
 #### Working with files
@@ -125,5 +126,43 @@ Rename/Move the directory
 
 ```js
 var newRepoState = repofs.DirUtils.move(repoState, 'myfolder', 'myfolder2');
+```
+
+#### Changes
+
+Until being commited, repofs keep a record of changes per files.
+
+Revert all non-commited changes using:
+
+```js
+var newRepoState = repofs.ChangeUtils.revertAll(repoState);
+```
+
+Or revert changes for a specific file or directory:
+
+```js
+// Revert change on a specific file
+var newRepoState = repofs.ChangeUtils.revertForFile(repoState, 'README.md');
+
+// Revert change on a directory
+var newRepoState = repofs.ChangeUtils.revertForDir(repoState, 'lib');
+```
+
+#### Commiting changes
+
+```js
+// Create an author / committer
+var john = repofs.Author.create('John Doe', 'john.doe@gmail.com');
+
+// Create a CommitBuilder to define the commit
+var commit = repofs.CommitUtils.prepare(repoState, {
+    author: john
+});
+
+// Flush commit using the driver
+repofs.CommitUtils.flush(repoState, driver, commit)
+.then(function() {
+    ...
+});
 ```
 
