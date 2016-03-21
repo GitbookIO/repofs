@@ -46,7 +46,7 @@ var repoState = repofs.RepositoryState.createEmpty();
 After creating an empty `RepositoryState`, the next step is to checkout a specific branch
 
 ```js
-var branch = repoState.getbranch('master');
+var branch = repoState.getBranch('master');
 
 repofs.RepoUtils.checkout(repoState, driver, branch)
 .then(function(newRepoState) {
@@ -77,14 +77,12 @@ var content = repofs.FileUtils.readAsString(repoState, 'README.md');
 
 #### Listing files
 
-Since repofs keeps the whole tree in its `RepositoryState`, you can access the all tree at once:
+repofs keeps the whole trees in the different `WorkingStates`, you can access the whole tree at once:
 
 ```js
 // From a RepositoryState
-var tree = repoState.getCurrentTree();
-
-// From a WorkingState
-var tree = repoState.getTree();
+var workingState = repoState.getCurrentState();
+var treeEntries = workingState.getTreeEntries();
 ```
 
 
@@ -99,7 +97,7 @@ var newRepoState = repofs.FileUtils.create(repoState, 'API.md');
 Write/Update the file
 
 ```js
-var newRepoState = repofs.FileUtils.write(repoState, 'API.md');
+var newRepoState = repofs.FileUtils.write(repoState, 'API.md', 'content');
 ```
 
 Remove the file
@@ -116,6 +114,12 @@ var newRepoState = repofs.FileUtils.move(repoState, 'API.md', 'API2.md');
 
 #### Working with directories
 
+List files in the directory
+
+```js
+var pathList = repofs.DirUtils.read(repoState, 'myfolder');
+```
+
 Remove the directory
 
 ```js
@@ -130,7 +134,7 @@ var newRepoState = repofs.DirUtils.move(repoState, 'myfolder', 'myfolder2');
 
 #### Changes
 
-Until being commited, repofs keep a record of changes per files.
+Until being commited, repofs keeps a record of changes per files.
 
 Revert all non-commited changes using:
 
@@ -155,14 +159,14 @@ var newRepoState = repofs.ChangeUtils.revertForDir(repoState, 'lib');
 var john = repofs.Author.create('John Doe', 'john.doe@gmail.com');
 
 // Create a CommitBuilder to define the commit
-var commit = repofs.CommitUtils.prepare(repoState, {
+var commitBuilder = repofs.CommitUtils.prepare(repoState, {
     author: john
 });
 
 // Flush commit using the driver
 repofs.CommitUtils.flush(repoState, driver, commit)
-.then(function() {
+.then(function(newRepoState) {
+    // newRepoState updated with new working tree
     ...
 });
 ```
-
