@@ -99,5 +99,15 @@ describe('DirUtils', function() {
     });
 
     describe('.remove', function() {
+        it('should be able to remove a dir', function() {
+            var removedRepo = DirUtils.remove(NESTED_DIRECTORY, 'dir.deep');
+
+            var files = DirUtils.readRecursive(removedRepo, '.');
+            _.difference([
+                'file.root',
+                'dir/file1',
+                'dir/file2',
+            ], files).should.be.empty();
+        });
     });
 });
