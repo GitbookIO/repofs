@@ -4,6 +4,7 @@ var _ = require('lodash');
 
 var repofs = require('../');
 var DirUtils = repofs.DirUtils;
+var FileUtils = repofs.FileUtils;
 var bufferUtils = require('../lib/utils/arraybuffer');
 var mock = require('./mock');
 
@@ -75,6 +76,26 @@ describe('DirUtils', function() {
     });
 
     describe('.move', function() {
+        it('should be able to rename a dir', function() {
+            var renamedRepo = DirUtils.move(NESTED_DIRECTORY, 'dir', 'newName');
+
+            var files = DirUtils.readRecursive(renamedRepo, '.');
+            _.difference([
+                'file.root',
+                'newName/file1',
+                'newName/file2',
+                'dir.deep/file1',
+                'dir.deep/dir/file1'
+            ], files).should.be.empty();
+        });
+
+        it('should be kind with the cache (keeping SHAs when possible)', function() {
+            var renamedRepo = DirUtils.move(NESTED_DIRECTORY, 'dir', 'newName');
+
+            // The read should not fail because the content should be fetched
+            FileUtils.readAsString(renamedRepo, 'newName/file1')
+                .should.equal('dir/file1'); // original content
+        });
     });
 
     describe('.remove', function() {
