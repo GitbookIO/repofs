@@ -66,7 +66,6 @@ describe('DirUtils', function() {
 
         it('should shallow list all files and dir in a dir', function() {
             var files = DirUtils.readFilenames(NESTED_DIRECTORY, './dir.deep/');
-            console.log(files);
             _.difference([
                 'dir.deep/file1',
                 'dir.deep/dir'
@@ -105,7 +104,7 @@ describe('DirUtils', function() {
             _.difference([
                 'file.root',
                 'dir/file1',
-                'dir/file2',
+                'dir/file2'
             ], files).should.be.empty();
         });
     });
