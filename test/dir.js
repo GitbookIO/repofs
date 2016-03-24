@@ -19,15 +19,15 @@ describe('DirUtils', function() {
 
     var NESTED_DIRECTORY = mock.directoryStructure(INITIAL_FILES);
 
-    describe('.readRecursive', function() {
+    describe('.readFilenamesRecursive', function() {
 
         it('should list files recursively from root', function() {
-            var files = DirUtils.readRecursive(NESTED_DIRECTORY, '.');
+            var files = DirUtils.readFilenamesRecursive(NESTED_DIRECTORY, '.');
             _.difference(INITIAL_FILES, files).should.be.empty();
         });
 
         it('should list files recursively from dir', function() {
-            var filesDeep = DirUtils.readRecursive(NESTED_DIRECTORY, 'dir/');
+            var filesDeep = DirUtils.readFilenamesRecursive(NESTED_DIRECTORY, 'dir/');
             _.difference([
                 'dir/file1',
                 'dir/file2'
@@ -40,7 +40,7 @@ describe('DirUtils', function() {
                 'dir.deep/',
                 './dir.deep/'
             ].map(function(path) {
-                return DirUtils.readRecursive(NESTED_DIRECTORY, path);
+                return DirUtils.readFilenamesRecursive(NESTED_DIRECTORY, path);
             }).map(function (files) {
                 _.difference([
                     'dir.deep/file1',
@@ -77,7 +77,7 @@ describe('DirUtils', function() {
         it('should be able to rename a dir', function() {
             var renamedRepo = DirUtils.move(NESTED_DIRECTORY, 'dir', 'newName');
 
-            var files = DirUtils.readRecursive(renamedRepo, '.');
+            var files = DirUtils.readFilenamesRecursive(renamedRepo, '.');
             _.difference([
                 'file.root',
                 'newName/file1',
@@ -100,7 +100,7 @@ describe('DirUtils', function() {
         it('should be able to remove a dir', function() {
             var removedRepo = DirUtils.remove(NESTED_DIRECTORY, 'dir.deep');
 
-            var files = DirUtils.readRecursive(removedRepo, '.');
+            var files = DirUtils.readFilenamesRecursive(removedRepo, '.');
             _.difference([
                 'file.root',
                 'dir/file1',
