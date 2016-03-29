@@ -16,18 +16,22 @@ var client = new Octocat({
     token: TOKEN
 });
 
-describe('GitHub/uHub Driver', function() {
-    var commit;
-    var repo = client.repo(REPO);
-    var fs = repofs({
-        repository: REPO,
-        token: TOKEN,
-        host: HOST,
+function createRepofs(repo, token, host) {
+    return repofs({
+        repository: repo,
+        token: token,
+        host: host,
         committer: {
             name: 'John Doe',
             email: 'johndoe@gmail.com'
         }
     });
+}
+
+describe('GitHub/uHub Driver', function() {
+    var commit;
+    var repo = client.repo(REPO);
+    var fs = createRepofs(REPO, TOKEN, HOST);
 
     // Setup base repo
     before(function() {
@@ -173,6 +177,8 @@ describe('GitHub/uHub Driver', function() {
         it('should correctly commit change', function() {
             return fs.commit({
                 message: 'Test commit'
+            }).fail(function (err) {
+                console.log(err);
             }).should.be.fulfilled();
         });
 
@@ -207,14 +213,13 @@ describe('GitHub/uHub Driver', function() {
                 .then(function () {
                     return fs.commit({ message: 'Files setup'});
                 })
-                // TODO branch creations could be done in parallel
                 .then(function () {
-                    // Branch with conflicts
-                    return fs.createBranch('conflict');
-                })
-                .then(function () {
-                    // Branch without conflict
-                    return fs.createBranch('no-conflict');
+                    return Q.all([
+                        // Branch with conflicts
+                        fs.createBranch('conflict'),
+                        // Branch without conflict
+                        fs.createBranch('no-conflict')
+                    ]);
                 })
                 .then(function () {
                     return fs.update(dir + 'conflictfile', 'Both will write with MASTER conflict');
@@ -249,7 +254,7 @@ describe('GitHub/uHub Driver', function() {
                 });
         });
 
-        it('should compare identical branches', function() {
+        it('should detect no conflict in identical branches', function() {
             return fs._detectConflicts('master', 'master')
                 .then(function (r) {
                     r.status.should.eql(conflicter.REFS.IDENTICAL);
@@ -258,7 +263,7 @@ describe('GitHub/uHub Driver', function() {
                 });
         });
 
-        it('should compare diverging branches', function() {
+        it('should detect conflicts in diverging branches', function() {
             return fs._detectConflicts('master', 'conflict')
                 .then(function (r) {
                     r.status.should.eql(conflicter.REFS.DIVERGED);
@@ -292,7 +297,7 @@ describe('GitHub/uHub Driver', function() {
                 // Thinking about making it the default... ;)
                 next(null, {
                     message: 'Cleaned up',
-                    conflicts: {
+                    files: {
                     }
                 });
             });
@@ -354,22 +359,105 @@ describe('GitHub/uHub Driver', function() {
             })
             .should.be.rejected();
         });
+    });
 
-        it('should compare non conflicting-branches branches', function() {
-            // TODO
+    describe('Non fast forward', function () {
+
+        it('should handle non fast forward', function() {
+            var otherFs = createRepofs(REPO, TOKEN, HOST);
+            var withoutConflictContent = 'Non ff without conflict';
+
+            return fs.createBranch('non-ff') // = master
+            .then(function () {
+                return fs.checkout('non-ff');
+            })
+            .then(function () {
+                return fs.update('non.ff.without.conflict', withoutConflictContent);
+            })
+            .then(function () {
+                return fs.commit();
+            })
+            .then(function () {
+                return otherFs.checkout('non-ff');
+            })
+            .then(function () {
+                // Both write without conflict
+                return Q.all([
+                    otherFs.update('non.ff.without.conflict', withoutConflictContent
+                                   + '\nSafely adds newline'),
+                    fs.update('non.ff.other.file', 'Different file')
+                ]);
+            })
+            .then(function () {
+                return otherFs.commit({ message: 'She commits first'});
+            })
+            .then(function () {
+                // We commit and encounter non ff that should be resolved automatically
+                return fs.commit({ message: 'We commit second'});
+            })
+            .then(function () {
+                return Q.all([
+                    fs.read('non.ff.without.conflict'),
+                    fs.read('non.ff.other.file')
+                ]);
+            })
+            .spread(function (withoutConflictFile, otherFile) {
+                withoutConflictFile.should.be.eql(withoutConflictContent + '\nSafely adds newline');
+                otherFile.should.be.eql('Different file');
+            });
         });
 
-        it('should compare non fast-forwardable branches (behind)', function() {
-            // TODO
-        });
+        it('should handle non fast forward conflicts', function() {
+            var mergedContent = 'Merged content';
+            // We will solve the conflict
+            fs.once('conflicts.resolve.needed', function(conflicts, next) {
+                next(null, {
+                    message: 'Cleaned up',
+                    files: {
+                        'non.ff.with.conflict': {
+                            path: 'non.ff.with.conflict',
+                            buffer: mergedContent
+                        }
+                    }
+                });
+            });
 
-        it('should compare non fast-forwardable branches (ahead)', function() {
-            // TODO
-        });
+            var otherFs = createRepofs(REPO, TOKEN, HOST);
+            var conflictContent = 'Non ff with conflict';
 
-        it('should compare conflicting-branches branches', function() {
-            // TODO
+            return fs.createBranch('non-ff-conflict') // = master
+            .then(function () {
+                return fs.checkout('non-ff-conflict');
+            })
+            .then(function () {
+                return fs.update('non.ff.with.conflict', conflictContent);
+            })
+            .then(function () {
+                return fs.commit();
+            })
+            .then(function () {
+                return otherFs.checkout('non-ff-conflict');
+            })
+            .then(function () {
+                // Both write with conflict
+                return Q.all([
+                    otherFs.update('non.ff.with.conflict', 'Her version'),
+                    fs.update('non.ff.with.conflict', 'Our version')
+                ]);
+            })
+            .then(function () {
+                return otherFs.commit({ message: 'She commits first'});
+            })
+            .then(function () {
+                // We commit and encounter non ff that should be resolved automatically
+                return fs.commit({ message: 'We commit second'});
+            })
+            // .then(function () {
+            //     return fs.read('non.ff.with.conflict');
+            // })
+            // .then(function (content) {
+            //     content.should.eql(conflictContent);
+            // });
         });
     });
 });
-
