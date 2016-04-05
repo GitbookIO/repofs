@@ -4,6 +4,7 @@ var _ = require('lodash');
 
 var repofs = require('../');
 
+var Blob = require('../lib/models/blob');
 var Change = require('../lib/models/change');
 var TreeEntry = require('../lib/models/treeEntry');
 var Branch = require('../lib/models/branch');
@@ -11,6 +12,8 @@ var WorkingState = require('../lib/models/workingState');
 var RepositoryState = require('../lib/models/repositoryState');
 
 describe('Decoding, encoding', function() {
+
+    var blob = Blob.createFromString('Test');
 
     var change = new Change({
         type: repofs.CHANGE.UPDATE,
@@ -58,6 +61,14 @@ describe('Decoding, encoding', function() {
             encoded.should.eql(decenc(encoded));
         };
     }
+
+    it('should encode and decode back a Blob', function () {
+        var encoded = Blob.encode(blob);
+        var decoded = Blob.decode(encoded);
+
+        blob.getByteLength().should.eql(decoded.getByteLength());
+        blob.getAsString().should.eql(decoded.getAsString());
+    });
 
     it('should encode and decode back a Change', testDecodeEncode(Change, change));
     it('should encode and decode back a TreeEntry', testDecodeEncode(TreeEntry, treeEntry));

@@ -1,11 +1,11 @@
 var _ = require('lodash');
 var immutable = require('immutable');
 
-var bufferUtil = require('../lib/utils/arraybuffer');
 
 var CacheUtils = require('../lib/utils/cache');
 var TreeEntry = require('../lib/models/treeEntry');
 var Branch = require('../lib/models/branch');
+var Blob = require('../lib/models/blob');
 var WorkingState = require('../lib/models/workingState');
 var RepositoryState = require('../lib/models/repositoryState');
 
@@ -63,10 +63,11 @@ function addFile(repoState, filepath, options) {
     // Update cache
     if(options.fetched) {
         var cache = repoState.getCache();
-        cache = CacheUtils.addBlob(cache, {
-            sha: 'sha.'+options.content,
-            content: bufferUtil.fromString(options.content)
-        });
+        cache = CacheUtils.addBlob(
+            cache,
+            'sha.'+options.content,
+            Blob.createFromString(options.content)
+        );
         resultState = resultState.set('cache', cache);
     }
     return resultState;
