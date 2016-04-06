@@ -4,9 +4,20 @@ var immutable = require('immutable');
 
 var repofs = require('../');
 var TreeUtils = repofs.TreeUtils;
+var FileUtils = repofs.FileUtils;
 var mock = require('./mock');
 
 describe('TreeUtils', function() {
+
+    var INITIAL_FILES = [
+        'file.root',
+        'dir/file1',
+        'dir/file2',
+        'dir.deep/file1',
+        'dir.deep/dir/file1'
+    ];
+
+    var NESTED_DIRECTORY = mock.directoryStructure(INITIAL_FILES);
 
     describe('TreeNode', function() {
         var file1 = TreeUtils.TreeNode.createFile('dir/file1');
@@ -49,16 +60,6 @@ describe('TreeUtils', function() {
 
     describe('.get', function() {
 
-        var INITIAL_FILES = [
-            'file.root',
-            'dir/file1',
-            'dir/file2',
-            'dir.deep/file1',
-            'dir.deep/dir/file1'
-        ];
-
-        var NESTED_DIRECTORY = mock.directoryStructure(INITIAL_FILES);
-
         it('should create a tree from an empty repo', function() {
             var tree = TreeUtils.get(mock.emptyRepo(), '');
             tree.getPath().should.eql('.');
@@ -95,6 +96,18 @@ describe('TreeUtils', function() {
             sample.getChildren().set('modified', TreeUtils.TreeNode.createFile('dir/modified'));
             // Should not appear in original tree
             should(tree.getIn('dir/modified')).be.null();
+        });
+    });
+
+    describe('.hasChanged', function() {
+        it('should detect when file structure has NOT changed', function () {
+            var updatedFile = FileUtils.write(NESTED_DIRECTORY, 'dir/file1', 'Content updated');
+            TreeUtils.hasChanged(NESTED_DIRECTORY, updatedFile).should.be.false();
+        });
+
+        it('should detect when file structure has changed', function () {
+            var removedFile = FileUtils.remove(NESTED_DIRECTORY, 'dir/file1');
+            TreeUtils.hasChanged(NESTED_DIRECTORY, removedFile).should.be.true();
         });
     });
 });
