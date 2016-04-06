@@ -101,6 +101,7 @@ function directoryStructure(pathList) {
 }
 
 module.exports = {
+    emptyRepo: emptyRepo,
     DEFAULT_BOOK: defaultBook(),
     directoryStructure: directoryStructure
 };
