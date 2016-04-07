@@ -113,14 +113,14 @@ describe('TreeUtils', function() {
         // TODO make better test for performance
 
         // 10 files at depth 1000
-        var DEEP = mock.directoryStructure(mock.bigFileList(5, 500));
+        var DEEP = mock.directoryStructure(mock.bigFileList(5, 200));
         // 1000 files at depth 0
-        var WIDE = mock.directoryStructure(mock.bigFileList(500, 5));
+        var WIDE = mock.directoryStructure(mock.bigFileList(200, 5));
         // 100 files at depth 100
-        var DEEP_WIDE = mock.directoryStructure(mock.bigFileList(100, 100));
+        var DEEP_WIDE = mock.directoryStructure(mock.bigFileList(50, 50));
 
         it('to create tree from a deep repo', function (done) {
-            this.timeout(1000);
+            this.timeout(500);
             return Q()
             .then(function () {
                 TreeUtils.get(DEEP, '.');
@@ -128,7 +128,7 @@ describe('TreeUtils', function() {
             });
         });
         it('to create tree from a wide repo', function (done) {
-            this.timeout(2000);
+            this.timeout(1000);
             return Q()
             .then(function () {
                 TreeUtils.get(WIDE, '.');
@@ -136,7 +136,7 @@ describe('TreeUtils', function() {
             });
         });
         it('to create tree from a deep and wide repo', function (done) {
-            this.timeout(1000);
+            this.timeout(500);
             return Q()
             .then(function () {
                 TreeUtils.get(DEEP_WIDE, '.');
