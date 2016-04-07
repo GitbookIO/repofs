@@ -100,8 +100,21 @@ function directoryStructure(pathList) {
     }, emptyRepo());
 }
 
+// Make a big repo with 'n' files each in a directory at 'depth'
+function bigFileList(n, depth) {
+    depth = depth || 1;
+    var indexes = immutable.Range(1, n);
+    return indexes.map(function (index) {
+        var depths = immutable.Range(0, depth);
+        return depths.map(function (depth) {
+            return index+'.'+depth;
+        }).toArray().join('/');
+    }).toArray();
+}
+
 module.exports = {
     emptyRepo: emptyRepo,
     DEFAULT_BOOK: defaultBook(),
+    bigFileList: bigFileList,
     directoryStructure: directoryStructure
 };
