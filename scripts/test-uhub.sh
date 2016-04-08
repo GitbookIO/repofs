@@ -61,6 +61,5 @@ echo "Run tests for uhub"
 export REPOFS_DRIVER=uhub
 export REPOFS_HOST=http://localhost:6666
 export REPOFS_REPO=user/repo
-export REPOFS_TOKEN=
 
 mocha --reporter spec --bail --timeout 15000

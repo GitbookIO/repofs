@@ -33,10 +33,10 @@ describe('Driver', function() {
     var octoRepo;
     var driver;
 
+    driver = createDriver(DRIVER, REPO, TOKEN, HOST);
+
     // Setup base repo
     before(function() {
-        driver = createDriver(DRIVER, REPO, TOKEN, HOST);
-
         if (DRIVER === DRIVERS.GITHUB) {
             // Init repo
             octocat = new Octocat({
@@ -72,21 +72,60 @@ describe('Driver', function() {
             });
         });
     });
+
     describe('.createBranch', function() {
         it('should clone a branch', function() {
             return findBranch(driver, 'master')
             .then(function (master) {
                 return driver.createBranch(master, 'master-clone')
-                .then(function () {
-                    return findBranch(driver, 'master-clone');
+                .then(function (branch) {
+                    return Q.all([
+                        branch,
+                        findBranch(driver, 'master-clone')
+                    ]);
                 })
-                .then(function (clone) {
-                    clone.getSha().should.eql(master.getSha());
+                .spread(function (returned, fetched) {
+                    immutable.is(returned, fetched).should.be.true();
+                    fetched.getSha().should.eql(master.getSha());
                 });
             });
         });
     });
+
     describe('.fetchBlob', function() {
+        // console.log(driver.fetchBlob());
+    });
+
+    describe('.fetchWorkingState', function() {
+        it('should fetch a WorkingState of a basic repo', function () {
+            return Q.all([
+                findBranch(driver, 'master'),
+                driver.fetchWorkingState('master')
+            ])
+            .spread(function (master, workingState) {
+                workingState.getHead().should.eql(master.getSha());
+                var readme = workingState.getTreeEntries().get('README.md');
+                readme.should.be.ok();
+                workingState.getChanges().isEmpty().should.be.true();
+            });
+        });
+    });
+
+    describe('.fetchBlob', function() {
+        it('should fetch a blob obviously', function () {
+            return driver.fetchWorkingState('master')
+            .then(function findSha(workingState) {
+                var readme = workingState.getTreeEntries().get('README.md');
+                return readme.getSha();
+            })
+            .then(function fetchBlob(sha) {
+                return driver.fetchBlob(sha)
+                .then(function (blob) {
+                    blob.getByteLength().should.eql(0);
+                    blob.getAsString().should.eql('');
+                });
+            });
+        });
     });
 });
 
