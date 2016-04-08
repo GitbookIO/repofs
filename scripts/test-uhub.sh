@@ -1,15 +1,6 @@
 #!/usr/bin/env bash
-
-set -e
-set -o pipefail
-
-if [ -z "$GITHUB_TOKEN" ]; then
-    cat <<EOF
-The uhub test script requires the following env:
- - GITHUB_TOKEN
-EOF
-    exit 1
-fi;
+set -eo pipefail
+IFS=$'\n\t'
 
 UHUB_VERSION=2.2.10
 
@@ -27,6 +18,15 @@ then
     echo "uhub already exist."
 else
     echo "Downloading uhub"
+
+    if [ -z "$GITHUB_TOKEN" ]; then
+        cat <<EOF
+The uhub test script requires the following env:
+ - GITHUB_TOKEN
+EOF
+        exit 1
+    fi;
+
     github-releases --tag $UHUB_VERSION --filename $UHUB_NAME --token $GITHUB_TOKEN download GitbookIO/uhub
     mv $UHUB_NAME uhub
     chmod +x uhub
@@ -58,9 +58,9 @@ sleep 2
 
 # Run tests on uHub
 echo "Run tests for uhub"
-export REPOFS_MODE=uhub
+export REPOFS_DRIVER=uhub
 export REPOFS_HOST=http://localhost:6666
 export REPOFS_REPO=user/repo
 export REPOFS_TOKEN=
 
-mocha -b --reporter spec --bail --timeout 15000
+mocha --reporter spec --bail --timeout 15000

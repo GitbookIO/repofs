@@ -29,6 +29,7 @@
   },
   "scripts": {
     "test": "mocha --reporter spec --bail --timeout 15000",
+    "test-no-api": "./scripts/test-no-api.sh",
     "test-uhub": "./scripts/test-uhub.sh",
     "test-github": "./scripts/test-github.sh"
   },
