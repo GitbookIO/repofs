@@ -107,22 +107,49 @@ describe('Driver', function() {
         });
     });
 
+    // ---------------------------------------------------------
+    // We tested all functions needed to initalize a repo so far
+    var getRepoState = repofs.RepoUtils.initialize(driver);
+
     describe('.fetchBlob', function() {
         it('should fetch a blob obviously', function () {
-            return driver.fetchWorkingState('master')
-            .then(function findSha(workingState) {
+            return getRepoState
+            .then(function fetchBlob(repoState) {
+                var workingState = repoState.getCurrentState();
                 var readme = workingState.getTreeEntries().get('README.md');
-                return readme.getSha();
+                var sha = readme.getSha();
+                return driver.fetchBlob(sha);
             })
-            .then(function fetchBlob(sha) {
-                return driver.fetchBlob(sha)
-                .then(function (blob) {
-                    blob.getByteLength().should.eql(0);
-                    blob.getAsString().should.eql('');
+            .then(function (blob) {
+                blob.getByteLength().should.eql(0);
+                blob.getAsString().should.eql('');
+            });
+        });
+    });
+
+    describe('.flushCommit', function() {
+        it('should flush a commit from a CommitBuilder', function () {
+            return getRepoState
+            .then(function (repoState) {
+                // Create a file for test
+                repoState = repofs.FileUtils.create(
+                    repoState, 'flushCommitFile', 'flushCommitContent');
+                var commitBuilder = repofs.CommitUtils.prepare(repoState, {
+                    author: 'Shakespeare',
+                    message: 'Test message'
+                });
+
+                driver.flushCommit(commitBuilder)
+                .then(function (commit) {
+                    commit.getMessage().should.eql('Test message');
+                    commit.getSha().should.be.ok();
+                    var parents = new immutable.List([repoState.getCurrentBranch().getSha()]);
+                    immutable.is(commit.getParents(), parents).should.be.true();
                 });
             });
         });
     });
+
 });
 
 // Utilities
