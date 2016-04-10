@@ -92,10 +92,6 @@ describe('Driver', function() {
         });
     });
 
-    describe('.fetchBlob', function() {
-        // console.log(driver.fetchBlob());
-    });
-
     describe('.fetchWorkingState', function() {
         it('should fetch a WorkingState of a basic repo', function () {
             return Q.all([
