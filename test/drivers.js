@@ -29,7 +29,7 @@ describe('Driver', function() {
     if (!DRIVER) throw new Error('Testing requires to select a DRIVER');
     if (!REPO || !HOST) throw new Error('Testing requires a REPO and HOST configuration');
 
-    var octocat;
+    var client;
     var octoRepo;
     var driver;
 
@@ -39,14 +39,15 @@ describe('Driver', function() {
     before(function() {
         if (DRIVER === DRIVERS.GITHUB) {
             // Init repo
-            octocat = new Octocat({
+            client = new Octocat({
                 token: TOKEN
             });
-            octoRepo = octocat.repo(REPO);
+            octoRepo = client.repo(REPO);
             // Clear any existing repo
             return octoRepo.destroy()
             .fin(function() {
-                return octocat.createRepo({
+                // TODO fail Not Found
+                return client.createRepo({
                     name: _.last(REPO.split('/')),
                     auto_init: true
                 });

@@ -28,7 +28,7 @@
     "should": "8.2.2"
   },
   "scripts": {
-    "test": "mocha --reporter spec --bail --timeout 15000",
+    "test": "./scripts/test-uhub.sh && ./scripts/test-github.sh",
     "test-no-api": "./scripts/test-no-api.sh",
     "test-uhub": "./scripts/test-uhub.sh",
     "test-github": "./scripts/test-github.sh"
