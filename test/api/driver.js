@@ -1,6 +1,10 @@
 var immutable = require('immutable');
 var Q = require('q');
-var repofs = require('../');
+var repofs = require('../../');
+
+module.exports = function (driver) {
+    return describe('Driver', testDriver.bind(this, driver));
+};
 
 // Tests a driver set on a repo initialized with empty README.md
 function testDriver(driver) {
@@ -102,5 +106,3 @@ function testDriver(driver) {
         });
     });
 }
-
-module.exports = testDriver;

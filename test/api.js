@@ -11,9 +11,7 @@
  './workingState.js']
 .map(require);
 
-var Q = require('q');
 var _ = require('lodash');
-var immutable = require('immutable');
 
 var Octocat = require('octocat');
 var repofs = require('../');
@@ -75,7 +73,9 @@ describe('API tests', function() {
         }
     });
 
-    describe('Driver', require('./driver').bind(this, driver));
+    require('./api/driver')(driver);
+
+    require('./api/commit')(driver);
 });
 
 // Utilities
