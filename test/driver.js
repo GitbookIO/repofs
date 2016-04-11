@@ -1,66 +1,17 @@
-var Q = require('q');
-var _ = require('lodash');
 var immutable = require('immutable');
-
-var Octocat = require('octocat');
+var Q = require('q');
 var repofs = require('../');
-var GitHubDriver = repofs.GitHubDriver;
 
-// Defined API values
-var DRIVERS = {
-    // Only one for now
-    GITHUB: 'github',
-    UHUB: 'uhub'
-};
-var DRIVER = process.env.REPOFS_DRIVER || DRIVERS.UHUB;
-
-var REPO = process.env.REPOFS_REPO;
-var HOST = process.env.REPOFS_HOST;
-var TOKEN = process.env.REPOFS_TOKEN;
-
-describe('Driver', function() {
-
-    var shouldSkip = process.env.REPOFS_SKIP_API_TEST;
-    if(shouldSkip) {
-        it('WAS SKIPPED', function () {
+// Tests a driver set on a repo initialized with empty README.md
+function testDriver(driver) {
+    function findBranch(driver, fullname) {
+        return driver.fetchBranches()
+        .then(function find(branches) {
+            return branches.find(function (br) {
+                return br.getFullName() === fullname;
+            });
         });
-        return;
     }
-    if (!DRIVER) throw new Error('Testing requires to select a DRIVER');
-    if (!REPO || !HOST) throw new Error('Testing requires a REPO and HOST configuration');
-
-    var client;
-    var octoRepo;
-    var driver;
-
-    driver = createDriver(DRIVER, REPO, TOKEN, HOST);
-
-    // Setup base repo
-    before(function() {
-        if (DRIVER === DRIVERS.GITHUB) {
-            // Init repo
-            client = new Octocat({
-                token: TOKEN
-            });
-            octoRepo = client.repo(REPO);
-            // Clear any existing repo
-            return octoRepo.destroy()
-            .fin(function() {
-                // TODO fail Not Found
-                return client.createRepo({
-                    name: _.last(REPO.split('/')),
-                    auto_init: true
-                });
-            });
-        }
-    });
-
-    // Destroy repository after tests
-    after(function() {
-        if(DRIVER === DRIVERS.GITHUB) {
-            return octoRepo.destroy();
-        }
-    });
 
     describe('.fetchBranches', function() {
         it('should list existing branches', function() {
@@ -150,29 +101,6 @@ describe('Driver', function() {
             });
         });
     });
-
-});
-
-// Utilities
-function createDriver(type, repo, token, host) {
-    switch (type) {
-    case DRIVERS.GITHUB:
-    case DRIVERS.UHUB:
-        return new GitHubDriver({
-            repository: repo,
-            host: host,
-            token: token
-        });
-    default:
-        throw new Error('Unknown API: '+DRIVERS);
-    }
 }
 
-function findBranch(driver, fullname) {
-    return driver.fetchBranches()
-    .then(function find(branches) {
-        return branches.find(function (br) {
-            return br.getFullName() === fullname;
-        });
-    });
-}
+module.exports = testDriver;
