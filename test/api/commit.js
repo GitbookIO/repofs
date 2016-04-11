@@ -1,4 +1,3 @@
-var immutable = require('immutable');
 var repofs = require('../../');
 
 module.exports = function (driver) {
