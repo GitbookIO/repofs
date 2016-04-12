@@ -6,7 +6,7 @@
  './dir.js',
  './file.js',
  './filestree.js',
- './mock.js',
+ './conflict.js',
  './repository.js',
  './workingState.js']
 .map(require);
