@@ -8,6 +8,7 @@ module.exports = function (driver) {
 
 // Tests a driver set on a repo initialized with empty README.md
 function testDriver(driver) {
+
     function findBranch(driver, fullname) {
         return driver.fetchBranches()
         .then(function find(branches) {
@@ -65,28 +66,30 @@ function testDriver(driver) {
 
     // ---------------------------------------------------------
     // We tested all functions needed to initalize a repo so far
-    var getRepoState = repofs.RepoUtils.initialize(driver);
+    describe('... we can now init a repo', function() {
 
-    describe('.fetchBlob', function() {
-        it('should fetch a blob obviously', function () {
-            return getRepoState
-            .then(function fetchBlob(repoState) {
+        var repoState;
+
+        before(function () {
+            return repofs.RepoUtils.initialize(driver)
+            .then(function (initRepoState) {
+                repoState = initRepoState;
+            });
+        });
+        describe('.fetchBlob', function() {
+            it('should fetch a blob obviously', function () {
                 var workingState = repoState.getCurrentState();
                 var readme = workingState.getTreeEntries().get('README.md');
                 var sha = readme.getSha();
-                return driver.fetchBlob(sha);
-            })
-            .then(function (blob) {
-                blob.getByteLength().should.eql(0);
-                blob.getAsString().should.eql('');
+                return driver.fetchBlob(sha)
+                .then(function (blob) {
+                    blob.should.be.ok();
+                });
             });
         });
-    });
 
-    describe('.flushCommit', function() {
-        it('should flush a commit from a CommitBuilder', function () {
-            return getRepoState
-            .then(function (repoState) {
+        describe('.flushCommit', function() {
+            it('should flush a commit from a CommitBuilder', function () {
                 // Create a file for test
                 repoState = repofs.FileUtils.create(
                     repoState, 'flushCommitFile', 'flushCommitContent');
