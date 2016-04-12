@@ -12,6 +12,7 @@
 .map(require);
 
 var _ = require('lodash');
+var Q = require('q');
 
 var Octocat = require('octocat');
 var repofs = require('../');
@@ -56,8 +57,11 @@ describe('API tests', function() {
             octoRepo = client.repo(REPO);
             // Clear any existing repo
             return octoRepo.destroy()
-            .fin(function() {
-                // TODO fail Not Found
+            .fail(function (err) {
+                // ignore
+                return Q();
+            })
+            .then(function() {
                 return client.createRepo({
                     name: _.last(REPO.split('/')),
                     auto_init: true
