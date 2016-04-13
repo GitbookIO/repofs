@@ -112,10 +112,10 @@ describe('ConflictUtils', function() {
 
     });
 
-    describe('.getSolvedTree', function() {
+    describe('.solveTree', function() {
 
         it('should merge back solved conflicts into a TreeConflict, defaulting to base version', function() {
-            var solvedTreeConflict = ConflictUtils.getSolvedTree(treeConflict, solvedConflicts);
+            var solvedTreeConflict = ConflictUtils.solveTree(treeConflict, solvedConflicts);
 
             // Expect tree to be unchanged outside of conflicts
             immutable.is(solvedTreeConflict.set('conflicts', null),
@@ -132,7 +132,7 @@ describe('ConflictUtils', function() {
     describe('._getSolvedEntries', function() {
 
         it('should generate the solved tree entries', function() {
-            var solvedTreeConflict = ConflictUtils.getSolvedTree(treeConflict, solvedConflicts);
+            var solvedTreeConflict = ConflictUtils.solveTree(treeConflict, solvedConflicts);
             var result = ConflictUtils._getSolvedEntries(solvedTreeConflict);
 
             var expected = new immutable.Map({
@@ -151,7 +151,7 @@ describe('ConflictUtils', function() {
     });
 
     describe('.mergeCommit', function() {
-        var solvedTreeConflict = ConflictUtils.getSolvedTree(treeConflict, solvedConflicts);
+        var solvedTreeConflict = ConflictUtils.solveTree(treeConflict, solvedConflicts);
         var mergeCommit = ConflictUtils.mergeCommit(solvedTreeConflict, [
             'parentCommitSha1',
             'parentCommitSha2'

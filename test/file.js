@@ -39,7 +39,7 @@ describe('FileUtils', function() {
         it('should throw File Not Found when file does not exist', function() {
             (function readUnknown() {
                 FileUtils.read(DEFAULT_BOOK, 'Notexist.md');
-            }).should.throw(Error, { code: repofs.ERROR.NOT_FOUND });
+            }).should.throw(Error, { code: repofs.ERRORS.NOT_FOUND });
         });
     });
 
@@ -52,7 +52,7 @@ describe('FileUtils', function() {
         it('should throw File Not Found when file does not exist', function() {
             (function readUnknown() {
                 FileUtils.readAsString(DEFAULT_BOOK, 'Notexist.md');
-            }).should.throw(Error, { code: repofs.ERROR.NOT_FOUND });
+            }).should.throw(Error, { code: repofs.ERRORS.NOT_FOUND });
         });
     });
 
@@ -66,7 +66,7 @@ describe('FileUtils', function() {
         it('should throw File Already Exists when file does exist', function() {
             (function createExisting() {
                 FileUtils.create(DEFAULT_BOOK, 'README.md', '');
-            }).should.throw(Error, { code: repofs.ERROR.ALREADY_EXIST });
+            }).should.throw(Error, { code: repofs.ERRORS.ALREADY_EXIST });
         });
     });
 
@@ -79,7 +79,7 @@ describe('FileUtils', function() {
         it('should throw File Not Found when file does not exist', function() {
             (function writeAbsent() {
                 FileUtils.write(DEFAULT_BOOK, 'Notexist.md', '');
-            }).should.throw(Error, { code: repofs.ERROR.NOT_FOUND });
+            }).should.throw(Error, { code: repofs.ERRORS.NOT_FOUND });
         });
     });
 
@@ -92,7 +92,7 @@ describe('FileUtils', function() {
         it('should throw File Not Found when file does not exist', function() {
             (function removeAbsent() {
                 FileUtils.remove(DEFAULT_BOOK, 'Notexist.md');
-            }).should.throw(Error, { code: repofs.ERROR.NOT_FOUND });
+            }).should.throw(Error, { code: repofs.ERRORS.NOT_FOUND });
         });
     });
 });
