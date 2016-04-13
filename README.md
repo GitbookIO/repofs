@@ -164,9 +164,104 @@ var commitBuilder = repofs.CommitUtils.prepare(repoState, {
 });
 
 // Flush commit using the driver
-repofs.CommitUtils.flush(repoState, driver, commit)
+repofs.CommitUtils.flush(repoState, driver, commitBuilder)
 .then(function(newRepoState) {
     // newRepoState updated with new working tree
     ...
 });
+```
+
+#### Non fast forward commits
+
+Flushing a commit can fail with an `ERRORS.NON_FAST_FORWARD` code.
+
+```js
+// Flush commit using the driver
+repofs.CommitUtils.flush(repoState, driver, commitBuilder)
+.then(function success(newRepoState) {
+    ...
+}, function failure(err) {
+    // Catch non fast forward errors
+    if(err.code !== repofs.ERRORS.NON_FAST_FORWARD) {
+        throw err;
+    }
+    ...
+});
+```
+
+Non fast forward errors contains the created commit (that is currently not linked to any branch). This allows you to attempt to merge this commit back into the current branch:
+
+```js
+... function fail(err) {
+    // Catch non fast forward errors
+    if(err.code !== repofs.ERRORS.NON_FAST_FORWARD) {
+        throw err;
+    }
+    // The created commit
+    var commit = err.commit;
+    // Attempt automatic merge
+    var from = commit.getSha();
+    var into = repoState.getCurrentBranch();
+    return repofs.BranchUtils.merge(repoState, driver, from, into)
+    .then(function success(repoState) {
+        ...
+    });
+}
+```
+
+#### Merging
+
+`repofs.BranchUtils.merge` allows to automatically merge a commit or a branch, into another branch.
+
+``` js
+// from is either a Branch or a commit SHA string
+repofs.BranchUtils.merge(repoState, driver, from, into)
+.then(function success(repoState) {
+    ...
+});
+```
+
+#### Merge conflicts
+
+But conflicts can happen when the automatic merge failed. For example, after merging two branches, or after merging a non fast forward commit. It is possible then to solve the conflicts manually:
+
+```js
+repofs.BranchUtils.merge(repoState, driver, from, into)
+.then(function success(repoState) {
+    ...
+}, function failure(err) {
+    // Catch merge conflict errors
+    if(err.code !== repofs.ERRORS.CONFLICT) {
+        throw err;
+    }
+    solveConflicts(repoState, driver, from, into)
+});
+```
+
+The function `solveConflicts` would compute the `TreeConflict` representing all the conflicts between `from` and `into` references, solve it in some ways, and make a merge commit. Here is an example of such function:
+
+``` js
+function solveConflicts(repoState, driver, from, into) {
+    return repofs.ConflictUtils.compareRefs(driver, base, head)
+    .then(function (treeConflict) {
+        // Solve the list of conflicts in some way, for example by
+        // asking a user to do it manually.
+        var solvedConflicts // Map<Path, Conflict>
+            = solve(treeConflict.getConflicts());
+
+        // Create a solved conflict tree
+        var solvedTreeConflict // TreeConflict
+            = repofs.ConflictUtils.solveTree(treeConflict, solvedConflicts);
+
+        // The SHAs of the parent commits
+        var parentShas = [from.getSha(), into.getSha()];
+        // Create the merge commit
+        var mergeCommitBuilder = repofs.ConflictUtils.mergeCommit(solvedTreeConflict, parents);
+
+        // Flush it on the target branch
+        return repofs.CommitUtils.flush(repoState, driver, commitBuilder, {
+            branch: into
+        });
+    });
+}
 ```
