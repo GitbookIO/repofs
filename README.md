@@ -256,7 +256,7 @@ function solveConflicts(repoState, driver, from, into) {
         // The SHAs of the parent commits
         var parentShas = [from.getSha(), into.getSha()];
         // Create the merge commit
-        var mergeCommitBuilder = repofs.ConflictUtils.mergeCommit(solvedTreeConflict, parents);
+        var commitBuilder = repofs.ConflictUtils.mergeCommit(solvedTreeConflict, parents);
 
         // Flush it on the target branch
         return repofs.CommitUtils.flush(repoState, driver, commitBuilder, {
