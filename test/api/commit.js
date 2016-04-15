@@ -22,7 +22,7 @@ function testCommit(driver) {
             repoState = repofs.FileUtils.create(
                 repoState, 'flushCommitFile', 'flushCommitContent');
             var commitBuilder = repofs.CommitUtils.prepare(repoState, {
-                author: 'Shakespeare',
+                author: repofs.Author.create('Shakespeare', 'shakespeare@hotmail.com'),
                 message: 'Test message'
             });
 

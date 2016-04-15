@@ -34,11 +34,11 @@ function testDriver(driver) {
         it('should clone a branch', function() {
             return findBranch(driver, 'master')
             .then(function (master) {
-                return driver.createBranch(master, 'master-clone')
+                return driver.createBranch(master, 'driver-test')
                 .then(function (branch) {
                     return Q.all([
                         branch,
-                        findBranch(driver, 'master-clone')
+                        findBranch(driver, 'driver-test')
                     ]);
                 })
                 .spread(function (returned, fetched) {
@@ -71,11 +71,17 @@ function testDriver(driver) {
         var repoState;
 
         before(function () {
+            var driverBranch;
             return repofs.RepoUtils.initialize(driver)
-            .then(function (initRepoState) {
-                repoState = initRepoState;
+            .then(function (newState) {
+                driverBranch = newState.getBranch('driver-test');
+                return repofs.RepoUtils.fetchTree(newState, driver, driverBranch);
+            })
+            .then(function (newState) {
+                repoState = repofs.RepoUtils.checkout(newState, driverBranch);
             });
         });
+
         describe('.fetchBlob', function() {
             it('should fetch a blob obviously', function () {
                 var workingState = repoState.getCurrentState();
@@ -89,23 +95,43 @@ function testDriver(driver) {
         });
 
         describe('.flushCommit', function() {
+            var commit;
+
             it('should flush a commit from a CommitBuilder', function () {
                 // Create a file for test
                 repoState = repofs.FileUtils.create(
                     repoState, 'flushCommitFile', 'flushCommitContent');
                 var commitBuilder = repofs.CommitUtils.prepare(repoState, {
-                    author: 'Shakespeare',
+                    author: new repofs.Author.create('Shakespeare', 'shakespeare@hotmail.com'),
                     message: 'Test message'
                 });
 
-                driver.flushCommit(commitBuilder)
-                .then(function (commit) {
+                return driver.flushCommit(commitBuilder)
+                .then(function (createdCommit) {
+                    commit = createdCommit;
+                    commit.getAuthor().getName().should.eql('Shakespeare');
+                    commit.getAuthor().getEmail().should.eql('shakespeare@hotmail.com');
                     commit.getMessage().should.eql('Test message');
                     commit.getSha().should.be.ok();
                     var parents = new immutable.List([repoState.getCurrentBranch().getSha()]);
                     immutable.is(commit.getParents(), parents).should.be.true();
                 });
             });
+
+            describe('.forwardBranch', function() {
+                it('should update a branch reference to a given commit', function () {
+                    var driverBranch = repoState.getCurrentBranch();
+                    return driver.forwardBranch(driverBranch, commit.getSha())
+                    .then(function () {
+                        // Ref flushed
+                        return repofs.RepoUtils.fetchBranches(repoState, driver);
+                    })
+                    .then(function (repoState) {
+                        repoState.getCurrentBranch().getSha().should.eql(commit.getSha());
+                    });
+                });
+            });
+
         });
     });
 }
