@@ -39,17 +39,14 @@ function testCommit(driver) {
     });
 
     describe('.listCommits', function() {
-        // Depends on previous test
+        // Depends on the first test
         it('should list commits on current branch', function () {
-            repofs.CommitUtils.listCommits(repoState, driver)
+            return repofs.CommitUtils.listCommits(repoState, driver)
             .then(function (commits) {
                 commits.count().should.be.greaterThan(1);
                 var commit = commits.first();
                 commit.getAuthor().getName().should.eql('Shakespeare');
                 commit.getMessage().should.eql('Test message');
-                commit.getMessage().should.eql('Test message');
-                commit.getFiles().count().should.eql(1);
-                commit.getFiles().first().getPath().should.eql('flushCommitFile');
             });
         });
     });
