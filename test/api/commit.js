@@ -38,10 +38,10 @@ function testCommit(driver) {
         });
     });
 
-    describe('.listCommits', function() {
+    describe('.fetchList', function() {
         // Depends on the first test
         it('should list commits on current branch', function () {
-            return repofs.CommitUtils.listCommits(repoState, driver)
+            return repofs.CommitUtils.fetchList(repoState, driver)
             .then(function (commits) {
                 commits.count().should.be.greaterThan(1);
                 var commit = commits.first();
