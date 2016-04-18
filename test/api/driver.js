@@ -69,9 +69,9 @@ function testDriver(driver) {
     describe('... we can now init a repo', function() {
 
         var repoState;
+        var driverBranch;
 
         before(function () {
-            var driverBranch;
             return repofs.RepoUtils.initialize(driver)
             .then(function (newState) {
                 driverBranch = newState.getBranch('driver-test');
@@ -95,7 +95,7 @@ function testDriver(driver) {
         });
 
         describe('.flushCommit', function() {
-            var commit;
+            var createdCommit;
 
             it('should flush a commit from a CommitBuilder', function () {
                 // Create a file for test
@@ -107,31 +107,105 @@ function testDriver(driver) {
                 });
 
                 return driver.flushCommit(commitBuilder)
-                .then(function (createdCommit) {
-                    commit = createdCommit;
-                    commit.getAuthor().getName().should.eql('Shakespeare');
-                    commit.getAuthor().getEmail().should.eql('shakespeare@hotmail.com');
-                    commit.getMessage().should.eql('Test message');
-                    commit.getSha().should.be.ok();
+                .then(function (commit) {
+                    createdCommit = commit;
+                    createdCommit.getAuthor().getName().should.eql('Shakespeare');
+                    createdCommit.getAuthor().getEmail().should.eql('shakespeare@hotmail.com');
+                    createdCommit.getMessage().should.eql('Test message');
+                    createdCommit.getSha().should.be.ok();
                     var parents = new immutable.List([repoState.getCurrentBranch().getSha()]);
-                    immutable.is(commit.getParents(), parents).should.be.true();
+                    immutable.is(createdCommit.getParents(), parents).should.be.true();
                 });
             });
 
             describe('.forwardBranch', function() {
                 it('should update a branch reference to a given commit', function () {
-                    var driverBranch = repoState.getCurrentBranch();
-                    return driver.forwardBranch(driverBranch, commit.getSha())
+                    return driver.forwardBranch(driverBranch, createdCommit.getSha())
                     .then(function () {
                         // Ref flushed
                         return repofs.RepoUtils.fetchBranches(repoState, driver);
                     })
                     .then(function (repoState) {
-                        repoState.getCurrentBranch().getSha().should.eql(commit.getSha());
+                        repoState.getCurrentBranch().getSha().should.eql(createdCommit.getSha());
                     });
                 });
             });
 
+            describe('.listCommits', function() {
+                it('should list commits on a branch', function () {
+                    return driver.listCommits({
+                        ref: driverBranch.getFullName()
+                    })
+                    .then(function (commits) {
+                        commits.count().should.eql(2);
+                        // Initial commit, should not have
+                        commits.last().getParents().isEmpty().should.be.true();
+                        // Most recent commit
+                        immutable.is(commits.first(), createdCommit);
+                    });
+                });
+
+                it('should list commits on a branch, filtering by modified file', function () {
+                    return driver.listCommits({
+                        ref: driverBranch.getFullName(),
+                        path: 'flushCommitFile'
+                    })
+                    .then(function (commits) {
+                        commits.count().should.eql(1);
+                        // Only created commit
+                        immutable.is(commits.first(), createdCommit);
+                    });
+                });
+
+                it('should list commits on a branch, filtering by modified file', function () {
+                    return driver.listCommits({
+                        ref: driverBranch.getFullName(),
+                        author: 'Shakespeare'
+                    })
+                    .then(function (commits) {
+                        commits.count().should.eql(1);
+                        // Only created commit
+                        immutable.is(commits.first(), createdCommit);
+                    });
+                });
+            });
+
+            describe('.fetchCommit', function() {
+                it('should fetch a commit, complete with files', function () {
+                    return driver.fetchCommit(createdCommit.getSha())
+                    .then(function (commit) {
+                        commit.getAuthor().getName().should.eql('Shakespeare');
+                        commit.getAuthor().getEmail().should.eql('shakespeare@hotmail.com');
+                        commit.getMessage().should.eql('Test message');
+                        // Only one file modified
+                        commit.getFiles().count().should.eql(1);
+                        commit.getFiles().first().should.eql({
+                            sha: '9c8e3f259e7e5f52ad5df962b899676ccde2e008',
+                            filename: 'flushCommitFile',
+                            status: 'added',
+                            additions: 1,
+                            deletions: 0,
+                            changes: 1,
+                            patch: '@@ -0,0 +1 @@\n+flushCommitContent\n\\ No newline at end of file\n'
+                        });
+                    });
+                });
+            });
+        });
+
+        // Better do this one last...
+        describe('.deleteBranch', function() {
+            it('should remove a branch', function() {
+                return driver.deleteBranch(driverBranch)
+                .then(function () {
+                    return driver.fetchBranches();
+                })
+                .then(function (branches) {
+                    branches.some(function (br) {
+                        return br.getFullName() === driverBranch.getFullName();
+                    }).should.be.false();
+                });
+            });
         });
     });
 }
