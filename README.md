@@ -33,25 +33,50 @@ var driver = repofs.GitHubDriver({
 });
 ```
 
-#### Initialize a Repository
+#### Start with an empty RepositoryState
 
-The first step is to initialize a repository state:
+The first step is to create an instance of `RepositoryState`:
 
 ```js
 var repoState = repofs.RepositoryState.createEmpty();
 ```
 
+#### Fetch the list of branches
+
+After creating a `RepositoryState`, the next step is to fetch the list of existing branches.
+
+``` js
+repofs.RepoUtils.fetchBranches(repoState, driver)
+.then(function (newRepoState) {
+    var branches = newRepoState.getBranches(); // List<Branch>
+    ...
+})
+```
+
 #### Checkout a branch
 
-After creating an empty `RepositoryState`, the next step is to checkout a specific branch
+Once the branches are fetched, you can checkout one. **This requires to fetch it first** using `repofs.RepoUtils.fetchTree`. This overrides any existing working tree for this branch. The `repofs.RepoUtils.checkout` operation is always sync.
 
 ```js
 var branch = repoState.getBranch('master');
 
-repofs.RepoUtils.checkout(repoState, driver, branch)
-.then(function(newRepoState) {
+repofs.RepoUtils.fetchTree(repoState, driver, branch)
+.then(function (repoState) {
+    var checkoutState = repofs.RepoUtils.checkout(repoState, driver, branch);
     ...
 })
+```
+
+#### Quick initialization
+
+There is a short way to initialize a `RepositoryState` from a driver, that will fetch the list of the branches, then fetch and checkout *master* or the first available branch.
+
+``` js
+repofs.RepoUtils.initialize(driver)
+.then(function (repoState) {
+    // repoState checked out on master
+    ...
+});
 ```
 
 #### Reading files
@@ -77,14 +102,19 @@ var content = repofs.FileUtils.readAsString(repoState, 'README.md');
 
 #### Listing files
 
-repofs keeps the whole trees in the different `WorkingStates`, you can access the whole tree at once:
+repofs keeps the whole trees in the different `WorkingStates`, you can access the whole tree as a flat list...
 
 ```js
-// From a RepositoryState
 var workingState = repoState.getCurrentState();
 var treeEntries = workingState.getTreeEntries();
 ```
 
+... or as an immutable tree structure (a `TreeNode<File>`):
+
+```js
+var dir = '.' // root
+var rootTree = repofs.TreeUtils.get(repoState, dir);
+```
 
 #### Working with files
 
@@ -149,7 +179,7 @@ Or revert changes for a specific file or directory:
 var newRepoState = repofs.ChangeUtils.revertForFile(repoState, 'README.md');
 
 // Revert change on a directory
-var newRepoState = repofs.ChangeUtils.revertForDir(repoState, 'lib');
+var newRepoState = repofs.ChangeUtils.revertForDir(repoState, 'src');
 ```
 
 #### Commiting changes
@@ -264,4 +294,76 @@ function solveConflicts(repoState, driver, from, into) {
         });
     });
 }
+```
+
+#### Remotes operations
+
+When using a compatible API, you can also deal with remotes on the repository.
+
+##### List remotes
+
+``` js
+repofs.RemoteUtils.list(driver)
+.then(function (remotes) {
+    // remotes is an Array of remote:
+    // {
+    //   name,
+    //   url
+    // }
+});
+```
+
+##### Edit remotes
+
+``` js
+repofs.RemoteUtils.edit(driver, name, url)
+.then(function () {
+    // Remote edited
+});
+```
+
+##### Pulling
+
+You can update a branch to the state of the same branch on a remote, and get an updated `RepositoryState` with:
+
+``` js
+var master = repoState.getBranch('master');
+var remote = {
+    name: 'origin'
+};
+
+repofs.RemoteUtils.pull(repoState, driver, {
+    branch: master,
+    remote: remote,
+    auth: {
+        username: Shakespeare,
+        password: "f00lish wit"
+    }
+})
+.then(function (newRepoState) {
+    ...
+})
+```
+
+##### Pushing
+
+You can push a branch to a remote:
+
+```js
+var master = repoState.getBranch('master');
+var remote = {
+    name: 'origin'
+};
+
+repofs.RemoteUtils.push(repoState, driver, {
+    branch: master,
+    remote: remote,
+    auth: {
+        username: Shakespeare,
+        password: "f00lish wit"
+    }
+})
+.then(function () {
+    // Pushed
+})
 ```
