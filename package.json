@@ -11,8 +11,6 @@
   },
   "dependencies": {
     "axios": "0.8.0",
-    "diff-match-patch-node": "0.9.1",
-    "eventemitter2": "0.4.14",
     "immutable": "^3.7.6",
     "lodash": "^3.9.3",
     "md5-hex": "1.1.0",
@@ -24,7 +22,6 @@
     "eslint": "1.10.1",
     "github-releases": "0.3.2",
     "mocha": "2.4.5",
-    "octocat": "0.6.0",
     "should": "8.2.2"
   },
   "scripts": {
