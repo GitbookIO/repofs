@@ -19,7 +19,7 @@ if [ -z ${GITHUB_REPO+x} ]; then
 fi
 
 function createRepo(){
-    curl --user "$GITHUB_USER:$GITHUB_TOKEN" --request POST --data @- https://api.github.com/user/repos >/dev/null <<EOF
+    curl --silent --user "$GITHUB_USER:$GITHUB_TOKEN" --request POST --data @- https://api.github.com/user/repos >/dev/null <<EOF
 {
   "name": "$GITHUB_REPO",
   "auto_init": true,
@@ -32,7 +32,7 @@ EOF
 }
 
 function deleteRepo() {
-    curl --user "$GITHUB_USER:$GITHUB_TOKEN" --request DELETE https://api.github.com/repos/$GITHUB_USER/$GITHUB_REPO
+    curl --silent --user "$GITHUB_USER:$GITHUB_TOKEN" --request DELETE https://api.github.com/repos/$GITHUB_USER/$GITHUB_REPO
 }
 
 # Create repo on GitHub

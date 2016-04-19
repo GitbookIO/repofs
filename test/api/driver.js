@@ -157,10 +157,10 @@ function testDriver(driver) {
                     });
                 });
 
-                it('should list commits on a branch, filtering by modified file', function () {
+                it('should list commits on a branch, filtering by author', function () {
                     return driver.listCommits({
                         ref: driverBranch.getFullName(),
-                        author: 'Shakespeare'
+                        author: 'shakespeare@hotmail.com'
                     })
                     .then(function (commits) {
                         commits.count().should.eql(1);
@@ -179,15 +179,14 @@ function testDriver(driver) {
                         commit.getMessage().should.eql('Test message');
                         // Only one file modified
                         commit.getFiles().count().should.eql(1);
-                        commit.getFiles().first().should.eql({
-                            sha: '9c8e3f259e7e5f52ad5df962b899676ccde2e008',
-                            filename: 'flushCommitFile',
-                            status: 'added',
-                            additions: 1,
-                            deletions: 0,
-                            changes: 1,
-                            patch: '@@ -0,0 +1 @@\n+flushCommitContent\n\\ No newline at end of file\n'
-                        });
+                        var file = commit.getFiles().first();
+                        file.sha.should.eql('9c8e3f259e7e5f52ad5df962b899676ccde2e008');
+                        file.filename.should.eql('flushCommitFile');
+                        file.status.should.eql('added');
+                        file.additions.should.eql(1);
+                        file.deletions.should.eql(0);
+                        file.changes.should.eql(1);
+                        file.patch.should.be.ok();
                     });
                 });
             });
