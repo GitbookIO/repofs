@@ -5,4 +5,5 @@ IFS=$'\n\t'
 # Skip API tests
 export REPOFS_SKIP_API_TEST=true
 
+# mocha --debug-brk
 mocha --reporter spec --bail --timeout 15000

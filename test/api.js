@@ -11,10 +11,6 @@
  './workingState.js']
 .map(require);
 
-var _ = require('lodash');
-var Q = require('q');
-
-var Octocat = require('octocat');
 var repofs = require('../');
 var GitHubDriver = repofs.GitHubDriver;
 
@@ -30,6 +26,10 @@ var REPO = process.env.REPOFS_REPO;
 var HOST = process.env.REPOFS_HOST;
 var TOKEN = process.env.REPOFS_TOKEN;
 
+// Assumes that a repository was created with one commit on 'master':
+// Commit "Initial commit\n"
+// 1 addition README.md:
+// "# <name of the repo>"
 describe('API tests', function() {
 
     var shouldSkip = process.env.REPOFS_SKIP_API_TEST;
@@ -41,41 +41,9 @@ describe('API tests', function() {
     if (!DRIVER) throw new Error('Testing requires to select a DRIVER');
     if (!REPO || !HOST) throw new Error('Testing requires a REPO and HOST configuration');
 
-    var client;
-    var octoRepo;
     var driver;
 
     driver = createDriver(DRIVER, REPO, TOKEN, HOST);
-
-    // Setup base repo
-    before(function() {
-        if (DRIVER === DRIVERS.GITHUB) {
-            // Init repo
-            client = new Octocat({
-                token: TOKEN
-            });
-            octoRepo = client.repo(REPO);
-            // Clear any existing repo
-            return octoRepo.destroy()
-            .fail(function (err) {
-                // ignore
-                return Q();
-            })
-            .then(function() {
-                return client.createRepo({
-                    name: _.last(REPO.split('/')),
-                    auto_init: true
-                });
-            });
-        }
-    });
-
-    // Destroy repository after tests
-    after(function() {
-        if(DRIVER === DRIVERS.GITHUB) {
-            return octoRepo.destroy();
-        }
-    });
 
     require('./api/driver')(driver);
 
