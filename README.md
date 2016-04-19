@@ -190,7 +190,8 @@ var john = repofs.Author.create('John Doe', 'john.doe@gmail.com');
 
 // Create a CommitBuilder to define the commit
 var commitBuilder = repofs.CommitUtils.prepare(repoState, {
-    author: john
+    author: john,
+    message: 'Initial commit'
 });
 
 // Flush commit using the driver
