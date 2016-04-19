@@ -18,8 +18,7 @@ describe('Decoding, encoding', function() {
     var change = new Change({
         type: repofs.CHANGE.UPDATE,
         content: new Buffer('ChangeBuffer'),
-        sha:'changeSha',
-        message: 'changeMessage'
+        sha:'changeSha'
     });
 
     var branch = new Branch({
