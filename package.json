@@ -1,38 +1,40 @@
 {
-    "name": "repofs",
-    "version": "6.0.4",
-    "main": "lib/index.js",
-    "author": "GitBook <contact@gitbook.com>",
-    "description": "Simple and unified API to manipulate Git repositories",
-    "bugs": "https://github.com/GitbookIO/repofs/issues",
-    "license": "Apache-2.0",
-    "engines": {
-        "node": ">=0.12"
-    },
-    "dependencies": {
-        "q": "^1.3.0",
-        "lodash": "^3.9.3",
-        "axios": "0.8.0",
-        "diff-match-patch-node": "0.9.1",
-        "mime-types": "2.1.1",
-        "urljoin.js": "0.1.0",
-        "md5-hex": "1.1.0",
-        "eventemitter2": "0.4.14"
-    },
-    "devDependencies": {
-        "eslint": "1.10.1",
-        "mocha": "2.4.5",
-        "should": "8.2.2",
-        "octocat": "0.6.0",
-        "github-releases": "0.3.2"
-    },
-    "scripts": {
-        "test": "./scripts/test-uhub.sh; ./scripts/test-github.sh",
-        "test-uhub": "./scripts/test-uhub.sh",
-        "test-github": "./scripts/test-github.sh"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/GitbookIO/repofs.git"
-    }
+  "name": "repofs",
+  "version": "6.0.3",
+  "main": "lib/index.js",
+  "author": "GitBook <contact@gitbook.com>",
+  "description": "Simple and unified API to manipulate Git repositories",
+  "bugs": "https://github.com/GitbookIO/repofs/issues",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=0.12"
+  },
+  "dependencies": {
+    "axios": "0.8.0",
+    "diff-match-patch-node": "0.9.1",
+    "eventemitter2": "0.4.14",
+    "immutable": "^3.7.6",
+    "lodash": "^3.9.3",
+    "md5-hex": "1.1.0",
+    "mime-types": "2.1.1",
+    "q": "^1.3.0",
+    "urljoin.js": "0.1.0"
+  },
+  "devDependencies": {
+    "eslint": "1.10.1",
+    "github-releases": "0.3.2",
+    "mocha": "2.4.5",
+    "octocat": "0.6.0",
+    "should": "8.2.2"
+  },
+  "scripts": {
+    "test": "./scripts/test-uhub.sh && ./scripts/test-github.sh",
+    "test-no-api": "./scripts/test-no-api.sh",
+    "test-uhub": "./scripts/test-uhub.sh",
+    "test-github": "./scripts/test-github.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GitbookIO/repofs.git"
+  }
 }

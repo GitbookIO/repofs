@@ -2,7 +2,6 @@ sudo: false
 language: node_js
 node_js:
   - "stable"
-  - "0.12"
 before_install:
   - git config --global user.email "contact@gitbook.com"
   - git config --global user.name "GitBook Team"

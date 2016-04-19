@@ -7,15 +7,7 @@ This module provides a simple and unified API to manipulate Git repositories on 
 
 It allows more complex operations than the [Contents API](https://developer.github.com/v3/repos/contents/) using the [Git Data API](https://developer.github.com/v3/git/).
 
-The API provided by this module is Promise-based.
-
-### Features
-
-- :sparkles: Promise-based API
-- :sparkles: Easy to use API
-- :sparkles: Supports ArrayBuffer for reading/writing files without encoding issues
-- :sparkles: Bundle multiple changes in one commit
-- :sparkles: Merge conflicts and "Can not fast forward"
+It is powered by an immutable model. Async operations are Promise-based.
 
 ### Installation
 
@@ -25,393 +17,251 @@ $ npm install repofs
 
 ### How to use it?
 
-To use `repofs` in the browser, include it using browserify.
+To use `repofs` in the browser, include it using browserify/webpack.
 
 ```js
 var repofs = require('repofs');
 ```
 
-The first step is to create an fs instance, for example to connect to a remote GitHub repository:
+Initialize a driver instance, a driver represents the communication layer between repofs and the real git repository.
 
 ```js
-var fs = repofs({
+var driver = repofs.GitHubDriver({
     repository: 'MyUsername/myrepository',
     username: 'MyUsername',
-    token: 'MyPasswordOrMyApiToken',
-    committer: {
-        name: "John Doe",
-        email: "johndoe@gmail.com"
-    }
+    token: 'MyPasswordOrMyApiToken'
 });
 ```
 
-##### fs.checkout: Select a branch
+#### Initialize a Repository
 
-The first step is to select a branch to use:
-
-```js
-fs.checkout('master').then(function() { ... })
-```
-
-##### fs.stat: Get informations about a file
+The first step is to initialize a repository state:
 
 ```js
-fs.stat('README.txt').then(function(file) { ... });
+var repoState = repofs.RepositoryState.createEmpty();
 ```
 
-`file` will look like:
+#### Checkout a branch
+
+After creating an empty `RepositoryState`, the next step is to checkout a specific branch
 
 ```js
-{
-    name: "README.md",
-    path: "folder/README.md",
-    type: "file",
-    isDirectory: false,
-    size: 546,
-    sha: "....",
-    content: "....",
-    mime: "application/octet-stream",
-    url: "file://..."
-}
+var branch = repoState.getBranch('master');
+
+repofs.RepoUtils.checkout(repoState, driver, branch)
+.then(function(newRepoState) {
+    ...
+})
 ```
 
-The `url` can be an `http(s)` url (for GitHub), or a `data` url (for Memory and LocalStore).
+#### Reading files
 
-##### fs.read: Read file's content
+Reading a file requires to fetch the content from the remote repository inside the `RepositoryState` (See [Caching](#caching)):
 
 ```js
-fs.read('README.txt').then(function(content) { ... });
+repofs.WorkingUtil.fetchFile(repoState, driver, 'README.md')
+.then(function(newRepoState) {
+    ...
+})
 ```
 
-By default content is returned as an utf8 string, to read file's content as an `ArrayBuffer`, you can use the `encoding` option:
+Then the content can be accessed using sync methods:
 
 ```js
-// Get content as an ArrayBuffer
-fs.read('README.txt', { encoding: null })
+// Read as a blob
+var blob = repofs.FileUtils.read(repoState, 'README.md');
+
+// Read as a String
+var content = repofs.FileUtils.readAsString(repoState, 'README.md');
 ```
 
-##### fs.write: Update file content
+#### Listing files
 
-This method will fail if the file doesnt't exist. If the file doesn't exists, you should use `fs.create`. You can also use `fs.update` to orce creation if file doesn't exist.
+repofs keeps the whole trees in the different `WorkingStates`, you can access the whole tree at once:
 
 ```js
-/// On default branch
-fs.write('README.txt', 'My new content')
-
-// With a specific commit message
-// By default, the message will be "Update <path>"
-fs.write('README.txt', 'My new content', { message: "My super commit" })
-
-// With an binary array buffer
-fs.write('image.png', new ArrayBuffer(10));
+// From a RepositoryState
+var workingState = repoState.getCurrentState();
+var treeEntries = workingState.getTreeEntries();
 ```
 
-##### fs.commit: Commit changes
 
-Commit all changes to the driver.
+#### Working with files
+
+Create a new file:
 
 ```js
-// Commit changes on a specific branch
-// Commit message will be the last change's message
-fs.commit()
-
-// Commit with a different message
-fs.commit({ message: 'My Commit' })
+var newRepoState = repofs.FileUtils.create(repoState, 'API.md');
 ```
 
-##### fs.exists: Check if a file exists
+Write/Update the file
 
 ```js
-fs.exists('README.txt').then(function(exist) { ... });
+var newRepoState = repofs.FileUtils.write(repoState, 'API.md', 'content');
 ```
 
-##### fs.readdir: List directory content
+Remove the file
 
 ```js
-fs.readdir('myfolder').then(function(files) { ... });
+var newRepoState = repofs.FileUtils.remove(repoState, 'API.md');
 ```
 
-`files` is a map fo `fileName => fileInfos`.
-
-##### fs.unlink: Delete a file
+Rename/Move the file
 
 ```js
-fs.unlink('README.txt').then(function() { ... });
+var newRepoState = repofs.FileUtils.move(repoState, 'API.md', 'API2.md');
 ```
 
-##### fs.rmdir: Delete a folder
+#### Working with directories
+
+List files in the directory
 
 ```js
-fs.rmdir('lib').then(function() { ... });
+var pathList = repofs.DirUtils.read(repoState, 'myfolder');
 ```
 
-##### fs.move: Move/Rename a file
-
-(`fs.rename` is an alias of this method).
+Remove the directory
 
 ```js
-fs.move('README.txt', 'README2.txt').then(function() { ... });
+var newRepoState = repofs.DirUtils.remove(repoState, 'myfolder');
 ```
 
-##### fs.mvdir: Move/Rename a directory
+Rename/Move the directory
 
 ```js
-fs.mvdir('lib', 'lib2').then(function() { ... });
+var newRepoState = repofs.DirUtils.move(repoState, 'myfolder', 'myfolder2');
 ```
 
-##### Working with branches
+#### Changes
+
+Until being commited, repofs keeps a record of changes per files.
+
+Revert all non-commited changes using:
 
 ```js
-// List branches
-fs.listBranches().then(function(branches) { ... });
-
-// Create a new branch from master
-fs.createBranch('dev')
-
-// or create a new branch from another branch
-fs.createBranch('fix/2', 'dev')
-
-// Delete a branch
-fs.removeBranch('dev')
-
-// Merge a branch into another one
-fs.mergeBranches('dev', 'master', { message: 'Merges dev into master' })
+var newRepoState = repofs.ChangeUtils.revertAll(repoState);
 ```
 
-A branch is defined by:
+Or revert changes for a specific file or directory:
 
 ```js
-{
-    name: "master",
-    commit: { ... }
-}
+// Revert change on a specific file
+var newRepoState = repofs.ChangeUtils.revertForFile(repoState, 'README.md');
+
+// Revert change on a directory
+var newRepoState = repofs.ChangeUtils.revertForDir(repoState, 'lib');
 ```
 
-##### Handling conflicts
+#### Commiting changes
 
-When commiting, or merging two branches, and conflicts occur, `fs` emits a `'conflicts.needs.resolved'` event. You can add a single listener to this event that will be responsible for resolving the conflict (see [events](#events)). Two parameters are handed:
+```js
+// Create an author / committer
+var john = repofs.Author.create('John Doe', 'john.doe@gmail.com');
 
-- `conflicts`: the result of comparing the conflicting refs (see `fs.detectConflicts()`)
-- `next`: callback method, expecting the resolved object:
+// Create a CommitBuilder to define the commit
+var commitBuilder = repofs.CommitUtils.prepare(repoState, {
+    author: john
+});
 
-``` js
-// Provides err to fail
-next = function (err, resolved)
+// Flush commit using the driver
+repofs.CommitUtils.flush(repoState, driver, commitBuilder)
+.then(function(newRepoState) {
+    // newRepoState updated with new working tree
+    ...
+});
+```
 
-var resolved = {
-    message: 'Commit message'
-    files: {
-        <path>: {
-            path: <path>,
-            buffer: 'Merged content'
-        },
+#### Non fast forward commits
+
+Flushing a commit can fail with an `ERRORS.NON_FAST_FORWARD` code.
+
+```js
+// Flush commit using the driver
+repofs.CommitUtils.flush(repoState, driver, commitBuilder)
+.then(function success(newRepoState) {
+    ...
+}, function failure(err) {
+    // Catch non fast forward errors
+    if(err.code !== repofs.ERRORS.NON_FAST_FORWARD) {
+        throw err;
+    }
+    ...
+});
+```
+
+Non fast forward errors contains the created commit (that is currently not linked to any branch). This allows you to attempt to merge this commit back into the current branch:
+
+```js
+... function fail(err) {
+    // Catch non fast forward errors
+    if(err.code !== repofs.ERRORS.NON_FAST_FORWARD) {
+        throw err;
+    }
+    // The created commit
+    var commit = err.commit;
+    // Attempt automatic merge
+    var from = commit.getSha();
+    var into = repoState.getCurrentBranch();
+    return repofs.BranchUtils.merge(repoState, driver, from, into)
+    .then(function success(repoState) {
         ...
-    }
+    });
 }
 ```
 
-If no one is listening, the operations will simply fail.
+#### Merging
 
-###### Detecting conflicts between refs
+`repofs.BranchUtils.merge` allows to automatically merge a commit or a branch, into another branch.
 
 ``` js
-// Detect conflicts between two refs (branch name or sha)
-fs.detectConflicts("master", "dev")
-```
-
-This returns one of the possible status between the two refs, along with the list of conflicts:
-
-``` js
-{
-    status: 'identical' | 'diverged',
-    base: "branch" | "sha"
-    head: "branch" | "sha"
-    conflicts: {
-        <path>: {
-            path: <path>
-            status: 'both-modified' | 'absent-on-base' | 'absent-on-head'
-            base: "blob's sha..." | null
-            head: "blob's sha..." | null
-        },
-        ...
-    }
-}
-```
-
-##### List commits on the repository
-
-```js
-// List commits
-fs.listCommits({ ref: "dev" }).then(function(commits) { ... });
-```
-
-`commits` will be a list of objects like:
-
-```js
-{
-    "sha": "...",
-    "author": {
-        "name": "Samy Pesse",
-        "email": "samypesse@gmail.com"
-    },
-    "message": "Create file hello.js",
-    "date": [Date Object]
-}
-```
-
-##### Get a single commit
-
-```js
-fs.getCommit("sha").then(function(commit) { ... });
-```
-
-`commit` will also include a `files` attribute, example:
-
-```js
-{
-    "sha": "415ab40ae9b7cc4e66d6769cb2c08106e8293b48",
-    "author": {
-        "name": "John Doe",
-        "email": "johndoe@gmail.com"
-    },
-    "message": "Initial commit",
-    "date": "2015-06-09T08:10:38.260Z",
-    "files": [
-        {
-            "filename": "README.md",
-            "patch": "@@ -0,0 +1,11 @@\n+Hello world\n"
-        }
-    ]
-}
-```
-
-##### Compare two commits
-
-```js
-fs.compareCommits("hubot:branchname", "octocat:branchname").then(function(result) { ... });
-```
-
-`result` will also include `files` and `commits` attribute.
-
-
-##### Working with remotes
-
-```js
-// Push a branch to origin
-fs.push({
-    branch: "dev"
-})
-
-// Push to a specific remote
-fs.push({
-    remote: {
-        name: "myremote",
-        url: "https://github.com/GitbookIO/repofs.git"
-    }
-})
-
-// Fetch a specific remote with authentication
-fs.fetch({
-    remote: {
-        name: "myremote",
-        url: "https://github.com/GitbookIO/repofs.git"
-    },
-    auth: {
-        username: "John",
-        password: "mysecret"
-    }
-})
-
-// Force push
-fs.push({
-    force: true
-})
-```
-
-`fs.pull` uses the same options as `fs.push`. You can also use `fs.sync` whic is equivalent to pushing then pulling changes.
-
-##### Uncommited changes
-
-Uncommited changes can be listed:
-
-```js
-var changes = fs.listChanges({ ref: 'master' });
-// changes will be a map: filanem -> {type, buffer}
-```
-
-And revert:
-
-```js
-// Revert change on a file
-fs.revertChange('README.md', { ref: 'master' });
-
-// Revert all pending changes
-fs.revertChanges({ ref: 'master' });
-```
-
-##### Operations
-
-Repofs has a concept of "operations stack", to easily group changes:
-
-```js
-fs.operation('First commit', function() {
-    return Q.all([
-        fs.write('package.json', '{ ... }'),
-        fs.write('index.js', '...'),
-        fs.write('README.md', '...')
-    ]);
+// from is either a Branch or a commit SHA string
+repofs.BranchUtils.merge(repoState, driver, from, into)
+.then(function success(repoState) {
+    ...
 });
 ```
 
-We can also automatically commit once the stack is empty:
+#### Merge conflicts
+
+But conflicts can happen when the automatic merge failed. For example, after merging two branches, or after merging a non fast forward commit. It is possible then to solve the conflicts manually:
 
 ```js
-fs.on('operations.allcompleted', function() {
-    fs.commit();
+repofs.BranchUtils.merge(repoState, driver, from, into)
+.then(function success(repoState) {
+    ...
+}, function failure(err) {
+    // Catch merge conflict errors
+    if(err.code !== repofs.ERRORS.CONFLICT) {
+        throw err;
+    }
+    solveConflicts(repoState, driver, from, into)
 });
 ```
 
-##### Events
-
-File watcher (Path of the file is accessible using `e.path`):
-
-```js
-fs.on('watcher.create', function(e) {  })
-fs.on('watcher.remove', function(e) {  })
-fs.on('watcher.update', function(e) {  })
-
-// Whenever the current tree is fetched
-fs.on('watcher.fetch', function(e) {
-    e.filesTreeChanged // Boolean
-})
-
-// Or watch all changes (create, remove and update):
-// e.type is the type of change
-fs.on('watcher', function(e) {  })
-```
-
-Branches:
-
-```js
-fs.on('branches.add', function(e) {  })
-fs.on('branches.remove', function(e) {  })
-
-// e.type is the type of change
-fs.on('branches')
-```
-
-Operations:
-
-```js
-fs.on('operations.started', function(e) { })
-fs.on('operations.completed', function(e) { })
-fs.on('operations.allcompleted', function(e) { })
-```
-
-Conflicts:
+The function `solveConflicts` would compute the `TreeConflict` representing all the conflicts between `from` and `into` references, solve it in some ways, and make a merge commit. Here is an example of such function:
 
 ``` js
-fs.on('conflicts.needs.resolved', function(conflicts, next) { })
-fs.on('conflicts.resolve.succees', function() { })
-fs.on('conflicts.resolve.failed', function() { })
+function solveConflicts(repoState, driver, from, into) {
+    return repofs.ConflictUtils.compareRefs(driver, base, head)
+    .then(function (treeConflict) {
+        // Solve the list of conflicts in some way, for example by
+        // asking a user to do it manually.
+        var solvedConflicts // Map<Path, Conflict>
+            = solve(treeConflict.getConflicts());
+
+        // Create a solved conflict tree
+        var solvedTreeConflict // TreeConflict
+            = repofs.ConflictUtils.solveTree(treeConflict, solvedConflicts);
+
+        // The SHAs of the parent commits
+        var parentShas = [from.getSha(), into.getSha()];
+        // Create the merge commit
+        var commitBuilder = repofs.ConflictUtils.mergeCommit(solvedTreeConflict, parents);
+
+        // Flush it on the target branch
+        return repofs.CommitUtils.flush(repoState, driver, commitBuilder, {
+            branch: into
+        });
+    });
+}
 ```

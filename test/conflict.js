@@ -1,171 +1,198 @@
-var _ = require('lodash');
-var conflicter = require('../lib/conflicter');
+require('should');
 
-describe('Conflict module', function() {
+var immutable = require('immutable');
 
-    it('should detect unchanged files between two trees', function() {
-        var baseTreeEntries = [{
-            'path': 'unchangedfile',
-            'sha': 'unchanged'
-        }];
-        var headTreeEntries = [{
-            'path': 'unchangedfile',
-            'sha': 'unchanged'
-        }];
-        var conflicts = conflicter.listConflicts(baseTreeEntries, headTreeEntries, { stripe: false });
-        conflicts.should.eql({
-            unchangedfile: {
-                base: 'unchanged',
-                head: 'unchanged',
-                path: 'unchangedfile',
-                status: conflicter.FILE.UNCHANGED
-            }
-        });
+var repofs = require('../');
+
+var ConflictUtils = require('../lib/utils/conflict');
+var TreeEntry = require('../lib/models/treeEntry');
+var TreeConflict = repofs.TreeConflict;
+var Conflict = repofs.Conflict;
+var WorkingState = repofs.WorkingState;
+
+describe('ConflictUtils', function() {
+
+    var parentEntries = new immutable.Map({
+        bothDeleted: entry('bothDeleted'),
+        bothModified:  entry('bothModified-parent'), // conflict
+        deletedBase: entry('deletedBase'),
+        // Deleted by base, modified by parent
+        deletedModified: entry('deletedModified-parent'), // conflict
+        modifiedBase:  entry('modifiedBase-parent'),
+        unchanged:  entry('unchanged')
     });
 
-    it('should detect conflicts between two trees', function() {
-        var shaUnchanged = 'shaUnchanged';
-        var shaMoved = 'shaMoved';
-        var shaModified1 = 'shaModified1';
-        var shaModified2 = 'shaModified2';
-        var shaDeletedInHead = 'shaDeletedInHead';
-        var shaDeletedInBase = 'shaDeletedInBase';
-
-        var baseTreeEntries = [
-            {
-                'path': 'unchanged',
-                'sha': shaUnchanged
-            },
-            {
-                'path': 'moved1',
-                'sha': shaMoved
-            },
-            {
-                'path': 'modified',
-                'sha': shaModified1
-            },
-            {
-                'path': 'deletedInHead',
-                'sha': shaDeletedInHead
-            }];
-        var headTreeEntries = [
-            {
-                'path': 'unchanged',
-                'sha': shaUnchanged
-            },
-            {
-                'path': 'moved2',
-                'sha': shaMoved
-            },
-            {
-                'path': 'modified',
-                'sha': shaModified2
-            },
-            {
-                'path': 'deletedInBase',
-                'sha': shaDeletedInBase
-            }];
-
-        var conflicts = conflicter.listConflicts(baseTreeEntries, headTreeEntries);
-
-        conflicts.should.eql({
-            moved1:
-            { base: 'shaMoved',
-              path: 'moved1',
-              status: conflicter.FILE.ABSENT_FROM_HEAD,
-              head: null },
-            modified:
-            { base: 'shaModified1',
-              head: 'shaModified2',
-              path: 'modified',
-              status: conflicter.FILE.BOTH_MODIFIED },
-            deletedInHead:
-            { base: 'shaDeletedInHead',
-              path: 'deletedInHead',
-              status: conflicter.FILE.ABSENT_FROM_HEAD,
-              head: null },
-            moved2:
-            { head: 'shaMoved',
-              path: 'moved2',
-              status: conflicter.FILE.ABSENT_FROM_BASE,
-              base: null },
-            deletedInBase:
-            { head: 'shaDeletedInBase',
-              path: 'deletedInBase',
-              status: conflicter.FILE.ABSENT_FROM_BASE,
-              base: null }
-        });
+    var baseEntries = new immutable.Map({
+        addedBase: entry('addedBase'),
+        bothAddedDifferent:  entry('bothAddedDifferent-base'), // conflict
+        bothAddedSame:  entry('bothAddedSame'),
+        bothModified:  entry('bothModified-base'), // conflict
+        modifiedBase:  entry('modifiedBase-base'),
+        unchanged:  entry('unchanged')
     });
 
+    var headEntries = new immutable.Map({
+        bothAddedDifferent:  entry('bothAddedDifferent-head'), // conflict
+        bothAddedSame:  entry('bothAddedSame'),
+        bothModified:  entry('bothModified-head'), // conflict
+        deletedBase: entry('deletedBase'),
+        deletedModified: entry('deletedModified-head'), // conflict
+        modifiedBase:  entry('modifiedBase-parent'),
+        unchanged:  entry('unchanged')
+    });
 
-    var commonEntries = {
-        'README.md': {
-            sha: '1b4745c9835c8bdcbd13ead3e4616bc3a0732654',
-            path: 'README.md',
-            size: 18,
-            mode: '100644',
-            type: 'blob' },
-        'branchdir/appendfile': {
-            sha: '361f791b9d1f30454e0300396263b5b333421b54',
-            path: 'branchdir/appendfile',
-            size: 32,
-            mode: '100644',
-            type: 'blob' },
-        'branchdir/masterfile': {
-            sha: 'ddec47848bef05951643e8da96d4aab79f09c0dd',
-            path: 'branchdir/masterfile',
-            size: 23,
-            mode: '100644',
-            type: 'blob' }
-    };
+    var parentWK = WorkingState.createWithTree('parentWK', parentEntries);
+    var headWK = WorkingState.createWithTree('headWK', headEntries);
+    var baseWK = WorkingState.createWithTree('baseWK', baseEntries);
 
-    var baseTree = {
-        sha: '3bb128bc135266ace5d817d45c1dfd057fe1ee21',
-        entries: _.extend({}, commonEntries, {
-            'branchdir/conflictfile': {
-                sha: 'ecf9936de81913a4b292d1adf46a3e2e9b6bae95',
-                path: 'branchdir/conflictfile',
-                size: 36,
-                mode: '100644',
-                type: 'blob'
-            }
+    var CONFLICTS = {
+        bothModified: new Conflict({
+            parentSha: 'bothModified-parent',
+            baseSha:   'bothModified-base',
+            headSha:   'bothModified-head'
+        }),
+        bothAddedDifferent: new Conflict({
+            parentSha: null,
+            baseSha:  'bothAddedDifferent-base',
+            headSha:  'bothAddedDifferent-head'
+        }),
+        deletedModified: new Conflict({
+            parentSha: 'deletedModified-parent',
+            baseSha:    null,
+            headSha:   'deletedModified-head'
         })
     };
 
-    /* var headTree = {
-        sha: 'b4f5c3ce6f4bb532fd65ebbbf7d8a4951439f7f8',
-        entries: _.extend({}, commonEntries, {
-            'branchdir/conflictfile': {
-                sha: '05dd87fed0042c852a51afc389c9a341c5a0b4a2',
-                path: 'branchdir/conflictfile',
-                size: 36,
-                mode: '100644',
-                type: 'blob' }
-        })
-    }; */
-
-    it('should leave a tree unchanged with empty solved conflicts', function() {
-        conflicter.mergeInTree({
-            message: 'Nothing solved',
-            conflicts: {}
-        }, baseTree).should.eql(baseTree);
+    var treeConflict = new TreeConflict({
+        base: baseWK,
+        head:headWK,
+        parent: parentWK,
+        conflicts: new immutable.Map(CONFLICTS)
     });
 
-    it('should merge solved conflicts into a tree', function() {
-        var mergedTree = conflicter.mergeInTree({
-            message: 'This is solved',
-            files: {
-                'branchdir/conflictfile': {
-                    path: 'branchdir/conflictfile',
-                    buffer: 'Cool merged buffer' // size 18
-                }
-            }
-        }, baseTree);
-        mergedTree.should.not.eql(baseTree);
-        mergedTree.entries['branchdir/conflictfile'].should.be.eql({
-            path: 'branchdir/conflictfile',
-            buffer: 'Q29vbCBtZXJnZWQgYnVmZmVy',
-            size: 18
+    // The list of solved conflicts, as returned after resolution
+    var solvedConflicts = treeConflict.getConflicts().merge({
+        bothModified: CONFLICTS.bothModified.solveWithContent('Solved content'),
+        // bothAddedDifferent ignored, should default to keep base
+        deletedModified: CONFLICTS.deletedModified.keepHead()
+    });
+
+
+    // ---- TESTS ----
+
+    describe('._diffEntries', function() {
+
+        it('should detect modified entries, added entries, and deleted entries', function() {
+            var result = ConflictUtils._diffEntries(parentEntries, baseEntries);
+
+            var expectedDiff = new immutable.Map({
+                addedBase: entry('addedBase'),
+                bothAddedDifferent: entry('bothAddedDifferent-base'),
+                bothAddedSame: entry('bothAddedSame'),
+                bothDeleted: null,
+                bothModified: entry('bothModified-base'),
+                deletedBase: null,
+                deletedModified: null,
+                modifiedBase: entry('modifiedBase-base')
+            });
+
+            immutable.is(result, expectedDiff).should.be.true();
+        });
+
+    });
+
+    describe('._compareTrees', function() {
+
+        it('should detect minimum set of conflicts', function() {
+            var result = ConflictUtils._compareTrees(parentEntries, baseEntries, headEntries);
+            var expected = treeConflict.getConflicts();
+
+            immutable.is(result, expected).should.be.true();
+        });
+
+    });
+
+    describe('.solveTree', function() {
+
+        it('should merge back solved conflicts into a TreeConflict, defaulting to base version', function() {
+            var solvedTreeConflict = ConflictUtils.solveTree(treeConflict, solvedConflicts);
+
+            // Expect tree to be unchanged outside of conflicts
+            immutable.is(solvedTreeConflict.set('conflicts', null),
+                         treeConflict.set('conflicts', null));
+
+            // Expect conflicts to be solved
+            var expected = solvedConflicts.set('bothAddedDifferent',
+                                      CONFLICTS.bothAddedDifferent.keepBase());
+            var result = solvedTreeConflict.getConflicts();
+            immutable.is(result, expected).should.be.true();
+        });
+    });
+
+    describe('._getSolvedEntries', function() {
+
+        it('should generate the solved tree entries', function() {
+            var solvedTreeConflict = ConflictUtils.solveTree(treeConflict, solvedConflicts);
+            var result = ConflictUtils._getSolvedEntries(solvedTreeConflict);
+
+            var expected = new immutable.Map({
+                deletedModified: entry('deletedModified-head'), // keeped head
+                bothAddedSame: entry('bothAddedSame'),
+                bothModified: entry(null), // solved with content
+                addedBase: entry('addedBase'),
+                bothAddedDifferent: entry('bothAddedDifferent-base'), // keeped base
+                modifiedBase: entry('modifiedBase-base'),
+                unchanged: entry('unchanged')
+            });
+
+            immutable.is(result, expected).should.be.true();
+        });
+
+    });
+
+    describe('.mergeCommit', function() {
+        var solvedTreeConflict = ConflictUtils.solveTree(treeConflict, solvedConflicts);
+        var mergeCommit = ConflictUtils.mergeCommit(solvedTreeConflict, [
+            'parentCommitSha1',
+            'parentCommitSha2'
+        ], {
+            author: 'Shakespeare'
+        });
+
+        it('should create a merge CommitBuilder with two parents', function() {
+            mergeCommit.getParents().toJS().should.eql([
+                'parentCommitSha1',
+                'parentCommitSha2'
+            ]);
+        });
+
+        it('should create a merge CommitBuilder with an author', function() {
+            mergeCommit.getAuthor().should.eql('Shakespeare');
+        });
+
+        it('should create a merge CommitBuilder with solved content as blob', function() {
+            mergeCommit.getBlobs().get('bothModified').getAsString().should.eql('Solved content');
+            mergeCommit.getBlobs().count().should.eql(1);
+        });
+
+        it('should create a merge CommitBuilder with final solved entries', function() {
+            var solvedEntries = new immutable.Map({
+                deletedModified: entry('deletedModified-head'), // keeped head
+                bothAddedSame: entry('bothAddedSame'),
+                bothModified: entry(null), // solved with content
+                addedBase: entry('addedBase'),
+                bothAddedDifferent: entry('bothAddedDifferent-base'), // keeped base
+                modifiedBase: entry('modifiedBase-base'),
+                unchanged: entry('unchanged')
+            });
+
+            immutable.is(mergeCommit.getTreeEntries(), solvedEntries).should.be.true();
         });
     });
 });
+
+// ---- Utils ----
+function entry(sha) {
+    return new TreeEntry({ sha: sha });
+}
+
