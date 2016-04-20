@@ -204,7 +204,7 @@ repofs.CommitUtils.flush(repoState, driver, commitBuilder)
 
 #### Non fast forward commits
 
-Flushing a commit can fail with an `ERRORS.NON_FAST_FORWARD` code.
+Flushing a commit can fail with an `ERRORS.NOT_FAST_FORWARD` code.
 
 ```js
 // Flush commit using the driver
@@ -213,7 +213,7 @@ repofs.CommitUtils.flush(repoState, driver, commitBuilder)
     ...
 }, function failure(err) {
     // Catch non fast forward errors
-    if(err.code !== repofs.ERRORS.NON_FAST_FORWARD) {
+    if(err.code !== repofs.ERRORS.NOT_FAST_FORWARD) {
         throw err;
     }
     ...
@@ -225,7 +225,7 @@ Non fast forward errors contains the created commit (that is currently not linke
 ```js
 ... function fail(err) {
     // Catch non fast forward errors
-    if(err.code !== repofs.ERRORS.NON_FAST_FORWARD) {
+    if(err.code !== repofs.ERRORS.NOT_FAST_FORWARD) {
         throw err;
     }
     // The created commit
