@@ -12,11 +12,16 @@ function testCommit(driver) {
     before(function () {
         return repofs.RepoUtils.initialize(driver)
         .then(function (initRepo) {
-            repoState = initRepo;
+            return repofs.BranchUtils.create(initRepo, driver, 'test-commit', {
+                checkout: true
+            });
+        })
+        .then(function (branchedRepo) {
+            repoState = branchedRepo;
         });
     });
 
-    describe('.prepare -> .flush', function() {
+    describe('.flush', function() {
         it('should flush a prepared commit', function () {
             // Create a file for test
             repoState = repofs.FileUtils.create(
