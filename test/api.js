@@ -48,6 +48,8 @@ describe('API tests', function() {
     require('./api/driver')(driver);
 
     require('./api/commit')(driver);
+
+    require('./api/branch')(driver);
 });
 
 // Utilities
