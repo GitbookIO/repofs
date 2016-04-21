@@ -1,5 +1,4 @@
 var should = require('should');
-var Q = require('q');
 var repofs = require('../../');
 
 module.exports = function (driver) {
@@ -68,8 +67,8 @@ function testCommit(driver) {
     });
 
     describe('.fetchList', function() {
-        // Depends on the first test
         it('should list commits on current branch', function () {
+            // Work on a different branch
             var listTestState = repofs.RepoUtils.checkout(repoState, 'master');
 
             return repofs.BranchUtils.create(listTestState, driver, 'test-list-commit', {
