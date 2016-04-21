@@ -39,11 +39,12 @@ function testBranch(driver) {
     describe('.merge', function() {
         // Depends on previous test
         it('should merge two branches', function () {
-            var intoBranch = repoState.getCurrentBranch();
+            var intoBranch;
             var fromBranch;
             return Q()
             .then(function createFrom() {
-                return repofs.BranchUtils.create(repoState, driver, 'test-branch-merge', {
+                repoState = repofs.RepoUtils.checkout(repoState, 'master');
+                return repofs.BranchUtils.create(repoState, driver, 'test-branch-merge-from', {
                     checkout: true
                 });
             })
@@ -53,8 +54,14 @@ function testBranch(driver) {
                     repoState, 'merge_branch_file1', 'File 1');
                 return commitAndFlush(repoState, driver, 'Head commit');
             })
+            .then(function createInto() {
+                repoState = repofs.RepoUtils.checkout(repoState, 'master');
+                return repofs.BranchUtils.create(repoState, driver, 'test-branch-merge-into', {
+                    checkout: true
+                });
+            })
             .then(function prepareInto(repoState) {
-                repoState = repofs.RepoUtils.checkout(repoState, intoBranch);
+                intoBranch = repoState.getCurrentBranch();
                 repoState = repofs.FileUtils.create(
                     repoState, 'merge_branch_file2', 'File 2');
                 return commitAndFlush(repoState, driver, 'Base commit');
@@ -74,6 +81,47 @@ function testBranch(driver) {
             .then(function (repoState) {
                 repofs.FileUtils.read(repoState, 'merge_branch_file1').getAsString()
                     .should.eql('File 1');
+            });
+        });
+
+        it('should merge two branches', function () {
+            var intoBranch;
+            var fromBranch;
+            return Q()
+            .then(function createFrom() {
+                repoState = repofs.RepoUtils.checkout(repoState, 'master');
+                return repofs.BranchUtils.create(repoState, driver, 'test-branch-merge-conflict-from', {
+                    checkout: true
+                });
+            })
+            .then(function prepareFrom(repoState) {
+                fromBranch = repoState.getCurrentBranch();
+                repoState = repofs.FileUtils.create(
+                    repoState, 'merge_branch_conflict', 'Content 1');
+                return commitAndFlush(repoState, driver, 'Head commit');
+            })
+            .then(function createInto() {
+                repoState = repofs.RepoUtils.checkout(repoState, 'master');
+                return repofs.BranchUtils.create(repoState, driver, 'test-branch-merge-conflict-into', {
+                    checkout: true
+                });
+            })
+            .then(function prepareInto(repoState) {
+                intoBranch = repoState.getCurrentBranch();
+                repoState = repofs.FileUtils.create(
+                    repoState, 'merge_branch_conflict', 'Content 2');
+                return commitAndFlush(repoState, driver, 'Base commit');
+            })
+            .then(function doMerge(repoState) {
+                return repofs.BranchUtils.merge(repoState, driver, fromBranch, intoBranch, {
+                    message: 'Merge branch conflict',
+                    fetch: true
+                });
+            })
+            .then(function () {
+                should.fail('CONFLICT was not detected');
+            }, function (err) {
+                err.code.should.eql(repofs.ERRORS.CONFLICT);
             });
         });
     });
