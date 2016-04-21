@@ -202,6 +202,24 @@ repofs.CommitUtils.flush(repoState, driver, commitBuilder)
 });
 ```
 
+#### Manipulating branches
+
+``` js
+ // Create a branch from current branch
+ repofs.BranchUtils.create(repoState, driver, 'develop')
+ .then(function (newRepoState) {
+    var develop = newRepoState.getBranch('develop');
+});
+```
+
+``` js
+ // Remove a branch
+ repofs.BranchUtils.remove(repoState, driver, branch)
+ .then(function (newRepoState) {
+    ...
+});
+```
+
 #### Non fast forward commits
 
 Flushing a commit can fail with an `ERRORS.NOT_FAST_FORWARD` code.
@@ -338,7 +356,7 @@ repofs.RemoteUtils.pull(repoState, driver, {
     remote: remote,
     auth: {
         username: Shakespeare,
-        password: "f00lish wit"
+        password: 'f00lish wit'
     }
 })
 .then(function (newRepoState) {
@@ -361,7 +379,7 @@ repofs.RemoteUtils.push(repoState, driver, {
     remote: remote,
     auth: {
         username: Shakespeare,
-        password: "f00lish wit"
+        password: 'f00lish wit'
     }
 })
 .then(function () {
