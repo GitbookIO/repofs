@@ -84,7 +84,7 @@ function testBranch(driver) {
             });
         });
 
-        it('should merge two branches', function () {
+        it('should fail with merge conflict', function () {
             var intoBranch;
             var fromBranch;
             return Q()
