@@ -1,6 +1,6 @@
 require('should');
 
-var immutable = require('immutable');
+var Immutable = require('immutable');
 
 var repofs = require('../');
 
@@ -12,7 +12,7 @@ var WorkingState = repofs.WorkingState;
 
 describe('ConflictUtils', function() {
 
-    var parentEntries = new immutable.Map({
+    var parentEntries = new Immutable.Map({
         bothDeleted: entry('bothDeleted'),
         bothModified:  entry('bothModified-parent'), // conflict
         deletedBase: entry('deletedBase'),
@@ -22,7 +22,7 @@ describe('ConflictUtils', function() {
         unchanged:  entry('unchanged')
     });
 
-    var baseEntries = new immutable.Map({
+    var baseEntries = new Immutable.Map({
         addedBase: entry('addedBase'),
         bothAddedDifferent:  entry('bothAddedDifferent-base'), // conflict
         bothAddedSame:  entry('bothAddedSame'),
@@ -31,7 +31,7 @@ describe('ConflictUtils', function() {
         unchanged:  entry('unchanged')
     });
 
-    var headEntries = new immutable.Map({
+    var headEntries = new Immutable.Map({
         bothAddedDifferent:  entry('bothAddedDifferent-head'), // conflict
         bothAddedSame:  entry('bothAddedSame'),
         bothModified:  entry('bothModified-head'), // conflict
@@ -67,7 +67,7 @@ describe('ConflictUtils', function() {
         base: baseWK,
         head:headWK,
         parent: parentWK,
-        conflicts: new immutable.Map(CONFLICTS)
+        conflicts: new Immutable.Map(CONFLICTS)
     });
 
     // The list of solved conflicts, as returned after resolution
@@ -85,7 +85,7 @@ describe('ConflictUtils', function() {
         it('should detect modified entries, added entries, and deleted entries', function() {
             var result = ConflictUtils._diffEntries(parentEntries, baseEntries);
 
-            var expectedDiff = new immutable.Map({
+            var expectedDiff = new Immutable.Map({
                 addedBase: entry('addedBase'),
                 bothAddedDifferent: entry('bothAddedDifferent-base'),
                 bothAddedSame: entry('bothAddedSame'),
@@ -96,7 +96,7 @@ describe('ConflictUtils', function() {
                 modifiedBase: entry('modifiedBase-base')
             });
 
-            immutable.is(result, expectedDiff).should.be.true();
+            Immutable.is(result, expectedDiff).should.be.true();
         });
 
     });
@@ -107,7 +107,7 @@ describe('ConflictUtils', function() {
             var result = ConflictUtils._compareTrees(parentEntries, baseEntries, headEntries);
             var expected = treeConflict.getConflicts();
 
-            immutable.is(result, expected).should.be.true();
+            Immutable.is(result, expected).should.be.true();
         });
 
     });
@@ -118,14 +118,14 @@ describe('ConflictUtils', function() {
             var solvedTreeConflict = ConflictUtils.solveTree(treeConflict, solvedConflicts);
 
             // Expect tree to be unchanged outside of conflicts
-            immutable.is(solvedTreeConflict.set('conflicts', null),
+            Immutable.is(solvedTreeConflict.set('conflicts', null),
                          treeConflict.set('conflicts', null));
 
             // Expect conflicts to be solved
             var expected = solvedConflicts.set('bothAddedDifferent',
                                       CONFLICTS.bothAddedDifferent.keepBase());
             var result = solvedTreeConflict.getConflicts();
-            immutable.is(result, expected).should.be.true();
+            Immutable.is(result, expected).should.be.true();
         });
     });
 
@@ -135,7 +135,7 @@ describe('ConflictUtils', function() {
             var solvedTreeConflict = ConflictUtils.solveTree(treeConflict, solvedConflicts);
             var result = ConflictUtils._getSolvedEntries(solvedTreeConflict);
 
-            var expected = new immutable.Map({
+            var expected = new Immutable.Map({
                 deletedModified: entry('deletedModified-head'), // keeped head
                 bothAddedSame: entry('bothAddedSame'),
                 bothModified: entry(null), // solved with content
@@ -145,7 +145,7 @@ describe('ConflictUtils', function() {
                 unchanged: entry('unchanged')
             });
 
-            immutable.is(result, expected).should.be.true();
+            Immutable.is(result, expected).should.be.true();
         });
 
     });
@@ -176,7 +176,7 @@ describe('ConflictUtils', function() {
         });
 
         it('should create a merge CommitBuilder with final solved entries', function() {
-            var solvedEntries = new immutable.Map({
+            var solvedEntries = new Immutable.Map({
                 deletedModified: entry('deletedModified-head'), // keeped head
                 bothAddedSame: entry('bothAddedSame'),
                 bothModified: entry(null), // solved with content
@@ -186,7 +186,7 @@ describe('ConflictUtils', function() {
                 unchanged: entry('unchanged')
             });
 
-            immutable.is(mergeCommit.getTreeEntries(), solvedEntries).should.be.true();
+            Immutable.is(mergeCommit.getTreeEntries(), solvedEntries).should.be.true();
         });
     });
 });

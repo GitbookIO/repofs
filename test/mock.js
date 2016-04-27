@@ -1,5 +1,5 @@
 var _ = require('lodash');
-var immutable = require('immutable');
+var Immutable = require('immutable');
 
 
 var CacheUtils = require('../lib/utils/cache');
@@ -20,13 +20,13 @@ function emptyRepo() {
 
     var workingState = new WorkingState({
         head: 'sha.working.master',
-        treeEntries: new immutable.Map()
+        treeEntries: new Immutable.Map()
     });
 
     return new RepositoryState({
         currentBranchName: 'master',
-        workingStates: new immutable.Map().set(masterBranch.getName(), workingState),
-        branches: new immutable.List().push(masterBranch)
+        workingStates: new Immutable.Map().set(masterBranch.getName(), workingState),
+        branches: new Immutable.List().push(masterBranch)
         // No cache
     });
 }
@@ -103,9 +103,9 @@ function directoryStructure(pathList) {
 // Make a big repo with 'n' files each in a directory at 'depth'
 function bigFileList(n, depth) {
     depth = depth || 1;
-    var indexes = immutable.Range(1, n);
+    var indexes = Immutable.Range(1, n);
     return indexes.map(function (index) {
-        var depths = immutable.Range(0, depth);
+        var depths = Immutable.Range(0, depth);
         return depths.map(function (depth) {
             return index+'.'+depth;
         }).toArray().join('/');

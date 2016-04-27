@@ -1,4 +1,4 @@
-var immutable = require('immutable');
+var Immutable = require('immutable');
 var Q = require('q');
 var should = require('should');
 var repofs = require('../../');
@@ -30,7 +30,7 @@ function testBranch(driver) {
                 var master = repoState.getBranch('master');
                 var createdBr = repoState.getBranch('test-branch-create');
                 master.getSha().should.eql(createdBr.getSha());
-                immutable.is(createdBr, repoState.getCurrentBranch()).should.be.true();
+                Immutable.is(createdBr, repoState.getCurrentBranch()).should.be.true();
             });
         });
 

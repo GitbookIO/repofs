@@ -1,5 +1,5 @@
 require('should');
-var immutable = require('immutable');
+var Immutable = require('immutable');
 var _ = require('lodash');
 
 var repofs = require('../');
@@ -35,18 +35,18 @@ describe('Decoding, encoding', function() {
 
     var workingState = new WorkingState({
         head: 'headSha',
-        treeEntries: new immutable.Map({
+        treeEntries: new Immutable.Map({
             'README.md': treeEntry
         }),
-        changes: new immutable.OrderedMap({
+        changes: new Immutable.OrderedMap({
             'README.md': change
         })
     });
 
     var repositoryState = new RepositoryState({
         currentBranchName: branch.getName(),
-        workingStates: new immutable.Map().set(branch.getName(), workingState),
-        branches: new immutable.List().push(branch)
+        workingStates: new Immutable.Map().set(branch.getName(), workingState),
+        branches: new Immutable.List().push(branch)
     });
 
     function testDecodeEncode(type, source) {
@@ -54,7 +54,7 @@ describe('Decoding, encoding', function() {
             var encdec = _.flow(type.encode, type.decode);
             var decenc = _.flow(type.decode, type.encode);
 
-            immutable.is(source, encdec(source)).should.be.true();
+            Immutable.is(source, encdec(source)).should.be.true();
 
             var encoded = type.encode(source);
             encoded.should.eql(decenc(encoded));

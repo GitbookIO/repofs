@@ -1,6 +1,6 @@
 var should = require('should');
 
-var immutable = require('immutable');
+var Immutable = require('immutable');
 var Q = require('q');
 
 var repofs = require('../');
@@ -27,12 +27,12 @@ describe('TreeUtils', function() {
         var tree = createDirNode('.');
 
         var dir = createDirNode('dir');
-        dir = dir.set('children', new immutable.Map({
+        dir = dir.set('children', new Immutable.Map({
             file1: fileNode1,
             file2: fileNode2
         }));
 
-        tree = tree.set('children', new immutable.Map({
+        tree = tree.set('children', new Immutable.Map({
             dir: dir
         }));
 
@@ -40,7 +40,7 @@ describe('TreeUtils', function() {
         describe('.getInPath', function() {
             it('should get a file in a TreeNode from a path', function () {
                 var node = TreeUtils.getInPath(tree, 'dir/file1');
-                immutable.is(fileNode1, node).should.be.true();
+                Immutable.is(fileNode1, node).should.be.true();
             });
 
             it('should return null when not found', function () {
@@ -50,7 +50,7 @@ describe('TreeUtils', function() {
 
             it('should return the tree itself for root', function () {
                 var node = TreeUtils.getInPath(tree, '.');
-                immutable.is(tree, node).should.be.true();
+                Immutable.is(tree, node).should.be.true();
             });
         });
     });
@@ -72,22 +72,22 @@ describe('TreeUtils', function() {
             file.isDirectory().should.be.true();
 
             var children = tree.getChildren();
-            var expected = immutable.Map({
+            var expected = Immutable.Map({
                 file1: createFileNode(REPO, 'dir/file1'),
                 file2: createFileNode(REPO, 'dir/file2')
             });
 
-            immutable.is(expected, children).should.be.true();
+            Immutable.is(expected, children).should.be.true();
         });
 
         it('should create a tree from root', function() {
             var tree = TreeUtils.get(REPO, '');
             var node = TreeUtils.getInPath(tree, 'dir/file1');
             var expectedNode = createFileNode(REPO, 'dir/file1');
-            immutable.is(expectedNode, node).should.be.true();
+            Immutable.is(expectedNode, node).should.be.true();
         });
 
-        it('should create immutable objects', function() {
+        it('should create Immutable objects', function() {
             var tree = TreeUtils.get(REPO, '');
             var node = TreeUtils.getInPath(tree, 'dir');
             // Add a file

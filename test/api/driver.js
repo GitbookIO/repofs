@@ -1,4 +1,4 @@
-var immutable = require('immutable');
+var Immutable = require('immutable');
 var Q = require('q');
 var repofs = require('../../');
 
@@ -22,7 +22,7 @@ function testDriver(driver) {
         it('should list existing branches', function() {
             return driver.fetchBranches()
             .then(function (branches) {
-                (branches instanceof immutable.List).should.be.true();
+                (branches instanceof Immutable.List).should.be.true();
                 branches.count().should.eql(1);
                 var branch = branches.first();
                 branch.getFullName().should.eql('master');
@@ -42,7 +42,7 @@ function testDriver(driver) {
                     ]);
                 })
                 .spread(function (returned, fetched) {
-                    immutable.is(returned, fetched).should.be.true();
+                    Immutable.is(returned, fetched).should.be.true();
                     fetched.getSha().should.eql(master.getSha());
                 });
             });
@@ -113,8 +113,8 @@ function testDriver(driver) {
                     createdCommit.getAuthor().getEmail().should.eql('shakespeare@hotmail.com');
                     createdCommit.getMessage().should.eql('Test message');
                     createdCommit.getSha().should.be.ok();
-                    var parents = new immutable.List([repoState.getCurrentBranch().getSha()]);
-                    immutable.is(createdCommit.getParents(), parents).should.be.true();
+                    var parents = new Immutable.List([repoState.getCurrentBranch().getSha()]);
+                    Immutable.is(createdCommit.getParents(), parents).should.be.true();
                 });
             });
 
@@ -141,7 +141,7 @@ function testDriver(driver) {
                         // Initial commit, should not have
                         commits.last().getParents().isEmpty().should.be.true();
                         // Most recent commit
-                        immutable.is(commits.first(), createdCommit);
+                        Immutable.is(commits.first(), createdCommit);
                     });
                 });
 
@@ -153,7 +153,7 @@ function testDriver(driver) {
                     .then(function (commits) {
                         commits.count().should.eql(1);
                         // Only created commit
-                        immutable.is(commits.first(), createdCommit);
+                        Immutable.is(commits.first(), createdCommit);
                     });
                 });
 
@@ -165,7 +165,7 @@ function testDriver(driver) {
                     .then(function (commits) {
                         commits.count().should.eql(1);
                         // Only created commit
-                        immutable.is(commits.first(), createdCommit);
+                        Immutable.is(commits.first(), createdCommit);
                     });
                 });
             });
