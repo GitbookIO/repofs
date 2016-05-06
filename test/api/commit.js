@@ -51,10 +51,10 @@ function testCommit(driver) {
             repoState = repofs.FileUtils.create(
                 repoState, 'not_ff_detection', 'Not ff detection');
 
-            return commitAndFlush(repoState, driver, 'Not ff detection')
+            return emptyCommitAndFlush(repoState, driver, 'Not ff detection')
             .then(function (_repoState) {
                 repoState = _repoState;
-                return commitAndFlush(otherState, driver, 'Not ff detection');
+                return emptyCommitAndFlush(otherState, driver, 'Not ff detection');
             })
             .then(function () {
                 should.fail('NOT_FAST_FORWARD was not detected');
@@ -75,7 +75,7 @@ function testCommit(driver) {
                 checkout: true
             })
             .then(function (listTestState) {
-                return commitAndFlush(listTestState, driver, 'List commit test');
+                return emptyCommitAndFlush(listTestState, driver, 'List commit test');
             })
             .then(function (listTestState) {
                 return repofs.CommitUtils.fetchList(driver, {
@@ -93,11 +93,13 @@ function testCommit(driver) {
 
 }
 
-function commitAndFlush(repoState, driver, message) {
+function emptyCommitAndFlush(repoState, driver, message) {
     var commitBuilder = repofs.CommitUtils.prepare(repoState, {
         author: repofs.Author.create('Shakespeare', 'shakespeare@hotmail.com'),
         message: message
     });
 
-    return repofs.CommitUtils.flush(repoState, driver, commitBuilder);
+    return repofs.CommitUtils.flush(repoState, driver, commitBuilder, {
+        ignoreEmpty: false
+    });
 }
