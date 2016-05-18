@@ -75,7 +75,24 @@ describe('FileUtils', function() {
             var file = FileUtils.stat(repo, 'created');
             file.getContent().getAsString().should.equal('content');
         });
-    });
+
+        it('should return a File with content when there is a change with known sha', function() {
+            var readmeBlob = FileUtils.read(DEFAULT_BOOK, 'README.md');
+            var repo = FileUtils.move(DEFAULT_BOOK, 'README.md', 'renamed');
+            var file = FileUtils.stat(repo, 'renamed');
+            file.getContent().getAsString().should.equal(readmeBlob.getAsString());
+        });
+
+        it('should return a File without content when there is a change with known sha, but not fetched', function() {
+            var repo = mock.addFile(DEFAULT_BOOK, 'created', {
+                fetched: false
+            });
+            repo = FileUtils.move(repo, 'created', 'renamed');
+            var file = FileUtils.stat(repo, 'renamed');
+            file.getFileSize().should.equal(7);
+            should(file.getContent()).not.be.ok();
+        });
+});
 
     describe('.readAsString', function() {
         it('should read content as String if file exists', function() {
