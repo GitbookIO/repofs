@@ -1,8 +1,11 @@
-require('should');
+var should = require('should');
 
 var repofs = require('../');
 var Blob = require('../lib/models/blob');
+var File = require('../lib/models/file');
 var FileUtils = repofs.FileUtils;
+var FILE_TYPE = require('../lib/constants/filetype.js');
+
 var mock = require('./mock');
 
 describe('FileUtils', function() {
@@ -40,6 +43,37 @@ describe('FileUtils', function() {
             (function readUnknown() {
                 FileUtils.read(DEFAULT_BOOK, 'Notexist.md');
             }).should.throw(Error, { code: repofs.ERRORS.NOT_FOUND });
+        });
+    });
+
+    describe('.stat', function() {
+        it('should return a File without content when not fetched', function() {
+            var repo = mock.addFile(DEFAULT_BOOK, 'notfetched.txt', {
+                fetched: false
+            });
+            var file = FileUtils.stat(repo, 'notfetched.txt');
+            file.should.be.an.instanceof(File);
+            file.getFileSize().should.equal(14);
+            file.isDirectory().should.be.false();
+            file.getPath().should.equal('notfetched.txt');
+            file.getType().should.equal(FILE_TYPE.FILE);
+            file.getMime().should.equal('text/plain');
+            should(file.getContent()).not.be.ok();
+        });
+
+        it('should return a File with content when fetched', function() {
+            var repo = mock.addFile(DEFAULT_BOOK, 'fetched.txt', {
+                fetched: true
+            });
+            var file = FileUtils.stat(repo, 'fetched.txt');
+            file.getFileSize().should.equal(11);
+            file.getContent().getAsString().should.equal('fetched.txt');
+        });
+
+        it('should return a File with content when there is a change', function() {
+            var repo = FileUtils.create(DEFAULT_BOOK, 'created', 'content');
+            var file = FileUtils.stat(repo, 'created');
+            file.getContent().getAsString().should.equal('content');
         });
     });
 

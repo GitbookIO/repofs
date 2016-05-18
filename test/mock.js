@@ -37,10 +37,11 @@ function emptyRepo() {
 // options.content to specify content
 function addFile(repoState, filepath, options) {
     options = _.defaults({}, options || {}, {
-        branch: 'master',
+        branch: repoState.getCurrentBranchName(),
         fetched: true,
         content: filepath
     });
+    options.branch = repoState.getBranch(options.branch);
 
     var treeEntry = new TreeEntry({
         blobSize: options.content.length,
@@ -50,7 +51,7 @@ function addFile(repoState, filepath, options) {
     var resultState = repoState;
 
     // Update working state
-    var workingState = resultState.getCurrentState();
+    var workingState = resultState.getWorkingStateForBranch(options.branch);
     workingState = workingState
         .set('treeEntries', workingState
              .getTreeEntries().set(filepath, treeEntry));
@@ -58,7 +59,7 @@ function addFile(repoState, filepath, options) {
     var workingStates = resultState.getWorkingStates();
     resultState = resultState
         .set('workingStates', workingStates
-             .set(options.branch, workingState));
+             .set(options.branch.getFullName(), workingState));
 
     // Update cache
     if(options.fetched) {
@@ -116,5 +117,6 @@ module.exports = {
     emptyRepo: emptyRepo,
     DEFAULT_BOOK: defaultBook(),
     bigFileList: bigFileList,
+    addFile: addFile,
     directoryStructure: directoryStructure
 };
