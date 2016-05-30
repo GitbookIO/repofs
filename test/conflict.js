@@ -65,7 +65,7 @@ describe('ConflictUtils', function() {
 
     var treeConflict = new TreeConflict({
         base: baseWK,
-        head:headWK,
+        head: headWK,
         parent: parentWK,
         conflicts: new Immutable.Map(CONFLICTS)
     });
@@ -73,7 +73,7 @@ describe('ConflictUtils', function() {
     // The list of solved conflicts, as returned after resolution
     var solvedConflicts = treeConflict.getConflicts().merge({
         bothModified: CONFLICTS.bothModified.solveWithContent('Solved content'),
-        // bothAddedDifferent ignored, should default to keep base
+        // bothAddedDifferent not solved, should default to keep base in the end
         deletedModified: CONFLICTS.deletedModified.keepHead()
     });
 
