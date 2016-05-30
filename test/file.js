@@ -146,4 +146,42 @@ describe('FileUtils', function() {
             }).should.throw(Error, { code: repofs.ERRORS.NOT_FOUND });
         });
     });
+
+    describe('.hasChanged', function() {
+        it('should detect that an existing file has not changed', function() {
+            var state1 = DEFAULT_BOOK;
+            var state2 = DEFAULT_BOOK;
+            FileUtils.hasChanged(state1, state2, 'README.md').should.be.false();
+        });
+
+        it('should detect that a non existing file has not changed', function() {
+            var state1 = DEFAULT_BOOK;
+            var state2 = DEFAULT_BOOK;
+            FileUtils.hasChanged(state1, state2, 'does_not_exist.md').should.be.false();
+        });
+
+        it('should detect that an added file has changed', function() {
+            var state1 = DEFAULT_BOOK;
+            var state2 = FileUtils.create(DEFAULT_BOOK, 'created');
+            FileUtils.hasChanged(state1, state2, 'created').should.be.true();
+        });
+
+        it('should detect that a removed file has changed', function() {
+            var state1 = DEFAULT_BOOK;
+            var state2 = FileUtils.remove(DEFAULT_BOOK, 'README.md');
+            FileUtils.hasChanged(state1, state2, 'README.md').should.be.true();
+        });
+
+        it('should detect when the content of a file has changed', function() {
+            var state1 = FileUtils.create(DEFAULT_BOOK, 'created', 'content1');
+            var state2 = FileUtils.write(state1, 'created', 'content2');
+            FileUtils.hasChanged(state1, state2, 'created').should.be.true();
+        });
+
+        it('should detect when a created file has not changed', function() {
+            var state1 = FileUtils.create(DEFAULT_BOOK, 'created', 'content1');
+            var state2 = FileUtils.write(state1, 'created', 'content1');
+            FileUtils.hasChanged(state1, state2, 'created').should.be.false();
+        });
+    });
 });
