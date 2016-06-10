@@ -92,7 +92,7 @@ describe('FileUtils', function() {
             file.getFileSize().should.equal(7);
             should(file.getContent()).not.be.ok();
         });
-});
+    });
 
     describe('.readAsString', function() {
         it('should read content as String if file exists', function() {
