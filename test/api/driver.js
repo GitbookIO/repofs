@@ -59,6 +59,7 @@ function testDriver(driver) {
                 workingState.getHead().should.eql(master.getSha());
                 var readme = workingState.getTreeEntries().get('README.md');
                 readme.should.be.ok();
+                readme.getBlobSize().should.be.above(0);
                 workingState.getChanges().isEmpty().should.be.true();
             });
         });
