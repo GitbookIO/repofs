@@ -2,7 +2,7 @@
 set -eo pipefail
 IFS=$'\n\t'
 
-UHUB_VERSION=2.2.10
+UHUB_VERSION=2.3.1
 
 # Download Uhub
 if [ "$(uname)" == "Darwin" ]; then
