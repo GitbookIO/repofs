@@ -17,7 +17,7 @@ describe('Decoding, encoding', function() {
 
     var change = new Change({
         type: repofs.CHANGE.UPDATE,
-        content: new Buffer('ChangeBuffer'),
+        content: Blob.createFromString('ChangeBuffer'),
         sha:'changeSha'
     });
 
