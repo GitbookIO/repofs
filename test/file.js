@@ -38,12 +38,6 @@ describe('FileUtils', function() {
             blob.should.be.an.instanceof(Blob);
             blob.getAsString().should.equal('New');
         });
-
-        it('should throw File Not Found when file does not exist', function() {
-            (function readUnknown() {
-                FileUtils.read(DEFAULT_BOOK, 'Notexist.md');
-            }).should.throw(Error, { code: repofs.ERRORS.NOT_FOUND });
-        });
     });
 
     describe('.stat', function() {
@@ -98,12 +92,6 @@ describe('FileUtils', function() {
         it('should read content as String if file exists', function() {
             var read = FileUtils.readAsString(DEFAULT_BOOK, 'SUMMARY.md');
             read.should.be.equal('# Summary');
-        });
-
-        it('should throw File Not Found when file does not exist', function() {
-            (function readUnknown() {
-                FileUtils.readAsString(DEFAULT_BOOK, 'Notexist.md');
-            }).should.throw(Error, { code: repofs.ERRORS.NOT_FOUND });
         });
     });
 
