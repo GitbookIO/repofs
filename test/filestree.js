@@ -1,7 +1,6 @@
 var should = require('should');
 
 var Immutable = require('immutable');
-var Q = require('q');
 
 var repofs = require('../');
 var TreeUtils = repofs.TreeUtils;
@@ -110,39 +109,37 @@ describe('TreeUtils', function() {
     });
 
     describe('should be performant', function() {
-        // TODO make better test for performance
+        function timeIt(N, maxMS, func) {
+            return function () {
+                var t1 = Date.now();
+                for(var i = 0; i < N; i++) {
+                    func.call(this);
+                }
+                var t2 = Date.now();
+                var ms = (t2 - t1) / N;
+                should(ms).be.below(maxMS);
+            };
+        }
 
-        // 10 files at depth 1000
+        // 5 files at depth 200
         var DEEP = mock.directoryStructure(mock.bigFileList(5, 200));
-        // 1000 files at depth 0
+        // 200 files at depth 5
         var WIDE = mock.directoryStructure(mock.bigFileList(200, 5));
-        // 100 files at depth 100
+        // 50 files at depth 100
         var DEEP_WIDE = mock.directoryStructure(mock.bigFileList(50, 50));
 
-        it('to create tree from a deep repo', function (done) {
-            this.timeout(500);
-            return Q()
-            .then(function () {
-                TreeUtils.get(DEEP, '.');
-                done();
-            });
-        });
-        it('to create tree from a wide repo', function (done) {
-            this.timeout(1000);
-            return Q()
-            .then(function () {
-                TreeUtils.get(WIDE, '.');
-                done();
-            });
-        });
-        it('to create tree from a deep and wide repo', function (done) {
-            this.timeout(500);
-            return Q()
-            .then(function () {
-                TreeUtils.get(DEEP_WIDE, '.');
-                done();
-            });
-        });
+        it('to create tree from a deep repo', timeIt(20, 100, function deep(done) {
+            this.timeout(10000);
+            TreeUtils.get(DEEP, '.');
+        }));
+        it('to create tree from a wide repo', timeIt(20, 100, function wide(done) {
+            this.timeout(10000);
+            TreeUtils.get(WIDE, '.');
+        }));
+        it('to create tree from a deep and wide repo', timeIt(20, 200, function deepwide(done) {
+            this.timeout(10000);
+            TreeUtils.get(DEEP_WIDE, '.');
+        }));
     });
 
 });
