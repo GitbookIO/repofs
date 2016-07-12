@@ -207,5 +207,24 @@ function testDriver(driver) {
                 });
             });
         });
+
+        describe('.editRemotes', function () {
+            if (process.env.REPOFS_DRIVER !== 'uhub') return;
+
+            it('should add a remote', function() {
+                return driver.editRemotes('origin', 'url')
+                .then(function () {
+                    return driver.listRemotes();
+                })
+                .then(function (remotes) {
+                    remotes.should.eql([
+                        {
+                            name: 'origin',
+                            url: 'url'
+                        }
+                    ]);
+                });
+            });
+        });
     });
 }
