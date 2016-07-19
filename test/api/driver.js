@@ -1,10 +1,13 @@
 var Immutable = require('immutable');
 var Q = require('q');
 var repofs = require('../../');
+var fs = require('fs');
 
 module.exports = function (driver) {
     return describe('Driver', testDriver.bind(this, driver));
 };
+
+var REPO_DIR = '.tmp/repo/';
 
 // Tests a driver set on a repo initialized with empty README.md
 function testDriver(driver) {
@@ -193,6 +196,46 @@ function testDriver(driver) {
             });
         });
 
+        describe('UHUB specific', function () {
+            if (process.env.REPOFS_DRIVER !== 'uhub') return;
+
+            describe('.editRemotes', function () {
+                it('should add a remote', function() {
+                    return driver.editRemotes('origin', 'url')
+                    .then(function () {
+                        return driver.listRemotes();
+                    })
+                    .then(function (remotes) {
+                        remotes.should.eql([
+                            {
+                                name: 'origin',
+                                url: 'url'
+                            }
+                        ]);
+                    });
+                });
+            });
+
+            describe('.checkout', function() {
+                it('should update filesystem to reflect a branch', function() {
+                    fs.readdirSync(REPO_DIR).should.eql([
+                        '.git',
+                        'README.md'
+                    ]);
+
+                    return driver.checkout(driverBranch)
+                    .then(function checkFilesystem() {
+                        // Check that files are on the filesystem
+                        fs.readdirSync(REPO_DIR).should.eql([
+                            '.git',
+                            'README.md',
+                            'flushCommitFile'
+                        ]);
+                    });
+                });
+            });
+        });
+
         // Better do this one last...
         describe('.deleteBranch', function() {
             it('should remove a branch', function() {
@@ -204,25 +247,6 @@ function testDriver(driver) {
                     branches.some(function (br) {
                         return br.getFullName() === driverBranch.getFullName();
                     }).should.be.false();
-                });
-            });
-        });
-
-        describe('.editRemotes', function () {
-            if (process.env.REPOFS_DRIVER !== 'uhub') return;
-
-            it('should add a remote', function() {
-                return driver.editRemotes('origin', 'url')
-                .then(function () {
-                    return driver.listRemotes();
-                })
-                .then(function (remotes) {
-                    remotes.should.eql([
-                        {
-                            name: 'origin',
-                            url: 'url'
-                        }
-                    ]);
                 });
             });
         });
