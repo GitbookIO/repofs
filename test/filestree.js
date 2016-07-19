@@ -128,15 +128,15 @@ describe('TreeUtils', function() {
         // 50 files at depth 100
         var DEEP_WIDE = mock.directoryStructure(mock.bigFileList(50, 50));
 
-        it('to create tree from a deep repo', timeIt(20, 100, function deep(done) {
+        it('to create tree from a deep repo', timeIt(20, 200, function deep(done) {
             this.timeout(10000);
             TreeUtils.get(DEEP, '.');
         }));
-        it('to create tree from a wide repo', timeIt(20, 100, function wide(done) {
+        it('to create tree from a wide repo', timeIt(20, 200, function wide(done) {
             this.timeout(10000);
             TreeUtils.get(WIDE, '.');
         }));
-        it('to create tree from a deep and wide repo', timeIt(20, 200, function deepwide(done) {
+        it('to create tree from a deep and wide repo', timeIt(20, 400, function deepwide(done) {
             this.timeout(10000);
             TreeUtils.get(DEEP_WIDE, '.');
         }));
