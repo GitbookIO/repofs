@@ -16,6 +16,8 @@ var REPO_DIR = '.tmp/repo/';
 var REPO = process.env.REPOFS_REPO;
 var HOST = process.env.REPOFS_HOST;
 
+if (process.env.REPOFS_TOKEN) return;
+
 describe('LocalFileUtils', function() {
     var driver = new GitHubDriver({
         repository: REPO,
