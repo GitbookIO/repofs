@@ -8,7 +8,9 @@
  './filestree.js',
  './conflict.js',
  './repository.js',
- './workingState.js']
+ './workingState.js',
+ './localFile'
+]
 .map(require);
 
 var repofs = require('../');
