@@ -4,27 +4,23 @@ var should = require('should');
 var fs = require('fs');
 var path = require('path');
 var Immutable = require('immutable');
-var LocalFile = require('../lib/models/localFile');
-var RepositoryState = require('../lib/models/repositoryState');
+var LocalFile = require('../../lib/models/localFile');
+var RepositoryState = require('../../lib/models/repositoryState');
 
-var repofs = require('../');
-var LocalFileUtils = repofs.LocalFileUtils;
-
-var GitHubDriver = repofs.GitHubDriver;
+var repofs = require('../..');
+var LocalUtils = repofs.LocalUtils;
 
 var REPO_DIR = '.tmp/repo/';
-var REPO = process.env.REPOFS_REPO;
-var HOST = process.env.REPOFS_HOST;
 
-if (process.env.REPOFS_TOKEN) return;
+module.exports = function (driver) {
+    if (process.env.REPOFS_DRIVER !== 'uhub') return;
 
-describe('LocalFileUtils', function() {
-    var driver = new GitHubDriver({
-        repository: REPO,
-        host: HOST
-    });
+    return describe('LocalUtils', testLocal.bind(this, driver));
+};
 
+function testLocal(driver) {
     describe('.status', function() {
+
         before(function () {
             this.initialReadme = fs.readFileSync(path.join(REPO_DIR, 'README.md'), 'utf8');
             fs.writeFileSync(path.join(REPO_DIR, 'README.md'), 'New content');
@@ -41,7 +37,7 @@ describe('LocalFileUtils', function() {
                 currentBranchName: 'master'
             });
 
-            LocalFileUtils.status(repoState, driver)
+            LocalUtils.status(repoState, driver)
                 .then(function (localFiles) {
                     // is an immutable list
                     localFiles.should.be.instanceof(Immutable.List);
@@ -75,4 +71,4 @@ describe('LocalFileUtils', function() {
                 .catch(done);
         });
     });
-});
+};
