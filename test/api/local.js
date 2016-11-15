@@ -1,6 +1,3 @@
-
-var should = require('should');
-
 var fs = require('fs');
 var path = require('path');
 var Immutable = require('immutable');
@@ -65,10 +62,10 @@ function testLocal(driver) {
                     localFiles.get(0).get('additions').should.equal(1);
                     localFiles.get(0).get('deletions').should.equal(1);
                     localFiles.get(0).get('changes').should.equal(2);
-                    localFiles.get(0).get('patch').should.equal('@@ -1 +1 @@\n-# \\n\n+New content\n\\ No newline at end of file\n');
+                    localFiles.get(0).get('patch').should.equal('@@ -1 +1 @@\n-# Uhub test repository\\n\n+New content\n\\ No newline at end of file\n');
                 })
                 .then(done)
                 .catch(done);
         });
     });
-};
+}
