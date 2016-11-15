@@ -9,13 +9,13 @@ It allows more complex operations than the [Contents API](https://developer.gith
 
 It is powered by an immutable model. Async operations are Promise-based.
 
-### Installation
+## Installation
 
 ```
 $ npm install repofs
 ```
 
-### How to use it?
+## How to use it?
 
 To use `repofs` in the browser, include it using browserify/webpack.
 
@@ -33,7 +33,7 @@ var driver = repofs.GitHubDriver({
 });
 ```
 
-#### Start with an empty RepositoryState
+### Start with an empty RepositoryState
 
 The first step is to create an instance of `RepositoryState`:
 
@@ -41,7 +41,7 @@ The first step is to create an instance of `RepositoryState`:
 var repoState = repofs.RepositoryState.createEmpty();
 ```
 
-#### Fetch the list of branches
+### Fetch the list of branches
 
 After creating a `RepositoryState`, the next step is to fetch the list of existing branches.
 
@@ -53,7 +53,7 @@ repofs.RepoUtils.fetchBranches(repoState, driver)
 })
 ```
 
-#### Checkout a branch
+### Checkout a branch
 
 Once the branches are fetched, you can checkout one. **This requires to fetch it first** using `repofs.RepoUtils.fetchTree`. This overrides any existing working tree for this branch. The `repofs.RepoUtils.checkout` operation is always sync.
 
@@ -67,7 +67,7 @@ repofs.RepoUtils.fetchTree(repoState, driver, branch)
 })
 ```
 
-#### Quick initialization
+### Quick initialization
 
 There is a short way to initialize a `RepositoryState` from a driver, that will fetch the list of the branches, then fetch and checkout *master* or the first available branch.
 
@@ -79,7 +79,7 @@ repofs.RepoUtils.initialize(driver)
 });
 ```
 
-#### Reading files
+### Reading files
 
 Reading a file requires to fetch the content from the remote repository inside the `RepositoryState` (See [Caching](#caching)):
 
@@ -100,7 +100,7 @@ var blob = repofs.FileUtils.read(repoState, 'README.md');
 var content = repofs.FileUtils.readAsString(repoState, 'README.md');
 ```
 
-#### Listing files
+### Listing files
 
 repofs keeps the whole trees in the different `WorkingStates`, you can access the whole tree as a flat list...
 
@@ -116,7 +116,7 @@ var dir = '.' // root
 var rootTree = repofs.TreeUtils.get(repoState, dir);
 ```
 
-#### Working with files
+### Working with files
 
 Create a new file:
 
@@ -142,7 +142,7 @@ Rename/Move the file
 var newRepoState = repofs.FileUtils.move(repoState, 'API.md', 'API2.md');
 ```
 
-#### Working with directories
+### Working with directories
 
 List files in the directory
 
@@ -162,7 +162,7 @@ Rename/Move the directory
 var newRepoState = repofs.DirUtils.move(repoState, 'myfolder', 'myfolder2');
 ```
 
-#### Changes
+### Changes
 
 Until being commited, repofs keeps a record of changes per files.
 
@@ -182,7 +182,7 @@ var newRepoState = repofs.ChangeUtils.revertForFile(repoState, 'README.md');
 var newRepoState = repofs.ChangeUtils.revertForDir(repoState, 'src');
 ```
 
-#### Commiting changes
+### Commiting changes
 
 ```js
 // Create an author / committer
@@ -202,7 +202,7 @@ repofs.CommitUtils.flush(repoState, driver, commitBuilder)
 });
 ```
 
-#### Manipulating branches
+### Manipulating branches
 
 ``` js
  // Create a branch from current branch
@@ -220,7 +220,7 @@ repofs.CommitUtils.flush(repoState, driver, commitBuilder)
 });
 ```
 
-#### Non fast forward commits
+### Non fast forward commits
 
 Flushing a commit can fail with an `ERRORS.NOT_FAST_FORWARD` code.
 
@@ -258,7 +258,7 @@ Non fast forward errors contains the created commit (that is currently not linke
 }
 ```
 
-#### Merging
+### Merging
 
 `repofs.BranchUtils.merge` allows to automatically merge a commit or a branch, into another branch.
 
@@ -270,7 +270,7 @@ repofs.BranchUtils.merge(repoState, driver, from, into)
 });
 ```
 
-#### Merge conflicts
+### Merge conflicts
 
 But conflicts can happen when the automatic merge failed. For example, after merging two branches, or after merging a non fast forward commit. It is possible then to solve the conflicts manually:
 
@@ -315,11 +315,11 @@ function solveConflicts(repoState, driver, from, into) {
 }
 ```
 
-#### Remotes operations
+### Remotes operations
 
 When using a compatible API, you can also deal with remotes on the repository.
 
-##### List remotes
+#### List remotes
 
 ``` js
 repofs.RemoteUtils.list(driver)
@@ -332,7 +332,7 @@ repofs.RemoteUtils.list(driver)
 });
 ```
 
-##### Edit remotes
+#### Edit remotes
 
 ``` js
 repofs.RemoteUtils.edit(driver, name, url)
@@ -341,7 +341,7 @@ repofs.RemoteUtils.edit(driver, name, url)
 });
 ```
 
-##### Pulling
+#### Pulling
 
 You can update a branch to the state of the same branch on a remote, and get an updated `RepositoryState` with:
 
@@ -364,7 +364,7 @@ repofs.RemoteUtils.pull(repoState, driver, {
 })
 ```
 
-##### Pushing
+#### Pushing
 
 You can push a branch to a remote:
 
@@ -386,3 +386,14 @@ repofs.RemoteUtils.push(repoState, driver, {
     // Pushed
 })
 ```
+
+## Contributing
+
+### Run tests
+
+You can run all the tests by providing a `GITHUB_TOKEN` with permission to create and write to a GitHub repository, and running `npm run test`.
+
+You can run tests with GitHub as a backend `npm run test-github`, or Uhub as a backend `npm run test-uhub`.
+
+Finally, you can run the tests without testing the API through the drivers by running `npm run test-no-api`.
+

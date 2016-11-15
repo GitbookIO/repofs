@@ -8,7 +8,8 @@
  './filestree.js',
  './conflict.js',
  './repository.js',
- './workingState.js']
+ './workingState.js'
+]
 .map(require);
 
 var repofs = require('../');
@@ -44,6 +45,8 @@ describe('API tests', function() {
     var driver;
 
     driver = createDriver(DRIVER, REPO, TOKEN, HOST);
+
+    require('./api/local')(driver);
 
     require('./api/driver')(driver);
 
