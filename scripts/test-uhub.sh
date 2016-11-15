@@ -2,14 +2,6 @@
 set -eo pipefail
 IFS=$'\n\t'
 
-if [[ -z "$GITHUB_TOKEN" ]]; then
-    cat <<EOF
-The uhub test script requires the following env:
- - GITHUB_TOKEN
-EOF
-    exit 1
-fi;
-
 ./scripts/download-uhub.sh
 
 echo "Prepare tests for uhub"
@@ -22,7 +14,7 @@ mkdir -p $REPO_PATH
 function initRepo() {
     cd $REPO_PATH
     git init .
-    echo "# $GITHUB_REPO\n" > README.md
+    echo "# Uhub test repository\n" > README.md
     git add README.md
     git commit -m "Initial commit"
     cd -
