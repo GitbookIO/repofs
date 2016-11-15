@@ -19,6 +19,14 @@ then
 else
     echo "Downloading uhub"
 
+    if [[ -z "$GITHUB_TOKEN" ]]; then
+        cat <<EOF
+To download uhub, you need to provide the following env:
+ - GITHUB_TOKEN
+EOF
+        exit 1
+    fi;
+
     github-releases --tag $UHUB_VERSION --filename $UHUB_NAME --token $GITHUB_TOKEN download GitbookIO/uhub
     mv $UHUB_NAME uhub
     chmod +x uhub
