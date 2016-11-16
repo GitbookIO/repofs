@@ -126,6 +126,28 @@ function testBranch(driver) {
         });
     });
 
+    describe('.update', function() {
+        it('should update an old branch that was updated on the repo', function () {
+            var oldBranchState;
+            var updatedBranch;
+
+            return repofs.BranchUtils.create(repoState, driver, 'test-branch-update', {
+                checkout: true
+            })
+            .then(function (_repoState) {
+                oldBranchState = _repoState;
+                return commitAndFlush(_repoState, driver, 'New commit');
+            })
+            .then(function (_repoState) {
+                updatedBranch = _repoState.getCurrentBranch();
+                return repofs.BranchUtils.update(oldBranchState, driver, 'test-branch-update');
+            })
+            .then(function (_repoState) {
+                Immutable.is(updatedBranch, _repoState.getCurrentBranch()).should.be.true();
+            });
+        });
+    });
+
     describe('.remove', function() {
         // Depends on previous
         it('should delete a branch', function () {
