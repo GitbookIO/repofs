@@ -2,7 +2,7 @@ var fs = require('fs');
 var path = require('path');
 var Immutable = require('immutable');
 var LocalFile = require('../../lib/models/localFile');
-var RepositoryState = require('../../lib/models/repositoryState');
+var Reference = require('../../lib/models/reference');
 
 var repofs = require('../..');
 var LocalUtils = repofs.LocalUtils;
@@ -30,12 +30,10 @@ function testLocal(driver) {
         });
 
         it('should return list of changed files', function(done) {
-            var repoState = new RepositoryState({
-                currentBranchName: 'master'
-            });
+            LocalUtils.status(driver)
+                .then(function (result) {
+                    const localFiles = result.files;
 
-            LocalUtils.status(repoState, driver)
-                .then(function (localFiles) {
                     // is an immutable list
                     localFiles.should.be.instanceof(Immutable.List);
 
@@ -63,6 +61,13 @@ function testLocal(driver) {
                     localFiles.get(0).get('deletions').should.equal(1);
                     localFiles.get(0).get('changes').should.equal(2);
                     localFiles.get(0).get('patch').should.equal('@@ -1 +1 @@\n-# Uhub test repository\\n\n+New content\n\\ No newline at end of file\n');
+
+                    // head is a Reference
+                    const head = result.head;
+                    head.should.be.instanceof(Reference);
+                    head.getRef().should.be.equal('refs/heads/master');
+                    head.getSha().length.should.be.equal(40);
+                    head.getLocalBranchName().should.be.equal('master');
                 })
                 .then(done)
                 .catch(done);
