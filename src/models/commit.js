@@ -1,24 +1,19 @@
-const Immutable = require('immutable');
-
+const { Record, List } = require('immutable');
 const Author = require('./author');
 
 /**
  * Represents a Commit in the history (already created)
  */
 
-const Commit = Immutable.Record({
+const DEFAULTS = {
     // Message for the commit
     message: String(),
-
     // SHA of the commit
-    sha: String(),
-
+    sha:     String(),
     // Author name
-    author: new Author(),
-
+    author:  new Author(),
     // String formatted date of the commit
-    date: String(),
-
+    date:    String(),
     // List of files modified with their SHA and patch.
     // File: {
     //   sha: '...',
@@ -29,10 +24,21 @@ const Commit = Immutable.Record({
     //   changes: 2,
     //   patch: ''
     // }
-    files: new Immutable.List(), // List<JSON>
-
+    files:   List(), // List<JSON>
     // Parents of the commit (List<SHA>)
-    parents: new Immutable.List()
+    parents: List()
+};
+
+/**
+ * A Change represents a local modification, not yet commited.
+ * @type {Class}
+ */
+class Commit extends Record(DEFAULTS) {
+
+}
+
+const Commit = Immutable.Record({
+
 }, 'Commit');
 
 // ---- Properties Getter ----
