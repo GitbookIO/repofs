@@ -1,10 +1,10 @@
-const Immutable = require('immutable');
+const { Record } = require('immutable');
 const path = require('path');
 const mime = require('mime-types');
 
 const FILETYPE = require('../constants/filetype');
 
-const File = Immutable.Record({
+const DEFAULTS = {
     // Size of the file. 0 if the file was not fetched
     fileSize: 0,
 
@@ -17,36 +17,42 @@ const File = Immutable.Record({
 
     // Type of entry (see constants/filetype.js)
     type: FILETYPE.FILE
-}, 'File');
-
-// ---- Properties Getter ----
-File.prototype.getContent = function() {
-    return this.get('content');
 };
 
-File.prototype.getFileSize = function() {
-    return this.get('fileSize');
-};
+/**
+ * @type {Class}
+ */
+class File extends Record(DEFAULTS) {
+    // ---- Properties Getter ----
 
-File.prototype.getPath = function() {
-    return this.get('path');
-};
+    getContent() {
+        return this.get('content');
+    }
 
-File.prototype.getType = function() {
-    return this.get('type');
-};
+    getFileSize() {
+        return this.get('fileSize');
+    }
 
-File.prototype.isDirectory = function() {
-    return this.getType() == FILETYPE.DIRECTORY;
-};
+    getPath() {
+        return this.get('path');
+    }
 
-File.prototype.getMime = function() {
-    return mime.lookup(path.extname(this.getPath())) || 'application/octet-stream';
-};
+    getType() {
+        return this.get('type');
+    }
 
-File.prototype.getName = function() {
-    return path.basename(this.getPath());
-};
+    isDirectory() {
+        return this.getType() == FILETYPE.DIRECTORY;
+    }
+
+    getMime() {
+        return mime.lookup(path.extname(this.getPath())) || 'application/octet-stream';
+    }
+
+    getName() {
+        return path.basename(this.getPath());
+    }
+}
 
 /**
  * Create a File representing a directory at the given path (empty content etc.).
