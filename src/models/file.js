@@ -57,9 +57,9 @@ class File extends Record(DEFAULTS) {
 /**
  * Create a File representing a directory at the given path (empty content etc.).
  */
-File.createDir = function(path) {
+File.createDir = function(filepath) {
     return new File({
-        path,
+        path: filepath,
         type: FILETYPE.DIRECTORY
     });
 };
@@ -67,9 +67,9 @@ File.createDir = function(path) {
 /**
  * Create a File representing a directory at the given path (empty content etc.).
  */
-File.create = function(path, fileSize) {
+File.create = function(filepath, fileSize) {
     return new File({
-        path,
+        path: filepath,
         fileSize: fileSize || 0,
         type: FILETYPE.FILE
     });
