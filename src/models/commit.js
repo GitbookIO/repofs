@@ -34,24 +34,30 @@ const DEFAULTS = {
  * @type {Class}
  */
 class Commit extends Record(DEFAULTS) {
+    getMessage() {
+        return this.get('message');
+    }
 
+    getSha() {
+        return this.get('sha');
+    }
+
+    getAuthor() {
+        return this.get('author');
+    }
+
+    getDate() {
+        return this.get('date');
+    }
+
+    getFiles() {
+        return this.get('files');
+    }
+
+    getParents() {
+        return this.get('parents');
+    }
 }
-
-const Commit = Immutable.Record({
-
-}, 'Commit');
-
-// ---- Properties Getter ----
-
-function getter(property) {
-    return function() { return this.get(property); };
-}
-Commit.prototype.getMessage = getter('message');
-Commit.prototype.getSha = getter('sha');
-Commit.prototype.getAuthor = getter('author');
-Commit.prototype.getDate = getter('date');
-Commit.prototype.getFiles = getter('files');
-Commit.prototype.getParents = getter('parents');
 
 // ---- Statics
 
@@ -70,8 +76,8 @@ Commit.create = function(opts) {
         message: opts.message,
         author: opts.author,
         date: opts.date,
-        files: new Immutable.List(opts.files),
-        parents: new Immutable.List(opts.parents)
+        files: new List(opts.files),
+        parents: new List(opts.parents)
     });
 };
 
