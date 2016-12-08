@@ -12,16 +12,16 @@ const RepoUtils = require('./repo');
  * @param {Boolean} [opts.checkout=false] Directly fetch and checkout the branch
  * @return {Promise<RepositoryState>}
  */
-function create(repoState, driver, name, opts) {
-    const base = opts.base || repoState.getCurrentBranch();
+function create(repositoryState, driver, name, opts) {
+    const base = opts.base || repositoryState.getCurrentBranch();
     let createdBranch;
     const result = driver.createBranch(base, name)
     // Update list of branches
     .then(function(branch) {
         createdBranch = branch;
-        let branches = repoState.getBranches();
+        let branches = repositoryState.getBranches();
         branches = branches.push(createdBranch);
-        return repoState.set('branches', branches);
+        return repositoryState.set('branches', branches);
     });
 
     if (!opts.checkout) {
@@ -120,11 +120,11 @@ function merge(repoState, driver, from, into, options) {
             return RepoUtils.updateWorkingState(repoState, into, null);
         }
     })
-    .then(function fetchTree(repoState) {
+    .then(function fetchTree(repositoryState) {
         if (!options.fetch) {
-            return repoState;
+            return repositoryState;
         } else {
-            return RepoUtils.fetchTree(repoState, driver, updatedInto);
+            return RepoUtils.fetchTree(repositoryState, driver, updatedInto);
         }
     });
 }
