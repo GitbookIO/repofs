@@ -1,10 +1,6 @@
-const Immutable = require('immutable');
-const path = require('path');
-const mime = require('mime-types');
+const { Record } = require('immutable');
 
-const FILETYPE = require('../constants/filetype');
-
-const LocalFile = Immutable.Record({
+const DEFAULTS = {
     // Sha1 of the modified blob,
     sha: null,
 
@@ -25,36 +21,42 @@ const LocalFile = Immutable.Record({
 
     // Git patch to apply
     patch: ''
-}, 'LocalFile');
-
-// ---- Properties Getter ----
-LocalFile.prototype.getSha = function() {
-    return this.get('sha');
 };
 
-LocalFile.prototype.getFilename = function() {
-    return this.get('filename');
-};
+/**
+ * LocalFile represents a status result
+ * @type {Class}
+ */
+class LocalFile extends Record(DEFAULTS) {
+    // ---- Properties Getter ----
+    getSha() {
+        return this.get('sha');
+    }
 
-LocalFile.prototype.getStatus = function() {
-    return this.get('status');
-};
+    getFilename() {
+        return this.get('filename');
+    }
 
-LocalFile.prototype.getAdditions = function() {
-    return this.get('additions');
-};
+    getStatus() {
+        return this.get('status');
+    }
 
-LocalFile.prototype.getDeletions = function() {
-    return this.get('deletions');
-};
+    getAdditions() {
+        return this.get('additions');
+    }
 
-LocalFile.prototype.getChanges = function() {
-    return this.get('changes');
-};
+    getDeletions() {
+        return this.get('deletions');
+    }
 
-LocalFile.prototype.getPatch = function() {
-    return this.get('patch');
-};
+    getChanges() {
+        return this.get('changes');
+    }
+
+    getPatch() {
+        return this.get('patch');
+    }
+}
 
 /**
  * Create a LocalFile representing a status result at the given path (filename etc.)
