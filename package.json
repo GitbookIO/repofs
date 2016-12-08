@@ -30,6 +30,7 @@
   },
   "scripts": {
     "prepublish": "babel ./src --out-dir ./lib",
+    "lint": "eslint ./src ./test",
     "test": "./scripts/test-uhub.sh && ./scripts/test-github.sh",
     "test-no-api": "./scripts/test-no-api.sh",
     "test-uhub": "./scripts/test-uhub.sh",

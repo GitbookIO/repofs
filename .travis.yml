@@ -5,3 +5,6 @@ node_js:
 before_install:
   - git config --global user.email "contact@gitbook.com"
   - git config --global user.name "GitBook Team"
+script:
+  - npm run test
+  - npm run lint
