@@ -1,10 +1,6 @@
-const Immutable = require('immutable');
+const { Record } = require('immutable');
 
-/**
- * A TreeEntry represents an entry from the git tree (Tree).
- */
-
-const TreeEntry = Immutable.Record({
+const DEFAULTS = {
     // SHA of the corresponding blob
     sha: null, // String, null when content is not available as blob
 
@@ -13,24 +9,31 @@ const TreeEntry = Immutable.Record({
 
     // Size of the blob
     blobSize: 0
-}, 'TreeEntry');
-
-// ---- Properties Getter ----
-TreeEntry.prototype.getSha = function() {
-    return this.get('sha');
 };
 
-TreeEntry.prototype.hasSha = function() {
-    return this.getSha() !== null;
-};
+/**
+ * A TreeEntry represents an entry from the git tree (Tree).
+ * @type {Class}
+ */
+class TreeEntry extends Record(DEFAULTS) {
+    // ---- Properties Getter ----
 
-TreeEntry.prototype.getMode = function() {
-    return this.get('mode');
-};
+    getSha() {
+        return this.get('sha');
+    }
 
-TreeEntry.prototype.getBlobSize = function() {
-    return this.get('blobSize');
-};
+    hasSha() {
+        return this.getSha() !== null;
+    }
+
+    getMode() {
+        return this.get('mode');
+    }
+
+    getBlobSize() {
+        return this.get('blobSize');
+    }
+}
 
 // ---- Static ----
 
