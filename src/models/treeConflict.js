@@ -1,51 +1,62 @@
-const Immutable = require('immutable');
+const { Record, Map } = require('immutable');
 
 const WorkingState = require('./workingState');
 
-/**
- * A TreeConflict represents a comparison between two Git Trees
- */
-
-const TreeConflict = Immutable.Record({
+const DEFAULTS = {
     base: WorkingState.createEmpty(),
     head: WorkingState.createEmpty(),
     // Nearest parent
     parent: WorkingState.createEmpty(),
 
     // Map<Path, Conflict>
-    conflicts: new Immutable.Map()
-}, 'TreeConflict');
-
-// ---- Properties Getter ----
-function getter(property) {
-    return function() { return this.get(property); };
-}
-TreeConflict.prototype.getBase = getter('base');
-TreeConflict.prototype.getHead = getter('head');
-TreeConflict.prototype.getParent = getter('parent');
-TreeConflict.prototype.getConflicts = getter('conflicts');
-
-// ---- Methods ----
+    conflicts: new Map()
+};
 
 /**
- * Returns the status of the tree conflict. Possible values are
- * described in TreeConflict.STATUS.
+ * A TreeConflict represents a comparison between two Git Trees
+ * @type {Class}
  */
-TreeConflict.prototype.getStatus = function() {
-    const base = this.getBase().getHead();
-    const head = this.getHead().getHead();
-    const parent = this.getParent().getHead();
+class TreeConflict extends Record(DEFAULTS) {
+    // ---- Properties Getter ----
 
-    if (base === head) {
-        return TreeConflict.STATUS.IDENTICAL;
-    } else if (base === parent) {
-        return TreeConflict.STATUS.AHEAD;
-    } else if (head === parent) {
-        return TreeConflict.STATUS.BEHIND;
-    } else {
-        return TreeConflict.STATUS.DIVERGED;
+    getBase() {
+        return this.get('base');
     }
-};
+
+    getHead() {
+        return this.get('head');
+    }
+
+    getParent() {
+        return this.get('parent');
+    }
+
+    getConflicts() {
+        return this.get('conflicts');
+    }
+
+    // ---- Methods ----
+
+    /**
+     * Returns the status of the tree conflict. Possible values are
+     * described in TreeConflict.STATUS.
+     */
+    getStatus() {
+        const base = this.getBase().getHead();
+        const head = this.getHead().getHead();
+        const parent = this.getParent().getHead();
+
+        if (base === head) {
+            return TreeConflict.STATUS.IDENTICAL;
+        } else if (base === parent) {
+            return TreeConflict.STATUS.AHEAD;
+        } else if (head === parent) {
+            return TreeConflict.STATUS.BEHIND;
+        } else {
+            return TreeConflict.STATUS.DIVERGED;
+        }
+    }
+}
 
 // ---- Static ----
 
