@@ -1,39 +1,39 @@
 require('should');
-var Immutable = require('immutable');
-var _ = require('lodash');
+const Immutable = require('immutable');
+const _ = require('lodash');
 
-var repofs = require('../');
+const repofs = require('../src/');
 
-var Blob = require('../lib/models/blob');
-var Change = require('../lib/models/change');
-var TreeEntry = require('../lib/models/treeEntry');
-var Branch = require('../lib/models/branch');
-var WorkingState = require('../lib/models/workingState');
-var RepositoryState = require('../lib/models/repositoryState');
+const Blob = require('../src/models/blob');
+const Change = require('../src/models/change');
+const TreeEntry = require('../src/models/treeEntry');
+const Branch = require('../src/models/branch');
+const WorkingState = require('../src/models/workingState');
+const RepositoryState = require('../src/models/repositoryState');
 
 describe('Decoding, encoding', function() {
 
-    var blob = Blob.createFromString('Test');
+    const blob = Blob.createFromString('Test');
 
-    var change = new Change({
+    const change = new Change({
         type: repofs.CHANGE.UPDATE,
         content: Blob.createFromString('ChangeBuffer'),
-        sha:'changeSha'
+        sha: 'changeSha'
     });
 
-    var branch = new Branch({
+    const branch = new Branch({
         name: 'branchShortName',
         sha: 'branchSha',
         remote: 'branchRemote'
     });
 
-    var treeEntry = new TreeEntry({
+    const treeEntry = new TreeEntry({
         blobSize: 10,
         sha: 'treeEntrySha',
         mode: '100644'
     });
 
-    var workingState = new WorkingState({
+    const workingState = new WorkingState({
         head: 'headSha',
         treeEntries: new Immutable.Map({
             'README.md': treeEntry
@@ -43,27 +43,27 @@ describe('Decoding, encoding', function() {
         })
     });
 
-    var repositoryState = new RepositoryState({
+    const repositoryState = new RepositoryState({
         currentBranchName: branch.getName(),
         workingStates: new Immutable.Map().set(branch.getName(), workingState),
         branches: new Immutable.List().push(branch)
     });
 
     function testDecodeEncode(type, source) {
-        return function () {
-            var encdec = _.flow(type.encode, type.decode);
-            var decenc = _.flow(type.decode, type.encode);
+        return function() {
+            const encdec = _.flow(type.encode, type.decode);
+            const decenc = _.flow(type.decode, type.encode);
 
             Immutable.is(source, encdec(source)).should.be.true();
 
-            var encoded = type.encode(source);
+            const encoded = type.encode(source);
             encoded.should.eql(decenc(encoded));
         };
     }
 
-    it('should encode and decode back a Blob', function () {
-        var encoded = Blob.encode(blob);
-        var decoded = Blob.decode(encoded);
+    it('should encode and decode back a Blob', function() {
+        const encoded = Blob.encode(blob);
+        const decoded = Blob.decode(encoded);
 
         blob.getByteLength().should.eql(decoded.getByteLength());
         blob.getAsString().should.eql(decoded.getAsString());

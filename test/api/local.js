@@ -1,15 +1,15 @@
-var fs = require('fs');
-var path = require('path');
-var Immutable = require('immutable');
-var LocalFile = require('../../lib/models/localFile');
-var Reference = require('../../lib/models/reference');
+const fs = require('fs');
+const path = require('path');
+const Immutable = require('immutable');
+const LocalFile = require('../../src/models/localFile');
+const Reference = require('../../src/models/reference');
 
-var repofs = require('../..');
-var LocalUtils = repofs.LocalUtils;
+const repofs = require('../..');
+const LocalUtils = repofs.LocalUtils;
 
-var REPO_DIR = '.tmp/repo/';
+const REPO_DIR = '.tmp/repo/';
 
-module.exports = function (driver) {
+module.exports = function(driver) {
     if (process.env.REPOFS_DRIVER !== 'uhub') return;
 
     return describe('LocalUtils', testLocal.bind(this, driver));
@@ -18,20 +18,20 @@ module.exports = function (driver) {
 function testLocal(driver) {
     describe('.status', function() {
 
-        before(function () {
+        before(function() {
             this.initialReadme = fs.readFileSync(path.join(REPO_DIR, 'README.md'), 'utf8');
             fs.writeFileSync(path.join(REPO_DIR, 'README.md'), 'New content');
             fs.writeFileSync(path.join(REPO_DIR, 'readme2.md'), 'New content');
         });
 
-        after(function () {
+        after(function() {
             fs.writeFileSync(path.join(REPO_DIR, 'README.md'), this.initialReadme);
             fs.unlinkSync(path.join(REPO_DIR, 'readme2.md'));
         });
 
         it('should return list of changed files', function(done) {
             LocalUtils.status(driver)
-                .then(function (result) {
+                .then(function(result) {
                     const localFiles = result.files;
 
                     // is an immutable list

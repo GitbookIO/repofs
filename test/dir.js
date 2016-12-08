@@ -1,15 +1,15 @@
 require('should');
 
-var _ = require('lodash');
+const _ = require('lodash');
 
-var repofs = require('../');
-var DirUtils = repofs.DirUtils;
-var FileUtils = repofs.FileUtils;
-var mock = require('./mock');
+const repofs = require('../src/');
+const DirUtils = repofs.DirUtils;
+const FileUtils = repofs.FileUtils;
+const mock = require('./mock');
 
 describe('DirUtils', function() {
 
-    var INITIAL_FILES = [
+    const INITIAL_FILES = [
         'file.root',
         'dir/file1',
         'dir/file2',
@@ -17,13 +17,13 @@ describe('DirUtils', function() {
         'dir.deep/dir/file1'
     ];
 
-    var NESTED_DIRECTORY = mock.directoryStructure(INITIAL_FILES);
+    const NESTED_DIRECTORY = mock.directoryStructure(INITIAL_FILES);
 
     describe('.read', function() {
 
         it('should list files from root', function() {
-            var files = DirUtils.read(NESTED_DIRECTORY, '.');
-            var filenames = _.map(files, method('getPath'));
+            const files = DirUtils.read(NESTED_DIRECTORY, '.');
+            const filenames = _.map(files, method('getPath'));
             _.difference([
                 'file.root',
                 'dir',
@@ -32,8 +32,8 @@ describe('DirUtils', function() {
         });
 
         it('should list files from dir', function() {
-            var files = DirUtils.read(NESTED_DIRECTORY, 'dir.deep/');
-            var filenames = _.map(files, method('getPath'));
+            const files = DirUtils.read(NESTED_DIRECTORY, 'dir.deep/');
+            const filenames = _.map(files, method('getPath'));
             _.difference([
                 'dir.deep/file1',
                 'dir.deep/dir'
@@ -41,14 +41,14 @@ describe('DirUtils', function() {
         });
 
         it('should differentiate directories and files', function() {
-            var all = _.partition(DirUtils.read(NESTED_DIRECTORY, '.'), function (file) {
+            const all = _.partition(DirUtils.read(NESTED_DIRECTORY, '.'), function(file) {
                 return file.isDirectory();
             });
-            var dirs = all[0];
-            var files = all[1];
+            const dirs = all[0];
+            const files = all[1];
 
-            var filenames = _.map(files, method('getPath'));
-            var dirnames = _.map(dirs, method('getPath'));
+            const filenames = _.map(files, method('getPath'));
+            const dirnames = _.map(dirs, method('getPath'));
 
             _.difference([
                 'file.root'
@@ -65,13 +65,13 @@ describe('DirUtils', function() {
                 'dir.deep/',
                 './dir.deep/'
             ]
-            .map(function (path) {
+            .map(function(path) {
                 return DirUtils.read(NESTED_DIRECTORY, path);
             })
-            .map(function (files) {
-                return files.map, method('getPath');
+            .map(function(files) {
+                return files.map(method('getPath'));
             })
-            .map(function (currentValue, index, array) {
+            .map(function(currentValue, index, array) {
                 // Should all equal the first
                 _.difference(currentValue, array[0]).should.be.empty();
             });
@@ -81,8 +81,8 @@ describe('DirUtils', function() {
     describe('.readRecursive', function() {
 
         it('should list files from root', function() {
-            var files = DirUtils.readRecursive(NESTED_DIRECTORY, '.');
-            var filenames = _.map(files, method('getPath'));
+            const files = DirUtils.readRecursive(NESTED_DIRECTORY, '.');
+            const filenames = _.map(files, method('getPath'));
             _.difference([
                 'file.root',
                 'dir',
@@ -96,8 +96,8 @@ describe('DirUtils', function() {
         });
 
         it('should list files from dir', function() {
-            var files = DirUtils.readRecursive(NESTED_DIRECTORY, 'dir.deep/');
-            var filenames = _.map(files, method('getPath'));
+            const files = DirUtils.readRecursive(NESTED_DIRECTORY, 'dir.deep/');
+            const filenames = _.map(files, method('getPath'));
             _.difference([
                 'dir.deep/file1',
                 'dir.deep/dir',
@@ -106,14 +106,14 @@ describe('DirUtils', function() {
         });
 
         it('should differentiate directories and files', function() {
-            var all = _.partition(DirUtils.readRecursive(NESTED_DIRECTORY, '.'), function (file) {
+            const all = _.partition(DirUtils.readRecursive(NESTED_DIRECTORY, '.'), function(file) {
                 return file.isDirectory();
             });
-            var dirs = all[0];
-            var files = all[1];
+            const dirs = all[0];
+            const files = all[1];
 
-            var filenames = _.map(files, method('getPath'));
-            var dirnames = _.map(dirs, method('getPath'));
+            const filenames = _.map(files, method('getPath'));
+            const dirnames = _.map(dirs, method('getPath'));
 
             _.difference([
                 'file.root',
@@ -135,13 +135,13 @@ describe('DirUtils', function() {
                 'dir.deep/',
                 './dir.deep/'
             ]
-            .map(function (path) {
+            .map(function(path) {
                 return DirUtils.readRecursive(NESTED_DIRECTORY, path);
             })
-            .map(function (files) {
-                return files.map, method('getPath');
+            .map(function(files) {
+                return files.map(method('getPath'));
             })
-            .map(function (currentValue, index, array) {
+            .map(function(currentValue, index, array) {
                 // Should all equal the first
                 _.difference(currentValue, array[0]).should.be.empty();
             });
@@ -151,12 +151,12 @@ describe('DirUtils', function() {
     describe('.readFilenamesRecursive', function() {
 
         it('should list filenames recursively from root', function() {
-            var files = DirUtils.readFilenamesRecursive(NESTED_DIRECTORY, '.');
+            const files = DirUtils.readFilenamesRecursive(NESTED_DIRECTORY, '.');
             _.difference(INITIAL_FILES, files).should.be.empty();
         });
 
         it('should list filenames recursively from dir', function() {
-            var filesDeep = DirUtils.readFilenamesRecursive(NESTED_DIRECTORY, 'dir/');
+            const filesDeep = DirUtils.readFilenamesRecursive(NESTED_DIRECTORY, 'dir/');
             _.difference([
                 'dir/file1',
                 'dir/file2'
@@ -170,7 +170,7 @@ describe('DirUtils', function() {
                 './dir.deep/'
             ].map(function(path) {
                 return DirUtils.readFilenamesRecursive(NESTED_DIRECTORY, path);
-            }).map(function (files) {
+            }).map(function(files) {
                 _.difference([
                     'dir.deep/file1',
                     'dir.deep/dir/file1'
@@ -181,12 +181,12 @@ describe('DirUtils', function() {
 
     describe('.readFilenames', function() {
         it('should shallow list root filenames', function() {
-            var files = DirUtils.readFilenames(NESTED_DIRECTORY, './');
+            const files = DirUtils.readFilenames(NESTED_DIRECTORY, './');
             _.difference(['file.root'], files).should.be.empty();
         });
 
         it('should shallow list all filenames in a dir', function() {
-            var files = DirUtils.readFilenames(NESTED_DIRECTORY, 'dir');
+            const files = DirUtils.readFilenames(NESTED_DIRECTORY, 'dir');
             _.difference([
                 'dir/file1',
                 'dir/file2'
@@ -194,7 +194,7 @@ describe('DirUtils', function() {
         });
 
         it('should shallow list all filenames and dir in a dir', function() {
-            var files = DirUtils.readFilenames(NESTED_DIRECTORY, './dir.deep/');
+            const files = DirUtils.readFilenames(NESTED_DIRECTORY, './dir.deep/');
             _.difference([
                 'dir.deep/file1',
                 'dir.deep/dir'
@@ -204,9 +204,9 @@ describe('DirUtils', function() {
 
     describe('.move', function() {
         it('should be able to rename a dir', function() {
-            var renamedRepo = DirUtils.move(NESTED_DIRECTORY, 'dir', 'newName');
+            const renamedRepo = DirUtils.move(NESTED_DIRECTORY, 'dir', 'newName');
 
-            var files = DirUtils.readFilenamesRecursive(renamedRepo, '.');
+            const files = DirUtils.readFilenamesRecursive(renamedRepo, '.');
             _.difference([
                 'file.root',
                 'newName/file1',
@@ -217,7 +217,7 @@ describe('DirUtils', function() {
         });
 
         it('should be kind with the cache (keeping SHAs when possible)', function() {
-            var renamedRepo = DirUtils.move(NESTED_DIRECTORY, 'dir', 'newName');
+            const renamedRepo = DirUtils.move(NESTED_DIRECTORY, 'dir', 'newName');
 
             // The read should not fail because the content should be fetched
             FileUtils.readAsString(renamedRepo, 'newName/file1')
@@ -227,9 +227,9 @@ describe('DirUtils', function() {
 
     describe('.remove', function() {
         it('should be able to remove a dir', function() {
-            var removedRepo = DirUtils.remove(NESTED_DIRECTORY, 'dir.deep');
+            const removedRepo = DirUtils.remove(NESTED_DIRECTORY, 'dir.deep');
 
-            var files = DirUtils.readFilenamesRecursive(removedRepo, '.');
+            const files = DirUtils.readFilenamesRecursive(removedRepo, '.');
             _.difference([
                 'file.root',
                 'dir/file1',
@@ -241,7 +241,7 @@ describe('DirUtils', function() {
 
 // Utils
 function method(name) {
-    return function (object) {
+    return function(object) {
         return object[name]();
     };
 }

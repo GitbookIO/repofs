@@ -6,4 +6,4 @@ IFS=$'\n\t'
 export REPOFS_SKIP_API_TEST=true
 
 # mocha --debug-brk
-mocha --reporter spec --bail --timeout 15000
+mocha --reporter spec --compilers js:babel-register --bail --timeout 15000

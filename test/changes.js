@@ -1,27 +1,27 @@
-var repofs = require('../');
+const repofs = require('../src/');
 
-var Blob = require('../lib/models/blob');
-var Change = require('../lib/models/change');
-var ChangeUtils = repofs.ChangeUtils;
+const Blob = require('../src/models/blob');
+const Change = require('../src/models/change');
+const ChangeUtils = repofs.ChangeUtils;
 
-var mock = require('./mock');
+const mock = require('./mock');
 
 describe('ChangeUtils', function() {
-    var DEFAULT_BOOK = mock.DEFAULT_BOOK;
+    const DEFAULT_BOOK = mock.DEFAULT_BOOK;
 
-    var create = new Change({
+    const create = new Change({
         type: repofs.CHANGE.CREATE,
         content: Blob.createFromString('Create')
     });
 
-    var remove = new Change({
+    const remove = new Change({
         type: repofs.CHANGE.REMOVE
     });
 
     describe('.setChange', function() {
 
         it('should resolve REMOVE after a CREATE', function() {
-            var state = DEFAULT_BOOK;
+            let state = DEFAULT_BOOK;
 
             state = ChangeUtils.setChange(DEFAULT_BOOK, 'new', create);
             ChangeUtils.getChange(state, 'new')
@@ -33,7 +33,7 @@ describe('ChangeUtils', function() {
         });
 
         it('should resolve CREATE after a REMOVE', function() {
-            var state = DEFAULT_BOOK;
+            let state = DEFAULT_BOOK;
 
             state = ChangeUtils.setChange(DEFAULT_BOOK, 'README.md', remove);
             ChangeUtils.getChange(state, 'README.md')

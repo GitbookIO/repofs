@@ -1,15 +1,15 @@
-var should = require('should');
+const should = require('should');
 
-var repofs = require('../');
-var Blob = require('../lib/models/blob');
-var File = require('../lib/models/file');
-var FileUtils = repofs.FileUtils;
-var FILE_TYPE = require('../lib/constants/filetype.js');
+const repofs = require('../src/');
+const Blob = require('../src/models/blob');
+const File = require('../src/models/file');
+const FileUtils = repofs.FileUtils;
+const FILE_TYPE = require('../src/constants/filetype.js');
 
-var mock = require('./mock');
+const mock = require('./mock');
 
 describe('FileUtils', function() {
-    var DEFAULT_BOOK = mock.DEFAULT_BOOK;
+    const DEFAULT_BOOK = mock.DEFAULT_BOOK;
 
     describe('.exists', function() {
 
@@ -27,14 +27,14 @@ describe('FileUtils', function() {
 
     describe('.read', function() {
         it('should read content as Blob if file exists', function() {
-            var blob = FileUtils.read(DEFAULT_BOOK, 'README.md');
+            const blob = FileUtils.read(DEFAULT_BOOK, 'README.md');
             blob.should.be.an.instanceof(Blob);
             blob.getAsString().should.equal('# Introduction');
         });
 
         it('should read content as Blob for modified files', function() {
-            var modifiedState = FileUtils.write(DEFAULT_BOOK, 'README.md', 'New');
-            var blob = FileUtils.read(modifiedState, 'README.md');
+            const modifiedState = FileUtils.write(DEFAULT_BOOK, 'README.md', 'New');
+            const blob = FileUtils.read(modifiedState, 'README.md');
             blob.should.be.an.instanceof(Blob);
             blob.getAsString().should.equal('New');
         });
@@ -42,10 +42,10 @@ describe('FileUtils', function() {
 
     describe('.stat', function() {
         it('should return a File without content when not fetched', function() {
-            var repo = mock.addFile(DEFAULT_BOOK, 'notfetched.txt', {
+            const repo = mock.addFile(DEFAULT_BOOK, 'notfetched.txt', {
                 fetched: false
             });
-            var file = FileUtils.stat(repo, 'notfetched.txt');
+            const file = FileUtils.stat(repo, 'notfetched.txt');
             file.should.be.an.instanceof(File);
             file.getFileSize().should.equal(14);
             file.isDirectory().should.be.false();
@@ -56,33 +56,33 @@ describe('FileUtils', function() {
         });
 
         it('should return a File with content when fetched', function() {
-            var repo = mock.addFile(DEFAULT_BOOK, 'fetched.txt', {
+            const repo = mock.addFile(DEFAULT_BOOK, 'fetched.txt', {
                 fetched: true
             });
-            var file = FileUtils.stat(repo, 'fetched.txt');
+            const file = FileUtils.stat(repo, 'fetched.txt');
             file.getFileSize().should.equal(11);
             file.getContent().getAsString().should.equal('fetched.txt');
         });
 
         it('should return a File with content when there is a change', function() {
-            var repo = FileUtils.create(DEFAULT_BOOK, 'created', 'content');
-            var file = FileUtils.stat(repo, 'created');
+            const repo = FileUtils.create(DEFAULT_BOOK, 'created', 'content');
+            const file = FileUtils.stat(repo, 'created');
             file.getContent().getAsString().should.equal('content');
         });
 
         it('should return a File with content when there is a change with known sha', function() {
-            var readmeBlob = FileUtils.read(DEFAULT_BOOK, 'README.md');
-            var repo = FileUtils.move(DEFAULT_BOOK, 'README.md', 'renamed');
-            var file = FileUtils.stat(repo, 'renamed');
+            const readmeBlob = FileUtils.read(DEFAULT_BOOK, 'README.md');
+            const repo = FileUtils.move(DEFAULT_BOOK, 'README.md', 'renamed');
+            const file = FileUtils.stat(repo, 'renamed');
             file.getContent().getAsString().should.equal(readmeBlob.getAsString());
         });
 
         it('should return a File without content when there is a change with known sha, but not fetched', function() {
-            var repo = mock.addFile(DEFAULT_BOOK, 'created', {
+            let repo = mock.addFile(DEFAULT_BOOK, 'created', {
                 fetched: false
             });
             repo = FileUtils.move(repo, 'created', 'renamed');
-            var file = FileUtils.stat(repo, 'renamed');
+            const file = FileUtils.stat(repo, 'renamed');
             file.getFileSize().should.equal(7);
             should(file.getContent()).not.be.ok();
         });
@@ -90,14 +90,14 @@ describe('FileUtils', function() {
 
     describe('.readAsString', function() {
         it('should read content as String if file exists', function() {
-            var read = FileUtils.readAsString(DEFAULT_BOOK, 'SUMMARY.md');
+            const read = FileUtils.readAsString(DEFAULT_BOOK, 'SUMMARY.md');
             read.should.be.equal('# Summary');
         });
     });
 
     describe('.create', function() {
         it('should create a file if it does not exist', function() {
-            var repoState = FileUtils.create(DEFAULT_BOOK, 'New', 'New Content');
+            const repoState = FileUtils.create(DEFAULT_BOOK, 'New', 'New Content');
             FileUtils.exists(repoState, 'New').should.be.true();
             FileUtils.readAsString(repoState, 'New').should.be.equal('New Content');
         });
@@ -111,7 +111,7 @@ describe('FileUtils', function() {
 
     describe('.write', function() {
         it('should write a file if it exists', function() {
-            var repoState = FileUtils.write(DEFAULT_BOOK, 'README.md', 'New Content');
+            const repoState = FileUtils.write(DEFAULT_BOOK, 'README.md', 'New Content');
             FileUtils.readAsString(repoState, 'README.md').should.be.equal('New Content');
         });
 
@@ -124,7 +124,7 @@ describe('FileUtils', function() {
 
     describe('.remove', function() {
         it('should remove a file if it exists', function() {
-            var repoState = FileUtils.remove(DEFAULT_BOOK, 'README.md');
+            const repoState = FileUtils.remove(DEFAULT_BOOK, 'README.md');
             FileUtils.exists(repoState, 'README.md').should.equal(false);
         });
 
@@ -137,38 +137,38 @@ describe('FileUtils', function() {
 
     describe('.hasChanged', function() {
         it('should detect that an existing file has not changed', function() {
-            var state1 = DEFAULT_BOOK;
-            var state2 = DEFAULT_BOOK;
+            const state1 = DEFAULT_BOOK;
+            const state2 = DEFAULT_BOOK;
             FileUtils.hasChanged(state1, state2, 'README.md').should.be.false();
         });
 
         it('should detect that a non existing file has not changed', function() {
-            var state1 = DEFAULT_BOOK;
-            var state2 = DEFAULT_BOOK;
+            const state1 = DEFAULT_BOOK;
+            const state2 = DEFAULT_BOOK;
             FileUtils.hasChanged(state1, state2, 'does_not_exist.md').should.be.false();
         });
 
         it('should detect that an added file has changed', function() {
-            var state1 = DEFAULT_BOOK;
-            var state2 = FileUtils.create(DEFAULT_BOOK, 'created');
+            const state1 = DEFAULT_BOOK;
+            const state2 = FileUtils.create(DEFAULT_BOOK, 'created');
             FileUtils.hasChanged(state1, state2, 'created').should.be.true();
         });
 
         it('should detect that a removed file has changed', function() {
-            var state1 = DEFAULT_BOOK;
-            var state2 = FileUtils.remove(DEFAULT_BOOK, 'README.md');
+            const state1 = DEFAULT_BOOK;
+            const state2 = FileUtils.remove(DEFAULT_BOOK, 'README.md');
             FileUtils.hasChanged(state1, state2, 'README.md').should.be.true();
         });
 
         it('should detect when the content of a file has changed', function() {
-            var state1 = FileUtils.create(DEFAULT_BOOK, 'created', 'content1');
-            var state2 = FileUtils.write(state1, 'created', 'content2');
+            const state1 = FileUtils.create(DEFAULT_BOOK, 'created', 'content1');
+            const state2 = FileUtils.write(state1, 'created', 'content2');
             FileUtils.hasChanged(state1, state2, 'created').should.be.true();
         });
 
         it('should detect when a created file has not changed', function() {
-            var state1 = FileUtils.create(DEFAULT_BOOK, 'created', 'content1');
-            var state2 = FileUtils.write(state1, 'created', 'content1');
+            const state1 = FileUtils.create(DEFAULT_BOOK, 'created', 'content1');
+            const state2 = FileUtils.write(state1, 'created', 'content1');
             FileUtils.hasChanged(state1, state2, 'created').should.be.false();
         });
     });

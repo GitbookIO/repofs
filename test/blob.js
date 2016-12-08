@@ -1,11 +1,11 @@
-var should = require('should');
+const should = require('should');
 
-var Blob = require('../lib/models/blob');
+const Blob = require('../src/models/blob');
 
 describe('Blob', function() {
     it('should fail creating a blob too big', function() {
         should.throws(function() {
-            var ab = new ArrayBuffer(256*1024*1024);
+            const ab = new ArrayBuffer(256 * 1024 * 1024);
             Blob.createFromArrayBuffer(ab);
         });
     });

@@ -1,18 +1,18 @@
 require('should');
 
-var Immutable = require('immutable');
+const Immutable = require('immutable');
 
-var repofs = require('../');
+const repofs = require('../src/');
 
-var ConflictUtils = require('../lib/utils/conflict');
-var TreeEntry = require('../lib/models/treeEntry');
-var TreeConflict = repofs.TreeConflict;
-var Conflict = repofs.Conflict;
-var WorkingState = repofs.WorkingState;
+const ConflictUtils = require('../src/utils/conflict');
+const TreeEntry = require('../src/models/treeEntry');
+const TreeConflict = repofs.TreeConflict;
+const Conflict = repofs.Conflict;
+const WorkingState = repofs.WorkingState;
 
 describe('ConflictUtils', function() {
 
-    var parentEntries = new Immutable.Map({
+    const parentEntries = new Immutable.Map({
         bothDeleted: entry('bothDeleted'),
         bothModified:  entry('bothModified-parent'), // conflict
         deletedBase: entry('deletedBase'),
@@ -22,7 +22,7 @@ describe('ConflictUtils', function() {
         unchanged:  entry('unchanged')
     });
 
-    var baseEntries = new Immutable.Map({
+    const baseEntries = new Immutable.Map({
         addedBase: entry('addedBase'),
         bothAddedDifferent:  entry('bothAddedDifferent-base'), // conflict
         bothAddedSame:  entry('bothAddedSame'),
@@ -31,7 +31,7 @@ describe('ConflictUtils', function() {
         unchanged:  entry('unchanged')
     });
 
-    var headEntries = new Immutable.Map({
+    const headEntries = new Immutable.Map({
         bothAddedDifferent:  entry('bothAddedDifferent-head'), // conflict
         bothAddedSame:  entry('bothAddedSame'),
         bothModified:  entry('bothModified-head'), // conflict
@@ -41,11 +41,11 @@ describe('ConflictUtils', function() {
         unchanged:  entry('unchanged')
     });
 
-    var parentWK = WorkingState.createWithTree('parentWK', parentEntries);
-    var headWK = WorkingState.createWithTree('headWK', headEntries);
-    var baseWK = WorkingState.createWithTree('baseWK', baseEntries);
+    const parentWK = WorkingState.createWithTree('parentWK', parentEntries);
+    const headWK = WorkingState.createWithTree('headWK', headEntries);
+    const baseWK = WorkingState.createWithTree('baseWK', baseEntries);
 
-    var CONFLICTS = {
+    const CONFLICTS = {
         bothModified: new Conflict({
             parentSha: 'bothModified-parent',
             baseSha:   'bothModified-base',
@@ -63,7 +63,7 @@ describe('ConflictUtils', function() {
         })
     };
 
-    var treeConflict = new TreeConflict({
+    const treeConflict = new TreeConflict({
         base: baseWK,
         head: headWK,
         parent: parentWK,
@@ -71,7 +71,7 @@ describe('ConflictUtils', function() {
     });
 
     // The list of solved conflicts, as returned after resolution
-    var solvedConflicts = treeConflict.getConflicts().merge({
+    const solvedConflicts = treeConflict.getConflicts().merge({
         bothModified: CONFLICTS.bothModified.solveWithContent('Solved content'),
         // bothAddedDifferent not solved, should default to keep base in the end
         deletedModified: CONFLICTS.deletedModified.keepHead()
@@ -83,9 +83,9 @@ describe('ConflictUtils', function() {
     describe('._diffEntries', function() {
 
         it('should detect modified entries, added entries, and deleted entries', function() {
-            var result = ConflictUtils._diffEntries(parentEntries, baseEntries);
+            const result = ConflictUtils._diffEntries(parentEntries, baseEntries);
 
-            var expectedDiff = new Immutable.Map({
+            const expectedDiff = new Immutable.Map({
                 addedBase: entry('addedBase'),
                 bothAddedDifferent: entry('bothAddedDifferent-base'),
                 bothAddedSame: entry('bothAddedSame'),
@@ -104,8 +104,8 @@ describe('ConflictUtils', function() {
     describe('._compareTrees', function() {
 
         it('should detect minimum set of conflicts', function() {
-            var result = ConflictUtils._compareTrees(parentEntries, baseEntries, headEntries);
-            var expected = treeConflict.getConflicts();
+            const result = ConflictUtils._compareTrees(parentEntries, baseEntries, headEntries);
+            const expected = treeConflict.getConflicts();
 
             Immutable.is(result, expected).should.be.true();
         });
@@ -115,16 +115,16 @@ describe('ConflictUtils', function() {
     describe('.solveTree', function() {
 
         it('should merge back solved conflicts into a TreeConflict, defaulting to base version', function() {
-            var solvedTreeConflict = ConflictUtils.solveTree(treeConflict, solvedConflicts);
+            const solvedTreeConflict = ConflictUtils.solveTree(treeConflict, solvedConflicts);
 
             // Expect tree to be unchanged outside of conflicts
             Immutable.is(solvedTreeConflict.set('conflicts', null),
                          treeConflict.set('conflicts', null));
 
             // Expect conflicts to be solved
-            var expected = solvedConflicts.set('bothAddedDifferent',
+            const expected = solvedConflicts.set('bothAddedDifferent',
                                       CONFLICTS.bothAddedDifferent.keepBase());
-            var result = solvedTreeConflict.getConflicts();
+            const result = solvedTreeConflict.getConflicts();
             Immutable.is(result, expected).should.be.true();
         });
     });
@@ -132,10 +132,10 @@ describe('ConflictUtils', function() {
     describe('._getSolvedEntries', function() {
 
         it('should generate the solved tree entries', function() {
-            var solvedTreeConflict = ConflictUtils.solveTree(treeConflict, solvedConflicts);
-            var result = ConflictUtils._getSolvedEntries(solvedTreeConflict);
+            const solvedTreeConflict = ConflictUtils.solveTree(treeConflict, solvedConflicts);
+            const result = ConflictUtils._getSolvedEntries(solvedTreeConflict);
 
-            var expected = new Immutable.Map({
+            const expected = new Immutable.Map({
                 deletedModified: entry('deletedModified-head'), // keeped head
                 bothAddedSame: entry('bothAddedSame'),
                 bothModified: entry(null), // solved with content
@@ -151,8 +151,8 @@ describe('ConflictUtils', function() {
     });
 
     describe('.mergeCommit', function() {
-        var solvedTreeConflict = ConflictUtils.solveTree(treeConflict, solvedConflicts);
-        var mergeCommit = ConflictUtils.mergeCommit(solvedTreeConflict, [
+        const solvedTreeConflict = ConflictUtils.solveTree(treeConflict, solvedConflicts);
+        const mergeCommit = ConflictUtils.mergeCommit(solvedTreeConflict, [
             'parentCommitSha1',
             'parentCommitSha2'
         ], {
@@ -176,7 +176,7 @@ describe('ConflictUtils', function() {
         });
 
         it('should create a merge CommitBuilder with final solved entries', function() {
-            var solvedEntries = new Immutable.Map({
+            const solvedEntries = new Immutable.Map({
                 deletedModified: entry('deletedModified-head'), // keeped head
                 bothAddedSame: entry('bothAddedSame'),
                 bothModified: entry(null), // solved with content
@@ -193,6 +193,6 @@ describe('ConflictUtils', function() {
 
 // ---- Utils ----
 function entry(sha) {
-    return new TreeEntry({ sha: sha });
+    return new TreeEntry({ sha });
 }
 

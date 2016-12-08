@@ -46,4 +46,4 @@ export REPOFS_HOST=https://api.github.com
 export REPOFS_REPO=$GITHUB_USER/$GITHUB_REPO
 export REPOFS_TOKEN=$GITHUB_TOKEN
 
-mocha --reporter spec --bail --timeout 15000
+mocha --reporter spec --compilers js:babel-register --bail --timeout 15000

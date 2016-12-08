@@ -1,34 +1,34 @@
-var Immutable = require('immutable');
-var Q = require('q');
-var should = require('should');
-var repofs = require('../../');
+const Immutable = require('immutable');
+const Q = require('q');
+const should = require('should');
+const repofs = require('../../src/');
 
-module.exports = function (driver) {
+module.exports = function(driver) {
     return describe('BranchUtils', testBranch.bind(this, driver));
 };
 
 // Test the commit API on a basic repo
 function testBranch(driver) {
 
-    var repoState;
+    let repoState;
 
-    before(function () {
+    before(function() {
         return repofs.RepoUtils.initialize(driver)
-        .then(function (initRepo) {
+        .then(function(initRepo) {
             repoState = initRepo;
         });
     });
 
     describe('.create', function() {
-        it('should create a branch and optionally checkout on it', function () {
+        it('should create a branch and optionally checkout on it', function() {
             return repofs.BranchUtils.create(repoState, driver, 'test-branch-create', {
                 checkout: true
             })
-            .then(function (_repoState) {
+            .then(function(_repoState) {
                 // Update for next test
                 repoState = _repoState;
-                var master = repoState.getBranch('master');
-                var createdBr = repoState.getBranch('test-branch-create');
+                const master = repoState.getBranch('master');
+                const createdBr = repoState.getBranch('test-branch-create');
                 master.getSha().should.eql(createdBr.getSha());
                 Immutable.is(createdBr, repoState.getCurrentBranch()).should.be.true();
             });
@@ -38,9 +38,9 @@ function testBranch(driver) {
 
     describe('.merge', function() {
         // Depends on previous test
-        it('should merge two branches', function () {
-            var intoBranch;
-            var fromBranch;
+        it('should merge two branches', function() {
+            let intoBranch;
+            let fromBranch;
             return Q()
             .then(function createFrom() {
                 repoState = repofs.RepoUtils.checkout(repoState, 'master');
@@ -72,21 +72,21 @@ function testBranch(driver) {
                     fetch: true
                 });
             })
-            .then(function (repoState) {
+            .then(function(repoState) {
                 repoState = repofs.RepoUtils.checkout(repoState, intoBranch);
                 repofs.FileUtils.exists(repoState, 'merge_branch_file1');
                 repofs.FileUtils.exists(repoState, 'merge_branch_file2');
                 return repofs.FileUtils.fetch(repoState, driver, 'merge_branch_file1');
             })
-            .then(function (repoState) {
+            .then(function(repoState) {
                 repofs.FileUtils.read(repoState, 'merge_branch_file1').getAsString()
                     .should.eql('File 1');
             });
         });
 
-        it('should fail with merge conflict', function () {
-            var intoBranch;
-            var fromBranch;
+        it('should fail with merge conflict', function() {
+            let intoBranch;
+            let fromBranch;
             return Q()
             .then(function createFrom() {
                 repoState = repofs.RepoUtils.checkout(repoState, 'master');
@@ -118,31 +118,31 @@ function testBranch(driver) {
                     fetch: true
                 });
             })
-            .then(function () {
+            .then(function() {
                 should.fail('CONFLICT was not detected');
-            }, function (err) {
+            }, function(err) {
                 err.code.should.eql(repofs.ERRORS.CONFLICT);
             });
         });
     });
 
     describe('.update', function() {
-        it('should update an old branch that was updated on the repo', function () {
-            var oldBranchState;
-            var updatedBranch;
+        it('should update an old branch that was updated on the repo', function() {
+            let oldBranchState;
+            let updatedBranch;
 
             return repofs.BranchUtils.create(repoState, driver, 'test-branch-update', {
                 checkout: true
             })
-            .then(function (_repoState) {
+            .then(function(_repoState) {
                 oldBranchState = _repoState;
                 return commitAndFlush(_repoState, driver, 'New commit');
             })
-            .then(function (_repoState) {
+            .then(function(_repoState) {
                 updatedBranch = _repoState.getCurrentBranch();
                 return repofs.BranchUtils.update(oldBranchState, driver, 'test-branch-update');
             })
-            .then(function (_repoState) {
+            .then(function(_repoState) {
                 Immutable.is(updatedBranch, _repoState.getCurrentBranch()).should.be.true();
             });
         });
@@ -150,10 +150,10 @@ function testBranch(driver) {
 
     describe('.remove', function() {
         // Depends on previous
-        it('should delete a branch', function () {
-            var createdBr = repoState.getBranch('test-branch-create');
+        it('should delete a branch', function() {
+            const createdBr = repoState.getBranch('test-branch-create');
             return repofs.BranchUtils.remove(repoState, driver, createdBr)
-            .then(function (_repoState) {
+            .then(function(_repoState) {
                 should(_repoState.getBranch('test-branch-create')).be.null();
             });
         });
@@ -161,9 +161,9 @@ function testBranch(driver) {
 }
 
 function commitAndFlush(repoState, driver, message) {
-    var commitBuilder = repofs.CommitUtils.prepare(repoState, {
+    const commitBuilder = repofs.CommitUtils.prepare(repoState, {
         author: repofs.Author.create('Shakespeare', 'shakespeare@hotmail.com'),
-        message: message
+        message
     });
 
     return repofs.CommitUtils.flush(repoState, driver, commitBuilder);

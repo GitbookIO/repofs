@@ -1,22 +1,24 @@
-const Immutable = require('immutable');
+const { Record, OrderedMap } = require('immutable');
 
-const Cache = Immutable.Record({
-    blobs: new Immutable.OrderedMap() // OrderedMap<SHA, Blob>
-}, 'Cache');
-
-// ---- Properties Getter ----
-Cache.prototype.getBlobs = function() {
-    return this.get('blobs');
+const DEFAULTS = {
+    blobs: OrderedMap() // OrderedMap<SHA, Blob>
 };
 
-// ---- Methods ----
+class Cache extends Record(DEFAULTS) {
+    // ---- Properties Getter ----
+    getBlobs() {
+        return this.get('blobs');
+    }
 
-/**
- * Return blob content
- */
-Cache.prototype.getBlob = function(blobSHA) {
-    const blobs = this.getBlobs();
-    return blobs.get(blobSHA);
-};
+    // ---- Methods ----
+
+    /**
+     * Return blob content
+     */
+    getBlob(blobSHA) {
+        const blobs = this.getBlobs();
+        return blobs.get(blobSHA);
+    }
+}
 
 module.exports = Cache;
