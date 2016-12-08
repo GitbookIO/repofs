@@ -1,6 +1,6 @@
-var LocalFile = require('../models/localFile');
+const LocalFile = require('../models/localFile');
 
-var LocalUtils = module.exports;
+const LocalUtils = module.exports;
 
 /**
  * Perform a git status on a given repository branch
@@ -22,14 +22,14 @@ LocalUtils.status = function status(driver) {
  * @return {Promise}
  */
 LocalUtils.track = function track(driver, files, message, author) {
-    files = files.map(function (file) {
+    files = files.map(function(file) {
         return LocalFile.create(file);
     });
 
     return driver.track({
-        message: message,
-        files: files,
-        author: author,
+        message,
+        files,
+        author,
         committer: author
     });
 };

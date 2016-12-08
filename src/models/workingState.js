@@ -1,10 +1,10 @@
-var _ = require('lodash');
-var Immutable = require('immutable');
+const _ = require('lodash');
+const Immutable = require('immutable');
 
-var TreeEntry = require('./treeEntry');
-var Change = require('./change');
+const TreeEntry = require('./treeEntry');
+const Change = require('./change');
 
-var WorkingState = Immutable.Record({
+const WorkingState = Immutable.Record({
     head: String(), // SHA
     treeEntries: new Immutable.Map(), // Map<Path, TreeEntry>
     changes: new Immutable.OrderedMap() // OrderedMap<Path, Change>
@@ -37,7 +37,7 @@ WorkingState.prototype.isClean = function() {
  * @return {Change}
  */
 WorkingState.prototype.getChange = function(filePath) {
-    var changes = this.getChanges();
+    const changes = this.getChanges();
     return changes.get(filePath);
 };
 
@@ -64,14 +64,14 @@ WorkingState.createEmpty = function createEmpty() {
  * @param {Map<Path, TreeEntry>} treeEntries
  * @return {WorkingState}
  */
-WorkingState.createWithTree = function (head, treeEntries) {
+WorkingState.createWithTree = function(head, treeEntries) {
     return new WorkingState({
-        head: head,
-        treeEntries: treeEntries
+        head,
+        treeEntries
     });
 };
 
-WorkingState.encode = function (workingState) {
+WorkingState.encode = function(workingState) {
     return {
         head: workingState.get('head'),
         treeEntries: workingState.get('treeEntries').map(TreeEntry.encode).toJS(),
@@ -79,14 +79,14 @@ WorkingState.encode = function (workingState) {
     };
 };
 
-WorkingState.decode = function (json) {
-    var treeEntries = new Immutable.Map(_.mapValues(json.treeEntries, TreeEntry.decode));
-    var changes = new Immutable.OrderedMap(_.mapValues(json.changes, Change.decode));
+WorkingState.decode = function(json) {
+    const treeEntries = new Immutable.Map(_.mapValues(json.treeEntries, TreeEntry.decode));
+    const changes = new Immutable.OrderedMap(_.mapValues(json.changes, Change.decode));
 
     return new WorkingState({
         head: json.head,
-        treeEntries: treeEntries,
-        changes: changes
+        treeEntries,
+        changes
     });
 };
 

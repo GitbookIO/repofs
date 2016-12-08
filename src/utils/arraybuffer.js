@@ -1,5 +1,5 @@
-var _ = require('lodash');
-var Buffer = require('buffer').Buffer;
+const _ = require('lodash');
+const Buffer = require('buffer').Buffer;
 
 /**
  * Test if is arraybuffer
@@ -29,9 +29,9 @@ function fromBase64(str) {
  * Convert from a buffer to an ArrayBuffer
  */
 function fromBuffer(buffer) {
-    var ab = new ArrayBuffer(buffer.length);
-    var view = new Uint8Array(ab);
-    for (var i = 0; i < buffer.length; ++i) {
+    const ab = new ArrayBuffer(buffer.length);
+    const view = new Uint8Array(ab);
+    for (let i = 0; i < buffer.length; ++i) {
         view[i] = buffer[i];
     }
     return ab;
@@ -41,9 +41,9 @@ function fromBuffer(buffer) {
  * Convert to a buffer
  */
 function toBuffer(ab) {
-    var buffer = new Buffer(ab.byteLength);
-    var view = new Uint8Array(ab);
-    for (var i = 0; i < buffer.length; ++i) {
+    const buffer = new Buffer(ab.byteLength);
+    const view = new Uint8Array(ab);
+    for (let i = 0; i < buffer.length; ++i) {
         buffer[i] = view[i];
     }
     return buffer;
@@ -91,25 +91,25 @@ function enforceString(b, encoding) {
  */
 function equals(buf1, buf2) {
     if (buf1.byteLength != buf2.byteLength) return false;
-    var dv1 = new Int8Array(buf1);
-    var dv2 = new Int8Array(buf2);
-    for (var i = 0 ; i != buf1.byteLength ; i++) {
+    const dv1 = new Int8Array(buf1);
+    const dv2 = new Int8Array(buf2);
+    for (let i = 0 ; i != buf1.byteLength ; i++) {
         if (dv1[i] != dv2[i]) return false;
     }
     return true;
 }
 
-var BufferUtils = {
-    equals: equals,
-    fromBuffer: fromBuffer,
-    fromString: fromString,
-    fromBase64: fromBase64,
-    toBuffer: toBuffer,
+const BufferUtils = {
+    equals,
+    fromBuffer,
+    fromString,
+    fromBase64,
+    toBuffer,
     toBase64: enforceBase64,
-    enforceBase64: enforceBase64,
-    enforceBuffer: enforceBuffer,
-    enforceArrayBuffer: enforceArrayBuffer,
-    enforceString: enforceString
+    enforceBase64,
+    enforceBuffer,
+    enforceArrayBuffer,
+    enforceString
 };
 
 module.exports = BufferUtils;

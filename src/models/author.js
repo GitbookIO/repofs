@@ -1,9 +1,9 @@
-var Immutable = require('immutable');
+const Immutable = require('immutable');
 
 /**
  * Represents a commit author
  */
-var Author = Immutable.Record({
+const Author = Immutable.Record({
     name: String(),
     email: String(),
     date: new Date(),
@@ -39,8 +39,8 @@ Author.prototype.getAvatar = function() {
  */
 Author.create = function createAuthor(name, email, date, avatar) {
     return new Author({
-        name: name,
-        email: email,
+        name,
+        email,
         date: date || new Date(),
         avatar: avatar || ''
     });

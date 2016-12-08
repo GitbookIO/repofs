@@ -1,6 +1,6 @@
-var Immutable = require('immutable');
+const Immutable = require('immutable');
 
-var Cache = Immutable.Record({
+const Cache = Immutable.Record({
     blobs: new Immutable.OrderedMap() // OrderedMap<SHA, Blob>
 }, 'Cache');
 
@@ -15,7 +15,7 @@ Cache.prototype.getBlobs = function() {
  * Return blob content
  */
 Cache.prototype.getBlob = function(blobSHA) {
-    var blobs = this.getBlobs();
+    const blobs = this.getBlobs();
     return blobs.get(blobSHA);
 };
 

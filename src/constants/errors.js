@@ -1,7 +1,7 @@
 // These codes are meant to be exported, for dev to react to runtime
 // errors.
 // We will always throw Errors with these values as code property.
-var ERRORS = {
+const ERRORS = {
     ALREADY_EXIST:         '302 Already exist',
     NOT_FAST_FORWARD:      '433 Not fast forward',
     NOT_FOUND:             '404 Not found',

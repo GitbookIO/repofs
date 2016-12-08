@@ -1,10 +1,10 @@
-var Immutable = require('immutable');
-var path = require('path');
-var mime = require('mime-types');
+const Immutable = require('immutable');
+const path = require('path');
+const mime = require('mime-types');
 
-var FILETYPE = require('../constants/filetype');
+const FILETYPE = require('../constants/filetype');
 
-var LocalFile = Immutable.Record({
+const LocalFile = Immutable.Record({
     // Sha1 of the modified blob,
     sha: null,
 
@@ -59,7 +59,7 @@ LocalFile.prototype.getPatch = function() {
 /**
  * Create a LocalFile representing a status result at the given path (filename etc.)
  */
-LocalFile.create = function (file) {
+LocalFile.create = function(file) {
     return new LocalFile(file);
 };
 

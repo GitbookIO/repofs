@@ -1,12 +1,12 @@
-var Immutable = require('immutable');
-var Q = require('q');
+const Immutable = require('immutable');
+const Q = require('q');
 
-var CommitBuilder = require('../models/commitBuilder');
-var TreeEntry = require('../models/treeEntry');
-var Branch = require('../models/branch');
-var Conflict = require('../models/conflict');
-var TreeConflict = require('../models/treeConflict');
-var WorkingState = require('../models/workingState');
+const CommitBuilder = require('../models/commitBuilder');
+const TreeEntry = require('../models/treeEntry');
+const Branch = require('../models/branch');
+const Conflict = require('../models/conflict');
+const TreeConflict = require('../models/treeConflict');
+const WorkingState = require('../models/workingState');
 
 /**
  * Computes a TreeConflict between to tree references. Fetches the
@@ -18,30 +18,30 @@ var WorkingState = require('../models/workingState');
  * @return {Promise<TreeConflict>}
  */
 function compareRefs(driver, base, head) {
-    var baseRef = base instanceof Branch ? base.getFullName() : base;
-    var headRef = head instanceof Branch ? head.getFullName() : head;
+    const baseRef = base instanceof Branch ? base.getFullName() : base;
+    const headRef = head instanceof Branch ? head.getFullName() : head;
 
     return driver.findParentCommit(baseRef, headRef)
-    .then(function (parentCommit) {
+    .then(function(parentCommit) {
         // There can be no parent commit
         return Q.all([
             parentCommit ? parentCommit.getSha() : null,
             baseRef,
             headRef
-        ].map(function (ref) {
+        ].map(function(ref) {
             return ref ? driver.fetchWorkingState(ref) : WorkingState.createEmpty();
         }));
     })
     .spread(function(parent, base, head) {
-        var conflicts = _compareTrees(parent.getTreeEntries(),
+        const conflicts = _compareTrees(parent.getTreeEntries(),
                                      base.getTreeEntries(),
                                      head.getTreeEntries());
 
         return new TreeConflict({
-            base: base,
-            head: head,
-            parent: parent,
-            conflicts: conflicts
+            base,
+            head,
+            parent,
+            conflicts
         });
     });
 }
@@ -58,7 +58,7 @@ function solveTree(treeConflict, solved) {
     .merge(solved)
     // Solve unresolved conflicts
     .map(function defaultSolve(conflict) {
-        if(!conflict.isSolved()) {
+        if (!conflict.isSolved()) {
             return conflict.keepBase();
         } else {
             return conflict;
@@ -78,7 +78,7 @@ function solveTree(treeConflict, solved) {
 function mergeCommit(treeConflict, parents, options) {
     options = options || {};
 
-    var opts = {};
+    const opts = {};
 
     // Assume the commit is not empty
     opts.empty = false;
@@ -90,14 +90,14 @@ function mergeCommit(treeConflict, parents, options) {
     opts.message = options.message || 'Merged commit';
 
     // Get the solved tree entries
-    var solvedEntries = _getSolvedEntries(treeConflict);
+    const solvedEntries = _getSolvedEntries(treeConflict);
     opts.treeEntries = solvedEntries;
 
     // Create map of blobs that needs to be created
-    var solvedConflicts = treeConflict.getConflicts();
-    opts.blobs = solvedEntries.filter(function (treeEntry) {
+    const solvedConflicts = treeConflict.getConflicts();
+    opts.blobs = solvedEntries.filter(function(treeEntry) {
         return !treeEntry.hasSha();
-    }).map(function (treeEntry, path) {
+    }).map(function(treeEntry, path) {
         return solvedConflicts.get(path).getSolvedContent();
     });
 
@@ -113,22 +113,22 @@ function mergeCommit(treeConflict, parents, options) {
  * @return {Map<Path, Conflict>} The minimal set of conflicts.
  */
 function _compareTrees(parentEntries, baseEntries, headEntries) {
-    var headDiff = _diffEntries(parentEntries, headEntries);
-    var baseDiff = _diffEntries(parentEntries, baseEntries);
+    const headDiff = _diffEntries(parentEntries, headEntries);
+    const baseDiff = _diffEntries(parentEntries, baseEntries);
 
     // Conflicting paths are paths...
     // ... modified by both branches
-    var headSet = Immutable.Set.fromKeys(headDiff);
-    var baseSet = Immutable.Set.fromKeys(baseDiff);
-    var conflictSet = headSet.intersect(baseSet).filter(function (filepath) {
+    const headSet = Immutable.Set.fromKeys(headDiff);
+    const baseSet = Immutable.Set.fromKeys(baseDiff);
+    const conflictSet = headSet.intersect(baseSet).filter(function(filepath) {
         // ...in different manners
         return !Immutable.is(headDiff.get(filepath), baseDiff.get(filepath));
     });
 
     // Create the map of Conflict
-    return (new Immutable.Map()).withMutations(function (map) {
-        return conflictSet.reduce(function (map, filepath) {
-            var shas = [
+    return (new Immutable.Map()).withMutations(function(map) {
+        return conflictSet.reduce(function(map, filepath) {
+            const shas = [
                 parentEntries,
                 baseEntries,
                 headEntries
@@ -149,19 +149,19 @@ function _compareTrees(parentEntries, baseEntries, headEntries) {
  * been modified by the child. Null entries mean deletion.
  */
 function _diffEntries(parent, child) {
-    var parentKeys = Immutable.Set.fromKeys(parent);
-    var childKeys = Immutable.Set.fromKeys(child);
-    var all = parentKeys.union(childKeys);
+    const parentKeys = Immutable.Set.fromKeys(parent);
+    const childKeys = Immutable.Set.fromKeys(child);
+    const all = parentKeys.union(childKeys);
 
-    var changes = all.filter(function hasChanged(path) {
+    const changes = all.filter(function hasChanged(path) {
         // Removed unchanged
         return !Immutable.is(parent.get(path), child.get(path));
     });
 
-    return (new Immutable.Map()).withMutations(function (map) {
-        return changes.reduce(function (map, path) {
+    return (new Immutable.Map()).withMutations(function(map) {
+        return changes.reduce(function(map, path) {
             // Add new TreeEntry or null when deleted
-            var treeEntry = child.get(path) || null;
+            const treeEntry = child.get(path) || null;
             return map.set(path, treeEntry);
         }, map);
     });
@@ -174,16 +174,16 @@ function _diffEntries(parent, child) {
  * because of new solved content.
  */
 function _getSolvedEntries(treeConflict) {
-    var parentEntries = treeConflict.getParent().getTreeEntries();
-    var baseEntries = treeConflict.getBase().getTreeEntries();
-    var headEntries = treeConflict.getHead().getTreeEntries();
+    const parentEntries = treeConflict.getParent().getTreeEntries();
+    const baseEntries = treeConflict.getBase().getTreeEntries();
+    const headEntries = treeConflict.getHead().getTreeEntries();
 
-    var baseDiff = _diffEntries(parentEntries, baseEntries);
-    var headDiff = _diffEntries(parentEntries, headEntries);
+    const baseDiff = _diffEntries(parentEntries, baseEntries);
+    const headDiff = _diffEntries(parentEntries, headEntries);
 
-    var resolvedEntries = treeConflict.getConflicts().map(function (solvedConflict) {
+    const resolvedEntries = treeConflict.getConflicts().map(function(solvedConflict) {
         // Convert to TreeEntries (or null for deletion)
-        if(solvedConflict.isDeleted()) {
+        if (solvedConflict.isDeleted()) {
             return null;
         } else {
             return new TreeEntry({
@@ -199,13 +199,13 @@ function _getSolvedEntries(treeConflict) {
     });
 }
 
-var ConflictUtils = {
-    solveTree: solveTree,
-    mergeCommit: mergeCommit,
-    compareRefs: compareRefs,
+const ConflictUtils = {
+    solveTree,
+    mergeCommit,
+    compareRefs,
     // Exposed for testing purpose
-    _diffEntries: _diffEntries,
-    _getSolvedEntries: _getSolvedEntries,
-    _compareTrees: _compareTrees
+    _diffEntries,
+    _getSolvedEntries,
+    _compareTrees
 };
 module.exports = ConflictUtils;

@@ -1,6 +1,6 @@
-var _ = require('lodash');
+const _ = require('lodash');
 
-var RepoUtils = require('./repo');
+const RepoUtils = require('./repo');
 
 /**
  * Push a local branch to a remote repository
@@ -58,11 +58,11 @@ function pull(repoState, driver, opts) {
 
     return driver.pull(opts)
     // Update branch SHA
-    .then(function () {
+    .then(function() {
         return driver.fetchBranches();
     })
-    .then(function (branches) {
-        var updatedBranch = branches.find(function (br) {
+    .then(function(branches) {
+        const updatedBranch = branches.find(function(br) {
             return br.getFullName() === opts.branch.getFullName();
         });
         repoState = repoState.updateBranch(opts.branch, updatedBranch);
@@ -90,11 +90,11 @@ function edit(driver, name, url) {
     return driver.editRemotes(name, url);
 }
 
-var RemoteUtils = {
-    push: push,
-    pull: pull,
-    list: list,
-    edit: edit
+const RemoteUtils = {
+    push,
+    pull,
+    list,
+    edit
 };
 module.exports = RemoteUtils;
 

@@ -1,6 +1,6 @@
-var Immutable = require('immutable');
+const Immutable = require('immutable');
 
-var Reference = Immutable.Record({
+const Reference = Immutable.Record({
     ref: '',    // git reference as `refs/heads/master`,
     sha: ''     // sha1 reference
 }, 'Reference');
@@ -25,12 +25,12 @@ Reference.prototype.getSha = function() {
     return this.get('sha');
 };
 
-Reference.prototype.getLocalBranchName = function () {
+Reference.prototype.getLocalBranchName = function() {
     const ref = this.get('ref');
     return localBranchName(ref);
 };
 
-Reference.prototype.isLocalBranch = function (refstr) {
+Reference.prototype.isLocalBranch = function(refstr) {
     return hasPrefix(refstr, 'refs/heads/');
 };
 

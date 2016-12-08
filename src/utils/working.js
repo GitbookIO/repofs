@@ -1,8 +1,8 @@
-var Immutable = require('immutable');
+const Immutable = require('immutable');
 
-var error = require('./error');
-var TreeEntry = require('../models/treeEntry');
-var CHANGES = require('../constants/changeType');
+const error = require('./error');
+const TreeEntry = require('../models/treeEntry');
+const CHANGES = require('../constants/changeType');
 
 /**
  * Returns a Seq of tree mixing changes and the fetched tree
@@ -20,8 +20,8 @@ function getMergedFileSet(workingState) {
  * @return {Map<TreeEntries>}
  */
 function getMergedTreeEntries(workingState) {
-    var removedOrModified = workingState.getChanges().groupBy(function(change, path) {
-        if(change.getType() === CHANGES.REMOVE) {
+    const removedOrModified = workingState.getChanges().groupBy(function(change, path) {
+        if (change.getType() === CHANGES.REMOVE) {
             return 'remove';
         } else {
             // Must be UDPATE or CREATE
@@ -29,13 +29,13 @@ function getMergedTreeEntries(workingState) {
         }
     });
 
-    var setToRemove = Immutable.Set.fromKeys(removedOrModified.get('remove', []));
+    const setToRemove = Immutable.Set.fromKeys(removedOrModified.get('remove', []));
 
-    var withoutRemoved = workingState.getTreeEntries().filter(function (treeEntry, path) {
+    const withoutRemoved = workingState.getTreeEntries().filter(function(treeEntry, path) {
         return !setToRemove.contains(path);
     });
 
-    var addedTreeEntries = removedOrModified.get('modified', []).map(
+    const addedTreeEntries = removedOrModified.get('modified', []).map(
         function toTreeEntry(change) {
             return new TreeEntry({
                 sha: change.hasSha() ? change.getSha() : null,
@@ -55,13 +55,13 @@ function getMergedTreeEntries(workingState) {
 // TODO unused, remove
 function hasPendingChanges(workingState, filepath) {
     // Lookup potential changes
-    var change = workingState.getChanges().get(filepath);
-    if(change) {
+    const change = workingState.getChanges().get(filepath);
+    if (change) {
         return true;
     } else {
         // Else lookup tree
-        var treeEntry = workingState.getTreeEntries().get(filepath);
-        if(!treeEntry) {
+        const treeEntry = workingState.getTreeEntries().get(filepath);
+        if (!treeEntry) {
             throw error.fileNotFound(filepath);
         } else {
             return false;
@@ -77,12 +77,12 @@ function hasPendingChanges(workingState, filepath) {
  */
 function findSha(workingState, filepath) {
     // Lookup potential changes
-    var change = workingState.getChanges().get(filepath);
+    const change = workingState.getChanges().get(filepath);
     // Else lookup tree
-    var treeEntry = workingState.getTreeEntries().get(filepath);
+    const treeEntry = workingState.getTreeEntries().get(filepath);
 
     if (change) {
-        if(change.getType() == CHANGES.REMOVE) {
+        if (change.getType() == CHANGES.REMOVE) {
             throw error.fileNotFound(filepath);
         } else {
             return change.getSha();
@@ -104,11 +104,11 @@ function fetch(driver, branch) {
     return driver.fetchWorkingState(branch.getSha());
 }
 
-var WorkingUtils = {
-    getMergedFileSet: getMergedFileSet,
-    getMergedTreeEntries: getMergedTreeEntries,
-    fetch: fetch,
-    hasPendingChanges: hasPendingChanges, // TODO remove, unused
-    findSha: findSha
+const WorkingUtils = {
+    getMergedFileSet,
+    getMergedTreeEntries,
+    fetch,
+    hasPendingChanges, // TODO remove, unused
+    findSha
 };
 module.exports = WorkingUtils;

@@ -110,20 +110,20 @@ Driver.prototype.merge = function(from, into, options) {};
  * @param {Branch} branch
  * @return {Promise<Undefined>}
  */
-Driver.prototype.checkout = function (branch) {};
+Driver.prototype.checkout = function(branch) {};
 
 /**
  * List remotes on the repository.
  * @return {Promise<Array<{name, url}>>}
  */
-Driver.prototype.listRemotes = function () {};
+Driver.prototype.listRemotes = function() {};
 
 /**
  * Edit a remote.
  * @param {String} [name] Name of the remote
  * @param {String} [url] New URL of the remote
  */
-Driver.prototype.editRemotes = function (name, url) {};
+Driver.prototype.editRemotes = function(name, url) {};
 
 /**
  * Pull changes for local branch, from remote repository
@@ -138,7 +138,7 @@ Driver.prototype.editRemotes = function (name, url) {};
  * @throws {Promise<ERROR.AUTHENTICATION_FAILED>}
  * @throws {Promise<ERROR.UNKNOWN_REMOTE>}
  */
-Driver.prototype.pull = function (opts) {};
+Driver.prototype.pull = function(opts) {};
 
 
 /**
@@ -154,13 +154,13 @@ Driver.prototype.pull = function (opts) {};
  * @throws {Promise<ERROR.AUTHENTICATION_FAILED>}
  * @throws {Promise<ERROR.UNKNOWN_REMOTE>}
  */
-Driver.prototype.push = function (opts) {};
+Driver.prototype.push = function(opts) {};
 
 /**
  * Fetch status information from a remote repository
  * @return {Promise<{ files: <LocalFile>, head: Reference }>}
  */
-Driver.prototype.status = function () {};
+Driver.prototype.status = function() {};
 
 /**
  * Track local files into a git repository. Performs a post request to /track
@@ -208,6 +208,6 @@ Driver.prototype.status = function () {};
  * email and date.
  * @return {Promise<Undefined>}
  */
-Driver.prototype.track = function (opts) {};
+Driver.prototype.track = function(opts) {};
 
 module.exports = Driver;

@@ -14,6 +14,6 @@ function branchName(branch) {
 }
 
 module.exports = {
-    branchName: branchName
+    branchName
 };
 

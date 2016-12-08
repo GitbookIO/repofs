@@ -1,7 +1,7 @@
-var _ = require('lodash');
+const _ = require('lodash');
 
-var Normalize = require('./normalize');
-var RepoUtils = require('./repo');
+const Normalize = require('./normalize');
+const RepoUtils = require('./repo');
 
 /**
  * Create a new branch with the given name.
@@ -13,13 +13,13 @@ var RepoUtils = require('./repo');
  * @return {Promise<RepositoryState>}
  */
 function create(repoState, driver, name, opts) {
-    var base = opts.base || repoState.getCurrentBranch();
-    var createdBranch;
-    var result = driver.createBranch(base, name)
+    const base = opts.base || repoState.getCurrentBranch();
+    let createdBranch;
+    const result = driver.createBranch(base, name)
     // Update list of branches
-    .then(function (branch) {
+    .then(function(branch) {
         createdBranch = branch;
-        var branches = repoState.getBranches();
+        let branches = repoState.getBranches();
         branches = branches.push(createdBranch);
         return repoState.set('branches', branches);
     });
@@ -32,7 +32,7 @@ function create(repoState, driver, name, opts) {
             if (!opts.checkout) {
                 return repoState;
             }
-            var baseWk = repoState.getWorkingStateForBranch(base);
+            let baseWk = repoState.getWorkingStateForBranch(base);
             if (baseWk !== null) {
                 // Reuse base WorkingState clean
                 baseWk = baseWk.asClean();
@@ -43,7 +43,7 @@ function create(repoState, driver, name, opts) {
             }
         })
         // Checkout
-        .then(function (repoState) {
+        .then(function(repoState) {
             return RepoUtils.checkout(repoState, createdBranch);
         });
     }
@@ -61,8 +61,8 @@ function update(repoState, driver, branchName) {
     branchName = Normalize.branchName(branchName || repoState.getCurrentBranch());
 
     return driver.fetchBranches()
-    .then(function (branches) {
-        var newBranch = branches.find(function (branch) {
+    .then(function(branches) {
+        const newBranch = branches.find(function(branch) {
             return branch.getFullName() === branchName;
         });
 
@@ -83,7 +83,7 @@ function update(repoState, driver, branchName) {
  */
 function remove(repoState, driver, branch) {
     return driver.deleteBranch(branch)
-    .then(function () {
+    .then(function() {
         return repoState.updateBranch(branch, null);
     });
 }
@@ -104,7 +104,7 @@ function merge(repoState, driver, from, into, options) {
     options = _.defaults({}, options || {}, {
         fetch: true
     });
-    var updatedInto; // closure
+    let updatedInto; // closure
 
     return driver.merge(from, into, {
         message: options.message
@@ -129,10 +129,10 @@ function merge(repoState, driver, from, into, options) {
     });
 }
 
-var BranchUtils = {
-    remove: remove,
-    create: create,
-    update: update,
-    merge: merge
+const BranchUtils = {
+    remove,
+    create,
+    update,
+    merge
 };
 module.exports = BranchUtils;

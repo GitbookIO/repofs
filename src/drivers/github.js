@@ -1,28 +1,28 @@
-var _ = require('lodash');
-var Q = require('q');
-var Immutable = require('immutable');
-var axios = require('axios');
-var urlJoin = require('urljoin.js');
+const _ = require('lodash');
+const Q = require('q');
+const Immutable = require('immutable');
+const axios = require('axios');
+const urlJoin = require('urljoin.js');
 
-var util = require('util');
-var gravatar = require('../utils/gravatar');
-var base64 = require('../utils/base64');
-var Driver = require('./driver');
-var ERRORS = require('../constants/errors');
+const util = require('util');
+const gravatar = require('../utils/gravatar');
+const base64 = require('../utils/base64');
+const Driver = require('./driver');
+const ERRORS = require('../constants/errors');
 
-var Blob = require('../models/blob');
-var Branch = require('../models/branch');
-var Commit = require('../models/commit');
-var Author = require('../models/author');
-var TreeEntry = require('../models/treeEntry');
-var WorkingState = require('../models/workingState');
-var LocalFile = require('../models/localFile');
-var Reference = require('../models/reference');
+const Blob = require('../models/blob');
+const Branch = require('../models/branch');
+const Commit = require('../models/commit');
+const Author = require('../models/author');
+const TreeEntry = require('../models/treeEntry');
+const WorkingState = require('../models/workingState');
+const LocalFile = require('../models/localFile');
+const Reference = require('../models/reference');
 
 /**
  * Options for the GitHub Driver
  */
-var GitHubOptions = Immutable.Record({
+const GitHubOptions = Immutable.Record({
     // String: ID of the GitHub repository (ex: me/myrepo")
     repository: null,
 
@@ -61,15 +61,15 @@ GitHubDriver.prototype.fetchBlob = function(sha) {
 
 // https://developer.github.com/v3/git/trees/
 GitHubDriver.prototype.fetchWorkingState = function(ref) {
-    return this.get('git/trees/'+ref, {
+    return this.get('git/trees/' + ref, {
         recursive: 1
     })
     .then(function(tree) {
         // TODO filter out entries of type 'tree'
-        var treeEntries = new Immutable.Map().withMutations(
+        const treeEntries = new Immutable.Map().withMutations(
             function addEntries(map) {
-                _.map(tree.tree, function (entry) {
-                    var treeEntry = new TreeEntry({
+                _.map(tree.tree, function(entry) {
+                    const treeEntry = new TreeEntry({
                         sha: entry.sha,
                         blobSize: entry.size,
                         mode: entry.mode
@@ -102,15 +102,15 @@ GitHubDriver.prototype.fetchBranches = function() {
 // ------ Flushing -----
 
 GitHubDriver.prototype.flushCommit = function(commitBuilder) {
-    var that = this;
+    const that = this;
 
     // Create blobs required
-    var blobPromises = commitBuilder.getBlobs().map(function(blob, filePath) {
+    const blobPromises = commitBuilder.getBlobs().map(function(blob, filePath) {
         return that.post('git/blobs', {
             content: blob.getAsBase64(),
             encoding: 'base64'
         })
-        .then(function (ghBlob) {
+        .then(function(ghBlob) {
             return [filePath, ghBlob.sha];
         });
     });
@@ -123,7 +123,7 @@ GitHubDriver.prototype.flushCommit = function(commitBuilder) {
     })
     // Create new tree
     .then(function(blobSHAs) {
-        var entries = commitBuilder.getTreeEntries().map(function(treeEntry, filePath) {
+        const entries = commitBuilder.getTreeEntries().map(function(treeEntry, filePath) {
             return {
                 path: filePath,
                 mode: treeEntry.getMode(),
@@ -138,9 +138,9 @@ GitHubDriver.prototype.flushCommit = function(commitBuilder) {
 
     // Create the new commit
     .then(function(ghTree) {
-        var committer = commitBuilder.getCommitter();
-        var author = commitBuilder.getAuthor();
-        var payload = {
+        const committer = commitBuilder.getCommitter();
+        const author = commitBuilder.getAuthor();
+        const payload = {
             committer: {
                 name: committer.getName(),
                 email: committer.getEmail()
@@ -161,7 +161,7 @@ GitHubDriver.prototype.flushCommit = function(commitBuilder) {
 // https://developer.github.com/v3/repos/commits/#list-commits-on-a-repository
 GitHubDriver.prototype.listCommits = function(opts) {
     opts = opts || {};
-    var apiOpts = {
+    const apiOpts = {
         sha: opts.ref,
         path: opts.path,
         author: opts.author,
@@ -175,16 +175,16 @@ GitHubDriver.prototype.listCommits = function(opts) {
 };
 
 // https://developer.github.com/v3/repos/commits/#get-a-single-commit
-GitHubDriver.prototype.fetchCommit = function (sha) {
-    return this.get('commits/'+sha)
+GitHubDriver.prototype.fetchCommit = function(sha) {
+    return this.get('commits/' + sha)
     .then(normListedCommit);
 };
 
 // https://developer.github.com/v3/repos/commits/#compare-two-commits
 GitHubDriver.prototype.findParentCommit = function(ref1, ref2) {
     return this.get('compare/' + ref1 + '...' + ref2)
-    .then(function (res) {
-        var commit = res.merge_base_commit;
+    .then(function(res) {
+        const commit = res.merge_base_commit;
         if (!commit || !commit.sha) {
             return null;
         } else {
@@ -195,26 +195,26 @@ GitHubDriver.prototype.findParentCommit = function(ref1, ref2) {
 
 // https://developer.github.com/v3/repos/commits/#compare-two-commits
 GitHubDriver.prototype.fetchOwnCommits = function(base, head) {
-    var refs = [base, head].map(function (x) {
+    const refs = [base, head].map(function(x) {
         return (x instanceof Branch) ? x.getFullName() : x;
     });
 
     return this.get('compare/' + refs[0] + '...' + refs[1])
-    .then(function (res) {
+    .then(function(res) {
         return new Immutable.List(res.commits).map(normListedCommit);
     });
 };
 
 GitHubDriver.prototype.createRef = function(ref, sha) {
     return this.post('git/refs', {
-        'ref': 'refs/heads/'+ref,
-        'sha': sha
+        'ref': 'refs/heads/' + ref,
+        sha
     });
 };
 
 GitHubDriver.prototype.forwardBranch = function(branch, sha) {
-    return this.patch('git/refs/heads/'+branch.getFullName(), {
-        sha: sha
+    return this.patch('git/refs/heads/' + branch.getFullName(), {
+        sha
     })
     // Normalize cannot fast forward errors
     .fail(normNotFF);
@@ -223,25 +223,25 @@ GitHubDriver.prototype.forwardBranch = function(branch, sha) {
 GitHubDriver.prototype.createBranch = function(base, name) {
     return this.createRef(name, base.getSha())
     .thenResolve(new Branch({
-        name: name,
+        name,
         sha: base.getSha()
     }));
 };
 
 GitHubDriver.prototype.deleteBranch = function(branch) {
-    return this.delete('git/refs/heads/'+branch.getName());
+    return this.delete('git/refs/heads/' + branch.getName());
 };
 
 // https://developer.github.com/v3/repos/merging/
 GitHubDriver.prototype.merge = function(from, into, options) {
-    var opts = options;
-    var head = from instanceof Branch ? from.getFullName() : from;
+    const opts = options;
+    const head = from instanceof Branch ? from.getFullName() : from;
     return this.post('merges', {
         base: into.getFullName(),
-        head: head,
+        head,
         commit_message: opts.message
     })
-    .then(function (ghCommit) {
+    .then(function(ghCommit) {
         if (!ghCommit) {
             // No commit was needed
             return null;
@@ -256,24 +256,24 @@ GitHubDriver.prototype.merge = function(from, into, options) {
 
 // ---- Only supported by uhub ----
 
-GitHubDriver.prototype.checkout = function (branch) {
+GitHubDriver.prototype.checkout = function(branch) {
     return this.post('checkout', {
         branch: branch ? branch.getFullName() : 'HEAD'
     });
 };
 
-GitHubDriver.prototype.listRemotes = function () {
+GitHubDriver.prototype.listRemotes = function() {
     return this.get('remotes');
 };
 
-GitHubDriver.prototype.editRemotes = function (name, url) {
+GitHubDriver.prototype.editRemotes = function(name, url) {
     return this.post('remotes', {
-        name: name,
-        url: url
+        name,
+        url
     });
 };
 
-GitHubDriver.prototype.pull = function (opts) {
+GitHubDriver.prototype.pull = function(opts) {
     opts = _.defaults({}, opts, {
         force: false
     });
@@ -286,7 +286,7 @@ GitHubDriver.prototype.pull = function (opts) {
     .fail(normUnknownRemote);
 };
 
-GitHubDriver.prototype.push = function (opts) {
+GitHubDriver.prototype.push = function(opts) {
     opts = _.defaults({}, opts, {
         force: false
     });
@@ -299,7 +299,7 @@ GitHubDriver.prototype.push = function (opts) {
     .fail(normUnknownRemote);
 };
 
-GitHubDriver.prototype.status = function (opts) {
+GitHubDriver.prototype.status = function(opts) {
     return this.get('status')
         .then(function(status) {
             return {
@@ -315,10 +315,10 @@ GitHubDriver.prototype.status = function (opts) {
         });
 };
 
-GitHubDriver.prototype.track = function (opts) {
-    var params = {
+GitHubDriver.prototype.track = function(opts) {
+    const params = {
         message: opts.message,
-        files: opts.files.map(function (file) {
+        files: opts.files.map(function(file) {
             return {
                 name: file.getFilename(),
                 status: file.getStatus()
@@ -355,20 +355,20 @@ GitHubDriver.prototype.track = function (opts) {
  * @param {Object} args Req. parameters for get, or json data for others
  */
 GitHubDriver.prototype.request = function(httpMethod, method, args) {
-    var axiosOpts = {
+    const axiosOpts = {
         method: httpMethod,
         url: urlJoin(
             this.options.get('host'),
-            '/repos/'+this.options.get('repository') + '/' + method
-        )+'?t='+Date.now(),
+            '/repos/' + this.options.get('repository') + '/' + method
+        ) + '?t=' + Date.now(),
         headers: {
             'Accept': 'application/vnd.github.v3+json',
             'Content-type': 'application/json;charset=UTF-8'
         }
     };
 
-    var username = this.options.get('username');
-    var token = this.options.get('token');
+    const username = this.options.get('username');
+    const token = this.options.get('token');
 
     if (username && token) {
         axiosOpts.headers['Authorization'] = 'Basic ' + base64.encode(username + ':' + token);
@@ -385,7 +385,7 @@ GitHubDriver.prototype.request = function(httpMethod, method, args) {
     .fail(function(response) {
         if (response instanceof Error) throw response;
 
-        var e = new Error(response.data.message || 'Error '+response.status+': '+response.data);
+        const e = new Error(response.data.message || 'Error ' + response.status + ': ' + response.data);
         e.statusCode = response.status;
 
         throw e;
@@ -393,15 +393,15 @@ GitHubDriver.prototype.request = function(httpMethod, method, args) {
 };
 
 function normNotFF(err) {
-    var msg = err.message;
-    if(/fast forward/.test(msg)) {
+    const msg = err.message;
+    if (/fast forward/.test(msg)) {
         err.code = ERRORS.NOT_FAST_FORWARD;
     }
     return Q.reject(err);
 }
 
 function normConflict(err) {
-    var msg = err.message;
+    const msg = err.message;
     if (/merge conflict/i.test(msg)) {
         err.code = ERRORS.CONFLICT;
     }
@@ -409,7 +409,7 @@ function normConflict(err) {
 }
 
 function normAuth(err) {
-    var msg = err.message;
+    const msg = err.message;
     if (/Failed to authenticate/.test(msg)
         || /401/.test(msg)
         || /auth schemes/.test(msg)) {
@@ -420,7 +420,7 @@ function normAuth(err) {
 }
 
 function normUnknownRemote(err) {
-    var msg = err.message;
+    const msg = err.message;
     if (/specify a URL/.test(msg)
         || /specify a remote/.test(msg)) {
         err.code = ERRORS.UNKNOWN_REMOTE;
@@ -436,7 +436,7 @@ function normUnknownRemote(err) {
  * @return {Commit}
  */
 function normCreatedCommit(ghCommit) {
-    var commit = Commit.create({
+    const commit = Commit.create({
         sha: ghCommit.sha,
         message: ghCommit.message,
         author: getSimpleAuthor(ghCommit.author),
@@ -453,7 +453,7 @@ function normCreatedCommit(ghCommit) {
  * @return {Commit}
  */
 function normListedCommit(ghCommit) {
-    var commit = Commit.create({
+    const commit = Commit.create({
         sha: ghCommit.sha,
         message: ghCommit.commit.message,
         author: getCompleteAuthor(ghCommit),
@@ -476,8 +476,8 @@ function getSimpleAuthor(author) {
 
 // Get author from a listed commit (with avatar)
 function getCompleteAuthor(commit) {
-    var author = getSimpleAuthor(commit.commit.author);
-    var avatar = commit.author?
+    const author = getSimpleAuthor(commit.commit.author);
+    const avatar = commit.author ?
             commit.author.avatar_url
             : gravatar.url(author.getEmail());
     return author.set('avatar', avatar);

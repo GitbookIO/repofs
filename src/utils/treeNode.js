@@ -1,11 +1,11 @@
-var _ = require('lodash');
-var Immutable = require('immutable');
+const _ = require('lodash');
+const Immutable = require('immutable');
 
 /**
  * Simple Immutable tree structure. Uses Seq of keys for ease of use.
  * TreeNode<K, V> with K as key type and V as value type.
  */
-var TreeNode = Immutable.Record({
+const TreeNode = Immutable.Record({
     // V
     value: null,
     // Map<K, TreeNode>
@@ -13,21 +13,21 @@ var TreeNode = Immutable.Record({
 }, 'TreeNode');
 
 function getter(property) {
-    return function () {
+    return function() {
         return this.get(property);
     };
 }
 TreeNode.prototype.getChildren = getter('children');
 TreeNode.prototype.getValue = getter('value');
 
-TreeNode.prototype.hasChildren = function () {
+TreeNode.prototype.hasChildren = function() {
     return !this.getChildren().isEmpty();
 };
 
 function partialThis(fun) {
-    return function () {
-        var args = Array.prototype.slice.call(arguments);
-        return fun.apply(null, [this].concat(args));
+    return function() {
+        const args = Array.prototype.slice.call(arguments);
+        return fun(...[this].concat(args));
     };
 }
 // Functions applied to this
@@ -43,9 +43,9 @@ TreeNode.prototype.asMutable = partialThis(asMutable);
  * @param {V} value
  * @return {TreeNode<?, V>}
  */
-TreeNode.createLeaf = function (value) {
+TreeNode.createLeaf = function(value) {
     return new TreeNode({
-        value: value
+        value
     });
 };
 
@@ -55,10 +55,10 @@ TreeNode.createLeaf = function (value) {
  * @param {Map<K, TreeNode>} children
  * @return {TreeNode<K, V>}
  */
-TreeNode.create = function (value, children) {
+TreeNode.create = function(value, children) {
     return new TreeNode({
-        value: value,
-        children: children
+        value,
+        children
     });
 };
 
@@ -67,7 +67,7 @@ TreeNode.create = function (value, children) {
  * @param {Object} object
  * @return {TreeNode}
  */
-TreeNode.fromJS = function (object) {
+TreeNode.fromJS = function(object) {
     return TreeNode.create(
         object.value,
         Immutable.Map(object.children).map(TreeNode.fromJS)
@@ -85,8 +85,8 @@ function getIn(tree, keySeq) {
     if (keySeq.count() === 0) {
         return tree;
     } else {
-        var children = tree.getChildren();
-        var key = keySeq.first();
+        const children = tree.getChildren();
+        const key = keySeq.first();
         if (children.has(key)) {
             return children.get(key).getIn(keySeq.rest());
         } else {
@@ -115,24 +115,24 @@ function setIn(tree, keySeq, node, options) {
         mutable: false,
         createValue: _.constant(null)
     });
-    var initialKeySeq = keySeq;
+    const initialKeySeq = keySeq;
 
     return (function auxSetIn(tree, keySeq) {
-        if(keySeq.count() === 0) {
+        if (keySeq.count() === 0) {
             // Insert here
             return node;
         } else {
             // Insert in tree
-            var key = keySeq.first();
-            var exists = tree.getChildren().has(key);
+            const key = keySeq.first();
+            const exists = tree.getChildren().has(key);
 
             // Find the node to insert into
-            var subNode;
+            let subNode;
             if (!exists) {
                 // Create children for subdirectory
-                var children = new Immutable.Map();
+                const children = new Immutable.Map();
                 // Create a directory node
-                var value = options.createValue(
+                const value = options.createValue(
                     // parent tree
                     tree,
                     // Key seq of the created node (include current key)
@@ -145,7 +145,7 @@ function setIn(tree, keySeq, node, options) {
                 subNode = tree.getChildren().get(key);
             }
 
-            var newSubNode = auxSetIn(subNode, keySeq.rest());
+            const newSubNode = auxSetIn(subNode, keySeq.rest());
             return tree.set('children', tree.getChildren().set(key, newSubNode));
         }
     })(tree, keySeq);
@@ -154,13 +154,13 @@ function setIn(tree, keySeq, node, options) {
 TreeNode.asImmutable = asImmutable;
 function asImmutable(tree) {
     tree = Immutable.Record.prototype.asImmutable.call(tree);
-    var children = tree.getChildren().map(asImmutable).asImmutable();
+    const children = tree.getChildren().map(asImmutable).asImmutable();
     return tree.set('children', children);
 }
 
 TreeNode.asMutable = asMutable;
 function asMutable(tree) {
-    var children = tree.getChildren().map(asMutable).asMutable();
+    const children = tree.getChildren().map(asMutable).asMutable();
     tree = tree.set('children', children);
     return Immutable.Record.prototype.asMutable.call(tree);
 }

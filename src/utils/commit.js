@@ -1,12 +1,12 @@
-var Q = require('q');
-var _ = require('lodash');
-var Immutable = require('immutable');
+const Q = require('q');
+const _ = require('lodash');
+const Immutable = require('immutable');
 
-var ERRORS = require('../constants/errors');
+const ERRORS = require('../constants/errors');
 
-var CommitBuilder = require('../models/commitBuilder');
-var WorkingUtils = require('./working');
-var RepoUtils = require('./repo');
+const CommitBuilder = require('../models/commitBuilder');
+const WorkingUtils = require('./working');
+const RepoUtils = require('./repo');
 
 /**
  * Create a commit builder from the changes on current branch
@@ -16,8 +16,8 @@ var RepoUtils = require('./repo');
  * @return {CommitBuilder}
  */
 function prepare(repoState, opts) {
-    var workingState = repoState.getCurrentState();
-    var changes = workingState.getChanges();
+    const workingState = repoState.getCurrentState();
+    const changes = workingState.getChanges();
 
     // Is this an empty commit ?
     opts.empty = workingState.isClean();
@@ -31,9 +31,9 @@ function prepare(repoState, opts) {
     opts.treeEntries = WorkingUtils.getMergedTreeEntries(workingState);
 
     // Create map of blobs that needs to be created
-    opts.blobs = changes.filter(function (change) {
+    opts.blobs = changes.filter(function(change) {
         return !change.hasSha();
-    }).map(function (change) {
+    }).map(function(change) {
         return change.getContent();
     });
 
@@ -73,11 +73,11 @@ function flush(repoState, driver, commitBuilder, options) {
         return driver.forwardBranch(options.branch, commit.getSha())
         // Fetch new workingState and replace old one
         .then(function updateBranch() {
-            var updated = options.branch.set('sha', commit.getSha());
+            const updated = options.branch.set('sha', commit.getSha());
             return repoState.updateBranch(options.branch, updated);
 
         }, function nonFF(err) {
-            if(err.code === ERRORS.NOT_FAST_FORWARD) {
+            if (err.code === ERRORS.NOT_FAST_FORWARD) {
                 // Provide the created commit to allow merging it back.
                 err.commit = commit;
             }
@@ -85,10 +85,11 @@ function flush(repoState, driver, commitBuilder, options) {
         });
     })
     .then(function updateWorkingState(forwardedRepoState) {
-        var forwardedBranch = forwardedRepoState.getBranch(options.branch.getFullName());
+        const forwardedBranch = forwardedRepoState.getBranch(options.branch.getFullName());
         return RepoUtils.fetchTree(forwardedRepoState, driver, forwardedBranch);
     });
 }
+
 /**
  * @param {Driver} driver
  * @param {Branch} options.branch Branch to list commit on
@@ -103,7 +104,7 @@ function fetchList(driver, options) {
     // do we really need repoState as argument ?
     options = options || {};
 
-    var ref;
+    let ref;
     if (options.ref) {
         ref = options.ref;
     } else {
@@ -137,11 +138,11 @@ function fetch(driver, sha) {
     return driver.fetchCommit(sha);
 }
 
-var CommitUtils = {
-    prepare: prepare,
-    flush: flush,
-    fetchList: fetchList,
-    fetchOwnCommits: fetchOwnCommits,
-    fetch: fetch
+const CommitUtils = {
+    prepare,
+    flush,
+    fetchList,
+    fetchOwnCommits,
+    fetch
 };
 module.exports = CommitUtils;

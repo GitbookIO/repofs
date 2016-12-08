@@ -1,14 +1,14 @@
-var Q = require('q');
-var bufferUtils = require('./arraybuffer');
+const Q = require('q');
+const bufferUtils = require('./arraybuffer');
 
-var FILETYPE = require('../constants/filetype');
-var Change = require('../models/change');
-var File = require('../models/file');
+const FILETYPE = require('../constants/filetype');
+const Change = require('../models/change');
+const File = require('../models/file');
 
-var error = require('./error');
-var ChangeUtils = require('./change');
-var WorkingUtils = require('./working');
-var BlobUtils = require('./blob');
+const error = require('./error');
+const ChangeUtils = require('./change');
+const WorkingUtils = require('./working');
+const BlobUtils = require('./blob');
 
 /**
  * Fetch a file blob. Required for content access with
@@ -24,8 +24,8 @@ function fetch(repoState, driver, filepath) {
         return Q(repoState);
     }
 
-    var workingState = repoState.getCurrentState();
-    var blobSha = WorkingUtils.findSha(workingState, filepath);
+    const workingState = repoState.getCurrentState();
+    const blobSha = WorkingUtils.findSha(workingState, filepath);
 
     return BlobUtils.fetch(repoState, driver, blobSha);
 }
@@ -36,8 +36,8 @@ function fetch(repoState, driver, filepath) {
  * @return {Boolean} True if the file's content is in cache
  */
 function isFetched(repoState, filepath) {
-    var workingState = repoState.getCurrentState();
-    var blobSha = WorkingUtils.findSha(workingState, filepath);
+    const workingState = repoState.getCurrentState();
+    const blobSha = WorkingUtils.findSha(workingState, filepath);
     // If sha is null then there are changes (those which are stored
     // and need not be fetched)
     return (blobSha === null) || BlobUtils.isFetched(repoState, blobSha);
@@ -50,15 +50,15 @@ function isFetched(repoState, filepath) {
  * @return {File}
  */
 function stat(repoState, filepath) {
-    var workingState = repoState.getCurrentState();
+    const workingState = repoState.getCurrentState();
 
     // Lookup potential changes
-    var change = workingState.getChanges().get(filepath);
+    const change = workingState.getChanges().get(filepath);
     // Lookup file entry
-    var treeEntry = workingState.getTreeEntries().get(filepath);
+    const treeEntry = workingState.getTreeEntries().get(filepath);
 
     // Determine SHA of the blob
-    var blobSHA;
+    let blobSHA;
     if (change) {
         blobSHA = change.getSha();
     } else {
@@ -66,7 +66,7 @@ function stat(repoState, filepath) {
     }
 
     // Get the blob from change or cache
-    var blob;
+    let blob;
     if (blobSHA) {
         // Get content from cache
         blob = repoState.getCache().getBlob(blobSHA);
@@ -75,12 +75,12 @@ function stat(repoState, filepath) {
         blob = change.getContent();
     }
 
-    var fileSize;
+    let fileSize;
     if (blob) {
         fileSize = blob.getByteLength();
     } else {
         // It might have been moved (but not fetched)
-        var originalEntry = workingState.getTreeEntries().find(function (entry) {
+        const originalEntry = workingState.getTreeEntries().find(function(entry) {
             return entry.getSha() === blobSHA;
         });
         fileSize = originalEntry.getBlobSize();
@@ -88,7 +88,7 @@ function stat(repoState, filepath) {
 
     return new File({
         type: FILETYPE.FILE,
-        fileSize: fileSize,
+        fileSize,
         path: filepath,
         content: blob
     });
@@ -100,7 +100,7 @@ function stat(repoState, filepath) {
  * @return {Blob}
  */
 function read(repoState, filepath) {
-    var file = stat(repoState, filepath);
+    const file = stat(repoState, filepath);
     return file.getContent();
 }
 
@@ -109,7 +109,7 @@ function read(repoState, filepath) {
  * @return {String}
  */
 function readAsString(repoState, filepath, encoding) {
-    var blob = read(repoState, filepath);
+    const blob = read(repoState, filepath);
     return blob.getAsString(encoding);
 }
 
@@ -117,8 +117,8 @@ function readAsString(repoState, filepath, encoding) {
  * Return true if file exists in working tree, false otherwise
  */
 function exists(repoState, filepath) {
-    var workingState = repoState.getCurrentState();
-    var mergedFileSet = WorkingUtils.getMergedTreeEntries(workingState);
+    const workingState = repoState.getCurrentState();
+    const mergedFileSet = WorkingUtils.getMergedTreeEntries(workingState);
 
     return mergedFileSet.has(filepath);
 }
@@ -135,7 +135,7 @@ function create(repoState, filepath, content) {
     if (exists(repoState, filepath)) {
         throw error.fileAlreadyExist(filepath);
     }
-    var change = Change.createCreate(content);
+    const change = Change.createCreate(content);
     return ChangeUtils.setChange(repoState, filepath, change);
 }
 
@@ -148,7 +148,7 @@ function write(repoState, filepath, content) {
         throw error.fileNotFound(filepath);
     }
 
-    var change = Change.createUpdate(content);
+    const change = Change.createUpdate(content);
     return ChangeUtils.setChange(repoState, filepath, change);
 }
 
@@ -161,7 +161,7 @@ function remove(repoState, filepath) {
         throw error.fileNotFound(filepath);
     }
 
-    var change = Change.createRemove();
+    const change = Change.createRemove();
     return ChangeUtils.setChange(repoState, filepath, change);
 }
 
@@ -174,21 +174,21 @@ function move(repoState, filepath, newFilepath) {
         return repoState;
     }
 
-    var initialWorkingState = repoState.getCurrentState();
+    const initialWorkingState = repoState.getCurrentState();
 
     // Create new file, with Sha if possible
-    var sha = WorkingUtils.findSha(initialWorkingState, filepath);
-    var changeNewFile;
+    const sha = WorkingUtils.findSha(initialWorkingState, filepath);
+    let changeNewFile;
     if (sha) {
         changeNewFile = Change.createCreateFromSha(sha);
     } else {
         // Content not available as blob
-        var contentBuffer = bufferUtils.toBuffer(read(repoState, filepath));
+        const contentBuffer = bufferUtils.toBuffer(read(repoState, filepath));
         changeNewFile = Change.createCreate(contentBuffer);
     }
 
     // Remove old file
-    var removedRepoState = remove(repoState, filepath);
+    const removedRepoState = remove(repoState, filepath);
     // Add new file
     return ChangeUtils.setChange(removedRepoState, newFilepath, changeNewFile);
 }
@@ -202,8 +202,8 @@ function move(repoState, filepath, newFilepath) {
  * @return {Boolean}
  */
 function hasChanged(previousState, newState, filepath) {
-    var previouslyExists = exists(previousState, filepath);
-    var newExists = exists(newState, filepath);
+    const previouslyExists = exists(previousState, filepath);
+    const newExists = exists(newState, filepath);
     if (!previouslyExists && !newExists) {
         // Still non existing
         return false;
@@ -212,11 +212,11 @@ function hasChanged(previousState, newState, filepath) {
         return true;
     } else {
         // Both files exist
-        var prevWorking = previousState.getCurrentState();
-        var newWorking = newState.getCurrentState();
+        const prevWorking = previousState.getCurrentState();
+        const newWorking = newState.getCurrentState();
 
-        var prevSha = WorkingUtils.findSha(prevWorking, filepath);
-        var newSha = WorkingUtils.findSha(newWorking, filepath);
+        const prevSha = WorkingUtils.findSha(prevWorking, filepath);
+        const newSha = WorkingUtils.findSha(newWorking, filepath);
         if (prevSha === null && newSha === null) {
             // Both have are in pending changes. We can compare their contents
             return read(previousState, filepath).getAsString() !==
@@ -228,17 +228,17 @@ function hasChanged(previousState, newState, filepath) {
     }
 }
 
-var FileUtils = {
-    stat: stat,
-    fetch: fetch,
-    isFetched: isFetched,
-    exists: exists,
-    read: read,
-    readAsString: readAsString,
-    create: create,
-    write: write,
-    remove: remove,
-    move: move,
-    hasChanged: hasChanged
+const FileUtils = {
+    stat,
+    fetch,
+    isFetched,
+    exists,
+    read,
+    readAsString,
+    create,
+    write,
+    remove,
+    move,
+    hasChanged
 };
 module.exports = FileUtils;

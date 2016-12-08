@@ -1,10 +1,10 @@
-var Immutable = require('immutable');
+const Immutable = require('immutable');
 
-var Blob = require('./blob');
+const Blob = require('./blob');
 
 
 // Describe a change made on a reference, compared to its parent
-var CHANGE = {
+const CHANGE = {
     ADDED: 'added',
     DELETED: 'deleted',
     IDENTICAL: 'identical',
@@ -23,7 +23,7 @@ var CHANGE = {
 // |-----------+------------+-----------------+-----------+-----------------|
 // | MODIFIED  | X          | Deleted on head | X         | Both modified   |
 // |-----------+------------+-----------------+-----------+-----------------|
-var TYPE = {
+const TYPE = {
     BOTH_ADDED: 'added',
     DELETED_BASE: 'deleted-base',
     DELETED_HEAD: 'deleted-head',
@@ -31,7 +31,7 @@ var TYPE = {
     NO_CONFLICT: 'no-conflict'
 };
 
-var Conflict = Immutable.Record({
+const Conflict = Immutable.Record({
     // Blob SHA in head. Null when absent
     headSha: null, // String
 
@@ -55,7 +55,7 @@ var Conflict = Immutable.Record({
 // ---- Properties Getter ----
 
 function getter(property) {
-    return function () { return this.get(property); };
+    return function() { return this.get(property); };
 }
 Conflict.prototype.getBaseSha = getter('baseSha');
 Conflict.prototype.getHeadSha = getter('headSha');
@@ -69,7 +69,7 @@ Conflict.prototype.getSolvedContent = getter('solvedContent');
 /**
  * @return {Boolean}
  */
-Conflict.prototype.isDeleted = function () {
+Conflict.prototype.isDeleted = function() {
     return this.isSolved()
         && this.getSolvedContent() === null
         && this.getSolvedSha() === null;
@@ -78,23 +78,23 @@ Conflict.prototype.isDeleted = function () {
 /**
  * @return {Conflict.CHANGE} Return the kind of change made by base
  */
-Conflict.prototype.getBaseStatus = function () {
+Conflict.prototype.getBaseStatus = function() {
     return getChange(this.getParentSha(), this.getBaseSha());
 };
 
 /**
  * @return {Conflict.CHANGE} Return the kind of change made by head
  */
-Conflict.prototype.getHeadStatus = function () {
+Conflict.prototype.getHeadStatus = function() {
     return getChange(this.getParentSha(), this.getHeadSha());
 };
 
 /**
  * @return {Conflict.TYPE} Return the type of this conflict
  */
-Conflict.prototype.getType = function () {
-    var base = this.getBaseStatus();
-    var head = this.getHeadStatus();
+Conflict.prototype.getType = function() {
+    const base = this.getBaseStatus();
+    const head = this.getHeadStatus();
 
     // Based on the TYPE matrix :
     if (base === CHANGE.ADDED && head === CHANGE.ADDED) {
@@ -115,11 +115,11 @@ Conflict.prototype.getType = function () {
  * @return {Conflict} Set the solved state. Does not alter previous
  * solved content/sha
  */
-Conflict.prototype.toggleSolved = function (solved) {
+Conflict.prototype.toggleSolved = function(solved) {
     // toggle
     solved = (solved === undefined) ? !this.isSolved() : solved;
     return this.merge({
-        solved: solved
+        solved
     });
 };
 
@@ -128,7 +128,7 @@ Conflict.prototype.toggleSolved = function (solved) {
  * @param {String} sha
  * @return {Conflict}
  */
-Conflict.prototype.solveWithSha = function (sha) {
+Conflict.prototype.solveWithSha = function(sha) {
     return this.merge({
         solved: true,
         solvedSha: sha,
@@ -140,8 +140,8 @@ Conflict.prototype.solveWithSha = function (sha) {
  * @param {Blob | String} content
  * @return {Conflict}
  */
-Conflict.prototype.solveWithContent = function (content) {
-    var blob = blob instanceof Blob ? content : Blob.createFromString(content);
+Conflict.prototype.solveWithContent = function(content) {
+    const blob = blob instanceof Blob ? content : Blob.createFromString(content);
     return this.merge({
         solved: true,
         solvedSha: null,
@@ -152,7 +152,7 @@ Conflict.prototype.solveWithContent = function (content) {
 /**
  * @return {Conflict} Solved by removing the entry
  */
-Conflict.prototype.solveByDeletion = function () {
+Conflict.prototype.solveByDeletion = function() {
     return this.merge({
         solved: true,
         solvedSha: null,
@@ -163,21 +163,21 @@ Conflict.prototype.solveByDeletion = function () {
 /**
  * @return {Conflict} Solved by keeping head's version
  */
-Conflict.prototype.keepHead = function (content) {
+Conflict.prototype.keepHead = function(content) {
     return this.solveWithSha(this.getHeadSha());
 };
 
 /**
  * @return {Conflict} Solved by keeping base's version
  */
-Conflict.prototype.keepBase = function (content) {
+Conflict.prototype.keepBase = function(content) {
     return this.solveWithSha(this.getBaseSha());
 };
 
 /**
  * @return {Conflict} Reset to unsolved state
  */
-Conflict.prototype.resetUnsolved = function () {
+Conflict.prototype.resetUnsolved = function() {
     return this.merge({
         solved: false,
         solvedSha: null,
@@ -187,11 +187,11 @@ Conflict.prototype.resetUnsolved = function () {
 
 // ---- Static ----
 
-Conflict.create = function (parentSha, baseSha, headSha) {
+Conflict.create = function(parentSha, baseSha, headSha) {
     return new Conflict({
-        parentSha: parentSha,
-        baseSha: baseSha,
-        headSha: headSha
+        parentSha,
+        baseSha,
+        headSha
     });
 };
 
@@ -203,7 +203,7 @@ Conflict.create = function (parentSha, baseSha, headSha) {
  * @return {Conflict.CHANGE}
  */
 function getChange(parent, sha) {
-    if(parent === sha) {
+    if (parent === sha) {
         return CHANGE.IDENTICAL;
     } else if (parent === null) {
         return CHANGE.ADDED;

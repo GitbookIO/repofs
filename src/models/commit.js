@@ -1,12 +1,12 @@
-var Immutable = require('immutable');
+const Immutable = require('immutable');
 
-var Author = require('./author');
+const Author = require('./author');
 
 /**
  * Represents a Commit in the history (already created)
  */
 
-var Commit = Immutable.Record({
+const Commit = Immutable.Record({
     // Message for the commit
     message: String(),
 
@@ -38,7 +38,7 @@ var Commit = Immutable.Record({
 // ---- Properties Getter ----
 
 function getter(property) {
-    return function () { return this.get(property); };
+    return function() { return this.get(property); };
 }
 Commit.prototype.getMessage = getter('message');
 Commit.prototype.getSha = getter('sha');
@@ -58,7 +58,7 @@ Commit.prototype.getParents = getter('parents');
  * @param {Array<JSON>} [opts.files] Modified files objects, as returned by the GitHub API
  * @return {Commit}
  */
-Commit.create = function (opts) {
+Commit.create = function(opts) {
     return new Commit({
         sha: opts.sha,
         message: opts.message,

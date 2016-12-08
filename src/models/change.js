@@ -1,15 +1,15 @@
-var _ = require('lodash');
+const _ = require('lodash');
 
-var Immutable = require('immutable');
+const Immutable = require('immutable');
 
-var CHANGE_TYPE = require('../constants/changeType');
-var Blob = require('./blob');
+const CHANGE_TYPE = require('../constants/changeType');
+const Blob = require('./blob');
 
 /**
  * A Change represents a local modification, not yet commited.
  */
 
-var Change = Immutable.Record({
+const Change = Immutable.Record({
     type: CHANGE_TYPE.UPDATE,
 
     // New content of the file (for a CREATE/UPDATE)
@@ -19,7 +19,7 @@ var Change = Immutable.Record({
     sha: null // String
 }, 'Change');
 
-var REMOVE = new Change({
+const REMOVE = new Change({
     type: CHANGE_TYPE.REMOVE
 });
 
@@ -46,7 +46,7 @@ Change.prototype.getContent = function() {
  * @param {Buffer | ArrayBuffer | String} content
  * @return {Change} CREATE with content and optional message
  */
-Change.createCreate = function (content) {
+Change.createCreate = function(content) {
     return new Change({
         type:    CHANGE_TYPE.CREATE,
         content: Blob.create(content)
@@ -57,10 +57,10 @@ Change.createCreate = function (content) {
  * @param {SHA} sha
  * @return {Change} CREATE with origin sha and optional message
  */
-Change.createCreateFromSha = function (sha) {
+Change.createCreateFromSha = function(sha) {
     return new Change({
         type: CHANGE_TYPE.CREATE,
-        sha: sha
+        sha
     });
 };
 
@@ -68,7 +68,7 @@ Change.createCreateFromSha = function (sha) {
  * @param {Buffer | ArrayBuffer | String} content
  * @return {Change} UPDATE with content and optional message
  */
-Change.createUpdate = function (content) {
+Change.createUpdate = function(content) {
     return new Change({
         type: CHANGE_TYPE.UPDATE,
         content: Blob.create(content)
@@ -78,11 +78,11 @@ Change.createUpdate = function (content) {
 /**
  * @return {Change} REMOVE with optional message
  */
-Change.createRemove = function () {
+Change.createRemove = function() {
     return REMOVE;
 };
 
-Change.encode = function (change) {
+Change.encode = function(change) {
     return {
         type: change.get('type'),
         // Encode Blob as base64 string
@@ -91,19 +91,19 @@ Change.encode = function (change) {
     };
 };
 
-Change.decode = function (json) {
+Change.decode = function(json) {
     // Useless optimization to use the original String reference
-    var typeKey = _.findKey(CHANGE_TYPE, _.eq.bind(null, json.type));
-    if(!typeKey) {
+    const typeKey = _.findKey(CHANGE_TYPE, _.eq.bind(null, json.type));
+    if (!typeKey) {
         throw new Error('Unrecognized change type');
     }
-    var type = CHANGE_TYPE[typeKey];
+    const type = CHANGE_TYPE[typeKey];
 
-    var content = Blob.createFromBase64(json.content);
+    const content = Blob.createFromBase64(json.content);
 
     return new Change({
-        type: type,
-        content: content,
+        type,
+        content,
         sha: json.sha
     });
 };

@@ -6,14 +6,14 @@
  * @return {Cache}
  */
 function addBlob(cache, sha, blob) {
-    var blobs = cache.getBlobs();
-    var newBlobs = blobs.set(sha, blob);
+    const blobs = cache.getBlobs();
+    const newBlobs = blobs.set(sha, blob);
 
-    var newCache = cache.set('blobs', newBlobs);
+    const newCache = cache.set('blobs', newBlobs);
     return newCache;
 }
 
-var CacheUtils = {
-    addBlob: addBlob
+const CacheUtils = {
+    addBlob
 };
 module.exports = CacheUtils;

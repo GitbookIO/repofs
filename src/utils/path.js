@@ -1,5 +1,5 @@
-var _ = require('lodash');
-var path = require('path');
+const _ = require('lodash');
+const path = require('path');
 
 /**
  * Normalize a path
@@ -16,7 +16,7 @@ function normPath(p) {
  * Returns true if the path is under dir
  */
 function pathContains(dir, path) {
-    dir = dir? normPath(dir) + '/' : dir;
+    dir = dir ? normPath(dir) + '/' : dir;
     path = normPath(path);
 
     return path.indexOf(dir) === 0;
@@ -26,7 +26,7 @@ function pathContains(dir, path) {
  * Convert a file path to a array of string for Immutable.Map updates
  */
 function keyPath(p, children) {
-    var parts = p.split('/');
+    const parts = p.split('/');
 
     return _.chain(parts)
         .map(function(part) {

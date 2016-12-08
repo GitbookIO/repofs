@@ -1,10 +1,10 @@
-var Immutable = require('immutable');
+const Immutable = require('immutable');
 
 /**
  * A TreeEntry represents an entry from the git tree (Tree).
  */
 
-var TreeEntry = Immutable.Record({
+const TreeEntry = Immutable.Record({
     // SHA of the corresponding blob
     sha: null, // String, null when content is not available as blob
 
@@ -34,7 +34,7 @@ TreeEntry.prototype.getBlobSize = function() {
 
 // ---- Static ----
 
-TreeEntry.encode = function (treeEntry) {
+TreeEntry.encode = function(treeEntry) {
     return {
         sha: treeEntry.getSha(),
         mode: treeEntry.getMode(),
@@ -42,7 +42,7 @@ TreeEntry.encode = function (treeEntry) {
     };
 };
 
-TreeEntry.decode = function (json) {
+TreeEntry.decode = function(json) {
     return new TreeEntry({
         sha: json.sha,
         mode: json.mode,

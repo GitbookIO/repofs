@@ -1,6 +1,6 @@
-var Branch = require('../models/branch');
-var WorkingUtils = require('./working');
-var RepositoryState = require('../models/repositoryState');
+const Branch = require('../models/branch');
+const WorkingUtils = require('./working');
+const RepositoryState = require('../models/repositoryState');
 
 /**
  * Change workinState for a specific branch
@@ -10,10 +10,10 @@ var RepositoryState = require('../models/repositoryState');
  * @return {RepositoryState}
  */
 function updateWorkingState(repoState, branch, newWorkingState) {
-    var workingStates = repoState.getWorkingStates();
+    let workingStates = repoState.getWorkingStates();
 
-    var key = branch.getFullName();
-    if(newWorkingState === null) {
+    const key = branch.getFullName();
+    if (newWorkingState === null) {
         // Delete
         workingStates = workingStates.delete(key);
     } else {
@@ -55,16 +55,16 @@ function fetchTree(repoState, driver, branch) {
  * @return {RepositoryState}
  */
 function checkout(repoState, branch) {
-    var _branch = branch;
+    let _branch = branch;
     if (!(branch instanceof Branch)) {
         _branch = repoState.getBranch(branch);
         if (branch === null) {
-            throw Error('Unknown branch '+branch);
+            throw Error('Unknown branch ' + branch);
         }
     }
 
-    if(!repoState.isFetched(_branch)) {
-        throw Error('Tree for branch '+_branch.getFullName()+' must be fetched first');
+    if (!repoState.isFetched(_branch)) {
+        throw Error('Tree for branch ' + _branch.getFullName() + ' must be fetched first');
     }
     return repoState.set('currentBranchName', _branch.getFullName());
 }
@@ -77,16 +77,16 @@ function checkout(repoState, branch) {
  * @return {Promise<RepositoryState>} with list of branches fetched
  */
 function fetchBranches(repoState, driver) {
-    var oldBranches = repoState.getBranches();
+    const oldBranches = repoState.getBranches();
     return driver.fetchBranches()
-    .then(function (branches) {
+    .then(function(branches) {
         return repoState.set('branches', branches);
     })
     .then(function refreshWorkingStates(repoState) {
         // Remove outdated WorkingStates
-        return oldBranches.reduce(function (repoState, oldBranch) {
-            var fullName = oldBranch.getFullName();
-            var newBranch = repoState.getBranch(fullName);
+        return oldBranches.reduce(function(repoState, oldBranch) {
+            const fullName = oldBranch.getFullName();
+            const newBranch = repoState.getBranch(fullName);
             if (newBranch === null || newBranch.getSha() !== oldBranch.getSha()) {
                 // Was removed OR updated
                 return updateWorkingState(repoState, oldBranch, null);
@@ -105,17 +105,17 @@ function fetchBranches(repoState, driver) {
  * @return {Promise<RepositoryState>}
  */
 function initialize(driver) {
-    var repoState = RepositoryState.createEmpty();
+    const repoState = RepositoryState.createEmpty();
     return fetchBranches(repoState, driver)
-    .then(function (repoState) {
-        var branches = repoState.getBranches();
-        var master = branches.find(function isMaster(branch) {
+    .then(function(repoState) {
+        const branches = repoState.getBranches();
+        const master = branches.find(function isMaster(branch) {
             return branch.getFullName() === 'master';
         });
-        var branch = master || branches.first();
+        const branch = master || branches.first();
 
         return fetchTree(repoState, driver, branch)
-        .then(function (repoState) {
+        .then(function(repoState) {
             return checkout(repoState, branch);
         });
     });
@@ -130,13 +130,13 @@ function syncFilesystem(driver, branch) {
     return driver.checkout(branch);
 }
 
-var RemoteUtils = {
-    initialize: initialize,
-    checkout: checkout,
-    syncFilesystem: syncFilesystem,
-    fetchTree: fetchTree,
-    fetchBranches: fetchBranches,
-    updateWorkingState: updateWorkingState,
-    updateCurrentWorkingState: updateCurrentWorkingState
+const RemoteUtils = {
+    initialize,
+    checkout,
+    syncFilesystem,
+    fetchTree,
+    fetchBranches,
+    updateWorkingState,
+    updateCurrentWorkingState
 };
 module.exports = RemoteUtils;

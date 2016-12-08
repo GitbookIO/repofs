@@ -1,4 +1,4 @@
-var Buffer = require('buffer').Buffer;
+const Buffer = require('buffer').Buffer;
 
 function encode(s) {
     return (new Buffer(s)).toString('base64');
@@ -9,6 +9,6 @@ function decode(s, encoding) {
 }
 
 module.exports = {
-    encode: encode,
-    decode: decode
+    encode,
+    decode
 };

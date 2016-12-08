@@ -1,16 +1,16 @@
-var _ = require('lodash');
-var Immutable = require('immutable');
+const _ = require('lodash');
+const Immutable = require('immutable');
 
-var Normalize = require('../utils/normalize');
-var WorkingState = require('./workingState');
-var Branch = require('./branch');
-var Cache = require('./cache');
+const Normalize = require('../utils/normalize');
+const WorkingState = require('./workingState');
+const Branch = require('./branch');
+const Cache = require('./cache');
 
 /**
  * Repository represents a map of WorkingTree with a current active
  * one
  */
-var RepositoryState = Immutable.Record({
+const RepositoryState = Immutable.Record({
     currentBranchName: null, // Current branch full name
     workingStates: new Immutable.Map(), // Map<String, WorkingState> indexed by local branch fullnames
     branches: new Immutable.List(), // List<Branch>
@@ -46,7 +46,7 @@ RepositoryState.prototype.getCache = function() {
  * @return {Branch | Null}
  */
 RepositoryState.prototype.getBranch = function(branchName) {
-    var branch = this.getBranches()
+    const branch = this.getBranches()
             .find(function(branch) {
                 return branchName == branch.getFullName();
             });
@@ -78,7 +78,7 @@ RepositoryState.prototype.getCurrentBranch = function() {
  * @return {WorkingState}
  */
 RepositoryState.prototype.getCurrentState = function() {
-    var currentBranch = this.getCurrentBranch();
+    const currentBranch = this.getCurrentBranch();
     if (currentBranch === null) {
         return WorkingState.createEmpty();
     } else {
@@ -92,7 +92,7 @@ RepositoryState.prototype.getCurrentState = function() {
  * @return {WorkingState | Null}
  */
 RepositoryState.prototype.getWorkingStateForBranch = function(branch) {
-    var states = this.getWorkingStates();
+    const states = this.getWorkingStates();
     return states.get(branch.getFullName()) || null;
 };
 
@@ -101,7 +101,7 @@ RepositoryState.prototype.getWorkingStateForBranch = function(branch) {
  * @param {String} fullname Such as 'origin/master' or 'develop'
  */
 RepositoryState.prototype.hasBranch = function(fullname) {
-    return this.getBranches().some(function (branch) {
+    return this.getBranches().some(function(branch) {
         return branch.getFullName() === fullname;
     });
 };
@@ -118,11 +118,11 @@ RepositoryState.prototype.isFetched = function(branch) {
  * @param {Branch | String} branchName Branch to update
  * @param {Branch | Null} value New branch value, null to delete
  */
-RepositoryState.prototype.updateBranch = function (branchName, value) {
+RepositoryState.prototype.updateBranch = function(branchName, value) {
     branchName = Normalize.branchName(branchName);
 
-    var branches = this.getBranches();
-    var index = branches.findIndex(function (branch) {
+    let branches = this.getBranches();
+    const index = branches.findIndex(function(branch) {
         return branch.getFullName() === branchName;
     });
     if (value === null) {
@@ -150,7 +150,7 @@ RepositoryState.createEmpty = function createEmpty() {
  * @param {RepositoryState}
  * @return {Object} As plain JS
  */
-RepositoryState.encode = function (repoState) {
+RepositoryState.encode = function(repoState) {
     return {
         currentBranchName: repoState.get('currentBranchName'),
         workingStates: repoState.get('workingStates').map(WorkingState.encode).toJS(),
@@ -158,14 +158,14 @@ RepositoryState.encode = function (repoState) {
     };
 };
 
-RepositoryState.decode = function (json) {
-    var workingStates = new Immutable.Map(_.mapValues(json.workingStates, WorkingState.decode));
-    var branches = new Immutable.List(_.map(json.branches, Branch.decode));
+RepositoryState.decode = function(json) {
+    const workingStates = new Immutable.Map(_.mapValues(json.workingStates, WorkingState.decode));
+    const branches = new Immutable.List(_.map(json.branches, Branch.decode));
 
     return new RepositoryState({
         currentBranchName: json.currentBranchName,
-        workingStates: workingStates,
-        branches: branches
+        workingStates,
+        branches
     });
 };
 

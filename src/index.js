@@ -1,64 +1,64 @@
 
-var GitHubDriver = require('./drivers/github');
+const GitHubDriver = require('./drivers/github');
 
-var RepositoryState =require('./models/repositoryState');
-var WorkingState = require('./models/workingState');
-var Author = require('./models/author');
-var Branch = require('./models/branch');
-var CommitBuilder = require('./models/commitBuilder');
-var Conflict = require('./models/conflict');
-var TreeConflict = require('./models/treeConflict');
-var File = require('./models/file');
-var Blob = require('./models/blob');
+const RepositoryState = require('./models/repositoryState');
+const WorkingState = require('./models/workingState');
+const Author = require('./models/author');
+const Branch = require('./models/branch');
+const CommitBuilder = require('./models/commitBuilder');
+const Conflict = require('./models/conflict');
+const TreeConflict = require('./models/treeConflict');
+const File = require('./models/file');
+const Blob = require('./models/blob');
 
-var CHANGE = require('./constants/changeType');
-var ERRORS = require('./constants/errors');
+const CHANGE = require('./constants/changeType');
+const ERRORS = require('./constants/errors');
 
-var WorkingUtils = require('./utils/working');
-var TreeUtils = require('./utils/filestree');
-var FileUtils = require('./utils/file');
-var LocalUtils = require('./utils/localFile');
-var BlobUtils = require('./utils/blob');
-var DirUtils = require('./utils/directory');
-var RepoUtils = require('./utils/repo');
-var BranchUtils = require('./utils/branches');
-var ChangeUtils = require('./utils/change');
-var CommitUtils = require('./utils/commit');
-var ConflictUtils = require('./utils/conflict');
-var RemoteUtils = require('./utils/remote');
+const WorkingUtils = require('./utils/working');
+const TreeUtils = require('./utils/filestree');
+const FileUtils = require('./utils/file');
+const LocalUtils = require('./utils/localFile');
+const BlobUtils = require('./utils/blob');
+const DirUtils = require('./utils/directory');
+const RepoUtils = require('./utils/repo');
+const BranchUtils = require('./utils/branches');
+const ChangeUtils = require('./utils/change');
+const CommitUtils = require('./utils/commit');
+const ConflictUtils = require('./utils/conflict');
+const RemoteUtils = require('./utils/remote');
 
 module.exports = {
     // Drivers
-    GitHubDriver: GitHubDriver,
+    GitHubDriver,
 
     // Models
-    RepositoryState: RepositoryState,
-    WorkingState: WorkingState,
-    File: File,
-    Blob: Blob,
-    Author: Author,
-    Branch: Branch,
-    CommitBuilder: CommitBuilder,
-    Conflict: Conflict,
-    TreeConflict: TreeConflict,
+    RepositoryState,
+    WorkingState,
+    File,
+    Blob,
+    Author,
+    Branch,
+    CommitBuilder,
+    Conflict,
+    TreeConflict,
 
     // Constants
-    CHANGE: CHANGE,
-    ERRORS: ERRORS,
+    CHANGE,
+    ERRORS,
 
     // Utilities
-    WorkingUtils: WorkingUtils,
-    TreeUtils: TreeUtils,
-    FileUtils: FileUtils,
-    LocalUtils: LocalUtils,
-    BlobUtils: BlobUtils,
-    DirUtils: DirUtils,
-    RepoUtils: RepoUtils,
-    BranchUtils: BranchUtils,
-    ChangeUtils: ChangeUtils,
-    CommitUtils: CommitUtils,
-    ConflictUtils: ConflictUtils,
-    RemoteUtils: RemoteUtils,
+    WorkingUtils,
+    TreeUtils,
+    FileUtils,
+    LocalUtils,
+    BlobUtils,
+    DirUtils,
+    RepoUtils,
+    BranchUtils,
+    ChangeUtils,
+    CommitUtils,
+    ConflictUtils,
+    RemoteUtils,
 
     // Decoding
     decodeWorkingState: WorkingState.decode

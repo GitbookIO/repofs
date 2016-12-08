@@ -1,8 +1,8 @@
-var Immutable = require('immutable');
+const Immutable = require('immutable');
 
-var CHANGE_TYPE = require('../constants/changeType');
-var RepoUtils = require('./repo');
-var pathUtils = require('./path');
+const CHANGE_TYPE = require('../constants/changeType');
+const RepoUtils = require('./repo');
+const pathUtils = require('./path');
 
 /**
  * Returns the pending change of a file on the current branch
@@ -24,9 +24,9 @@ function getChange(state, filepath) {
  * @param {Change}
  */
 function setChange(repoState, filepath, change) {
-    var workingState = repoState.getCurrentState();
-    var changes = workingState.getChanges();
-    var type = change.getType();
+    let workingState = repoState.getCurrentState();
+    let changes = workingState.getChanges();
+    const type = change.getType();
 
     // Simplify change when possible
     if (type === CHANGE_TYPE.REMOVE
@@ -55,10 +55,10 @@ function setChange(repoState, filepath, change) {
  * @return {RepositoryState}
  */
 function revertAll(repoState) {
-    var workingState = repoState.getCurrentState();
+    let workingState = repoState.getCurrentState();
 
     // Create empty list of changes
-    var changes = new Immutable.OrderedMap();
+    const changes = new Immutable.OrderedMap();
 
     // Update workingState and repoState
     workingState = workingState.set('changes', changes);
@@ -72,10 +72,10 @@ function revertAll(repoState) {
  * @return {RepositoryState}
  */
 function revertForFile(repoState, filePath) {
-    var workingState = repoState.getCurrentState();
+    let workingState = repoState.getCurrentState();
 
     // Remove file from changes map
-    var changes = workingState.getChanges().delete(filePath);
+    const changes = workingState.getChanges().delete(filePath);
 
     // Update workingState and repoState
     workingState = workingState.set('changes', changes);
@@ -89,8 +89,8 @@ function revertForFile(repoState, filePath) {
  * @return {RepositoryState}
  */
 function revertForDir(repoState, dirPath) {
-    var workingState = repoState.getCurrentState();
-    var changes = workingState.getChanges();
+    let workingState = repoState.getCurrentState();
+    let changes = workingState.getChanges();
 
     // Remove all changes that are in the directory
     changes = changes.filter(function(change, filePath) {
@@ -108,8 +108,8 @@ function revertForDir(repoState, dirPath) {
  * @return {RepositoryState}
  */
 function revertAllRemoved(repoState) {
-    var workingState = repoState.getCurrentState();
-    var changes = workingState.getChanges().filter(
+    let workingState = repoState.getCurrentState();
+    const changes = workingState.getChanges().filter(
         // Remove all changes that are in the directory
         function(change) {
             return change.getType() === CHANGE_TYPE.REMOVE;
@@ -121,12 +121,12 @@ function revertAllRemoved(repoState) {
     return RepoUtils.updateCurrentWorkingState(repoState, workingState);
 }
 
-var ChangeUtils = {
-    getChange: getChange,
-    setChange: setChange,
-    revertAll: revertAll,
-    revertForFile: revertForFile,
-    revertForDir: revertForDir,
-    revertAllRemoved: revertAllRemoved
+const ChangeUtils = {
+    getChange,
+    setChange,
+    revertAll,
+    revertForFile,
+    revertForDir,
+    revertAllRemoved
 };
 module.exports = ChangeUtils;

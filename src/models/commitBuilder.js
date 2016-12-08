@@ -1,13 +1,13 @@
-var Immutable = require('immutable');
+const Immutable = require('immutable');
 
-var Author = require('./author');
+const Author = require('./author');
 
 /**
  * CommitBuilder instance are created before creating the new commit
  * using the driver.
  */
 
-var CommitBuilder = Immutable.Record({
+const CommitBuilder = Immutable.Record({
     // Commiter / Author
     committer: new Author(),
     author: new Author(),
@@ -30,7 +30,7 @@ var CommitBuilder = Immutable.Record({
 
 // ---- Properties Getter ----
 function getter(property) {
-    return function () { return this.get(property); };
+    return function() { return this.get(property); };
 }
 
 CommitBuilder.prototype.getMessage = getter('message');
@@ -43,7 +43,7 @@ CommitBuilder.prototype.getCommitter = getter('committer');
 /**
  * Returns true if the commit does not contain any change.
  */
-CommitBuilder.prototype.isEmpty = function () {
+CommitBuilder.prototype.isEmpty = function() {
     return this.get('empty');
 };
 

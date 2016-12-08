@@ -1,6 +1,6 @@
-var Q = require('q');
+const Q = require('q');
 
-var CacheUtils = require('./cache');
+const CacheUtils = require('./cache');
 
 /**
  * Get a blob from cache
@@ -24,12 +24,12 @@ function fetch(repoState, driver, sha) {
         return Q(repoState);
     }
 
-    var cache = repoState.getCache();
+    const cache = repoState.getCache();
     // Fetch the blob
     return driver.fetchBlob(sha)
     // Then store it in the cache
     .then(function(blob) {
-        var newCache = CacheUtils.addBlob(cache, sha, blob);
+        const newCache = CacheUtils.addBlob(cache, sha, blob);
         return repoState.set('cache', newCache);
     });
 }
@@ -43,9 +43,9 @@ function isFetched(repoState, sha) {
     return repoState.getCache().getBlobs().has(sha);
 }
 
-var BlobUtils = {
-    read: read,
-    isFetched: isFetched,
-    fetch: fetch
+const BlobUtils = {
+    read,
+    isFetched,
+    fetch
 };
 module.exports = BlobUtils;

@@ -1,6 +1,6 @@
-var Immutable = require('immutable');
+const Immutable = require('immutable');
 
-var Branch = Immutable.Record({
+const Branch = Immutable.Record({
     name: '', // Such as 'master'
     sha: '', // SHA for the pointing commit
     remote: '' // Potential remote name such as 'origin'. Empty for no remote
@@ -13,7 +13,7 @@ var Branch = Immutable.Record({
  * This is used as key and should be unique
  */
 Branch.prototype.getFullName = function() {
-    if(this.isRemote()) {
+    if (this.isRemote()) {
         return this.getRemote() + '/' + this.getName();
     } else {
         return this.getName();
@@ -36,13 +36,13 @@ Branch.prototype.getSha = function() {
     return this.get('sha');
 };
 
-Branch.prototype.setRemote = function (name) {
+Branch.prototype.setRemote = function(name) {
     return this.set('remote', name);
 };
 
 // ---- Static ----
 
-Branch.encode = function (branch) {
+Branch.encode = function(branch) {
     return branch.toJS();
 };
 

@@ -1,12 +1,12 @@
-var Immutable = require('immutable');
+const Immutable = require('immutable');
 
-var arrayBuffer = require('../utils/arraybuffer');
-var ERRORS = require('../constants/errors');
+const arrayBuffer = require('../utils/arraybuffer');
+const ERRORS = require('../constants/errors');
 
 // Don't read blob over 1MB
-var BLOB_MAX_SIZE = 1*1024*1024;
+const BLOB_MAX_SIZE = 1 * 1024 * 1024;
 
-var Blob = Immutable.Record({
+const Blob = Immutable.Record({
     // Size of the file
     byteLength: 0,
 
@@ -61,7 +61,7 @@ Blob.prototype.getAsBuffer = function(encoding) {
  */
 // TODO implement and use Blob.prototype.hashCode, since Immutable
 // will assume hashCodes are equals when equals returns true.
-Blob.prototype.equals = function (blob) {
+Blob.prototype.equals = function(blob) {
     return this.getByteLength() === blob.getByteLength()
         && arrayBuffer.equals(this.getContent(), blob.getContent());
 };
@@ -87,10 +87,10 @@ Blob.create = function create(buf) {
  * @return {?Blob}
  */
 Blob.createFromArrayBuffer = function createFromArrayBuffer(buf) {
-    var isTooBig = (buf.byteLength > BLOB_MAX_SIZE);
+    const isTooBig = (buf.byteLength > BLOB_MAX_SIZE);
 
     if (isTooBig) {
-        var err = new Error('File content is too big to be processed');
+        const err = new Error('File content is too big to be processed');
         err.code = ERRORS.BLOB_TOO_BIG;
 
         throw err;
@@ -108,7 +108,7 @@ Blob.createFromArrayBuffer = function createFromArrayBuffer(buf) {
  * @return {?Blob}
  */
 Blob.createFromBase64 = function createFromBase64(content) {
-    var buf = arrayBuffer.fromBase64(content);
+    const buf = arrayBuffer.fromBase64(content);
     return Blob.createFromArrayBuffer(buf);
 };
 
@@ -118,7 +118,7 @@ Blob.createFromBase64 = function createFromBase64(content) {
  * @return {?Blob}
  */
 Blob.createFromBuffer = function createFromBuffer(content) {
-    var buf = arrayBuffer.fromBuffer(content);
+    const buf = arrayBuffer.fromBuffer(content);
     return Blob.createFromArrayBuffer(buf);
 };
 
@@ -128,7 +128,7 @@ Blob.createFromBuffer = function createFromBuffer(content) {
  * @return {?Blob}
  */
 Blob.createFromString = function createFromString(content) {
-    var buf = arrayBuffer.fromString(content);
+    const buf = arrayBuffer.fromString(content);
     return Blob.createFromArrayBuffer(buf);
 };
 
@@ -150,8 +150,8 @@ Blob.encode = function(blob) {
  * @return {Blob}
  */
 Blob.decode = function(json) {
-    var properties = {};
-    if(json.content) {
+    const properties = {};
+    if (json.content) {
         properties.content = arrayBuffer.fromBase64(json.content);
     }
     properties.byteLength = json.byteLength;

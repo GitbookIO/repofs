@@ -1,10 +1,10 @@
-var Immutable = require('immutable');
-var path = require('path');
-var mime = require('mime-types');
+const Immutable = require('immutable');
+const path = require('path');
+const mime = require('mime-types');
 
-var FILETYPE = require('../constants/filetype');
+const FILETYPE = require('../constants/filetype');
 
-var File = Immutable.Record({
+const File = Immutable.Record({
     // Size of the file. 0 if the file was not fetched
     fileSize: 0,
 
@@ -51,9 +51,9 @@ File.prototype.getName = function() {
 /**
  * Create a File representing a directory at the given path (empty content etc.).
  */
-File.createDir = function (path) {
+File.createDir = function(path) {
     return new File({
-        path: path,
+        path,
         type: FILETYPE.DIRECTORY
     });
 };
@@ -61,9 +61,9 @@ File.createDir = function (path) {
 /**
  * Create a File representing a directory at the given path (empty content etc.).
  */
-File.create = function (path, fileSize) {
+File.create = function(path, fileSize) {
     return new File({
-        path: path,
+        path,
         fileSize: fileSize || 0,
         type: FILETYPE.FILE
     });

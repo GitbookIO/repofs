@@ -1,12 +1,12 @@
-var _ = require('lodash');
-var Path = require('path');
+const _ = require('lodash');
+const Path = require('path');
 
-var FILETYPE = require('../constants/filetype');
-var File = require('../models/file');
+const FILETYPE = require('../constants/filetype');
+const File = require('../models/file');
 
-var PathUtils = require('./path');
-var WorkingUtils = require('./working');
-var FileUtils = require('./file');
+const PathUtils = require('./path');
+const WorkingUtils = require('./working');
+const FileUtils = require('./file');
 
 /**
  * List entries in a directory (shallow)
@@ -17,23 +17,23 @@ var FileUtils = require('./file');
 function read(repoState, dirName) {
     dirName = PathUtils.norm(dirName);
 
-    var workingState = repoState.getCurrentState();
-    var changes = workingState.getChanges();
-    var treeEntries = WorkingUtils.getMergedTreeEntries(workingState);
+    const workingState = repoState.getCurrentState();
+    const changes = workingState.getChanges();
+    const treeEntries = WorkingUtils.getMergedTreeEntries(workingState);
 
-    var files = [];
+    const files = [];
 
     treeEntries.forEach(function(treeEntry, filepath) {
         if (!PathUtils.contains(dirName, filepath)) return;
 
-        var innerPath = PathUtils.norm(filepath.replace(dirName, ''));
-        var isDirectory = innerPath.indexOf('/') >= 0;
+        const innerPath = PathUtils.norm(filepath.replace(dirName, ''));
+        const isDirectory = innerPath.indexOf('/') >= 0;
         // Make it shallow
-        var name = innerPath.split('/')[0];
+        const name = innerPath.split('/')[0];
 
-        var file = new File({
+        const file = new File({
             path: Path.join(dirName, name),
-            type: isDirectory? FILETYPE.DIRECTORY : FILETYPE.FILE,
+            type: isDirectory ? FILETYPE.DIRECTORY : FILETYPE.FILE,
             change: changes.get(filepath),
             fileSize: treeEntry.blobSize
         });
@@ -56,12 +56,12 @@ function read(repoState, dirName) {
  */
 function readRecursive(repoState, dirName) {
     // TODO improve performance and don't use .read() directly
-    var files = read(repoState, dirName);
-    var filesInDirs = _.chain(files)
-            .filter(function (file) {
+    const files = read(repoState, dirName);
+    const filesInDirs = _.chain(files)
+            .filter(function(file) {
                 return file.isDirectory();
             })
-            .map(function (dir) {
+            .map(function(dir) {
                 return readRecursive(repoState, dir.path);
             })
             .flatten()
@@ -76,7 +76,7 @@ function readRecursive(repoState, dirName) {
  * @return {Array<Path>}
  */
 function readFilenames(repoState, dirName) {
-    var files = read(repoState, dirName);
+    const files = read(repoState, dirName);
 
     return _.chain(files)
         .map(function(file) {
@@ -94,8 +94,8 @@ function readFilenames(repoState, dirName) {
 function readFilenamesRecursive(repoState, dirName) {
     dirName = PathUtils.norm(dirName);
 
-    var workingState = repoState.getCurrentState();
-    var fileSet = WorkingUtils.getMergedFileSet(workingState);
+    const workingState = repoState.getCurrentState();
+    const fileSet = WorkingUtils.getMergedFileSet(workingState);
 
     return fileSet.filter(function(path) {
         return PathUtils.contains(dirName, path);
@@ -107,11 +107,11 @@ function readFilenamesRecursive(repoState, dirName) {
  */
 function move(repoState, dirName, newDirName) {
     // List entries to move
-    var filesToMove = readFilenamesRecursive(repoState, dirName);
+    const filesToMove = readFilenamesRecursive(repoState, dirName);
 
     // Push change to remove all entries
     return filesToMove.reduce(function(repoState, oldPath) {
-        var newPath = Path.join(
+        const newPath = Path.join(
             newDirName,
             Path.relative(dirName, oldPath)
         );
@@ -125,7 +125,7 @@ function move(repoState, dirName, newDirName) {
  */
 function remove(repoState, dirName) {
     // List entries to move
-    var filesToRemove = readFilenamesRecursive(repoState, dirName);
+    const filesToRemove = readFilenamesRecursive(repoState, dirName);
 
     // Push change to remove all entries
     return filesToRemove.reduce(function(repoState, path) {
@@ -133,12 +133,12 @@ function remove(repoState, dirName) {
     }, repoState);
 }
 
-var DirUtils = {
-    read: read,
-    readRecursive: readRecursive,
-    readFilenames: readFilenames,
-    readFilenamesRecursive: readFilenamesRecursive,
-    remove: remove,
-    move: move
+const DirUtils = {
+    read,
+    readRecursive,
+    readFilenames,
+    readFilenamesRecursive,
+    remove,
+    move
 };
 module.exports = DirUtils;

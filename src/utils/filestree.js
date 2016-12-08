@@ -1,11 +1,11 @@
-var Immutable = require('immutable');
-var Path = require('path');
+const Immutable = require('immutable');
+const Path = require('path');
 
-var File = require('../models/file');
-var TreeNode = require('./treeNode');
-var DirUtils = require('./directory');
-var FileUtils = require('./file');
-var WorkingUtils = require('./working');
+const File = require('../models/file');
+const TreeNode = require('./treeNode');
+const DirUtils = require('./directory');
+const FileUtils = require('./file');
+const WorkingUtils = require('./working');
 
 /**
  * Utils to create tree structures for files.
@@ -45,26 +45,26 @@ function getInPath(tree, path) {
  */
 function get(repoState, dirPath) {
     // Remove trailing '/' etc.
-    var normDirPath = Path.join(dirPath, '.');
-    var filepaths = DirUtils.readFilenamesRecursive(repoState, normDirPath);
+    const normDirPath = Path.join(dirPath, '.');
+    const filepaths = DirUtils.readFilenamesRecursive(repoState, normDirPath);
 
-    var tree = {
+    const tree = {
         value: File.createDir(normDirPath),
         children: {}
     };
 
-    for (var i = 0; i < filepaths.length; i++) {
-        var relativePath = Path.relative(normDirPath, filepaths[i]);
-        var parts = relativePath.split('/');
-        var node = tree;
-        var prefix = normDirPath;
-        for(var j = 0; j < parts.length; j++) {
-            var head = parts[j];
-            var isLeaf = (j === parts.length-1);
+    for (let i = 0; i < filepaths.length; i++) {
+        const relativePath = Path.relative(normDirPath, filepaths[i]);
+        const parts = relativePath.split('/');
+        let node = tree;
+        let prefix = normDirPath;
+        for (let j = 0; j < parts.length; j++) {
+            const head = parts[j];
+            const isLeaf = (j === parts.length - 1);
             prefix = Path.join(prefix, head);
 
             // Create node if doesn't exist
-            if(!node.children[head]) {
+            if (!node.children[head]) {
                 if (isLeaf) {
                     node.children[head] = {
                         value: FileUtils.stat(repoState, filepaths[i])
@@ -89,20 +89,20 @@ function get(repoState, dirPath) {
  * @return {Boolean} True if the files structure changed.
  */
 function hasChanged(previousRepo, newRepo, dir) {
-    var previousWorking = previousRepo.getCurrentState();
-    var newWorking = newRepo.getCurrentState();
+    const previousWorking = previousRepo.getCurrentState();
+    const newWorking = newRepo.getCurrentState();
 
-    var previousFiles = WorkingUtils.getMergedFileSet(previousWorking);
-    var newFiles = WorkingUtils.getMergedFileSet(newWorking);
+    const previousFiles = WorkingUtils.getMergedFileSet(previousWorking);
+    const newFiles = WorkingUtils.getMergedFileSet(newWorking);
 
     return !Immutable.is(previousFiles, newFiles);
 }
 
 
-var TreeUtils = {
-    TreeNode: TreeNode,
-    get: get,
-    getInPath: getInPath,
-    hasChanged: hasChanged
+const TreeUtils = {
+    TreeNode,
+    get,
+    getInPath,
+    hasChanged
 };
 module.exports = TreeUtils;

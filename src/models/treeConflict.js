@@ -1,12 +1,12 @@
-var Immutable = require('immutable');
+const Immutable = require('immutable');
 
-var WorkingState = require('./workingState');
+const WorkingState = require('./workingState');
 
 /**
  * A TreeConflict represents a comparison between two Git Trees
  */
 
-var TreeConflict = Immutable.Record({
+const TreeConflict = Immutable.Record({
     base: WorkingState.createEmpty(),
     head: WorkingState.createEmpty(),
     // Nearest parent
@@ -18,7 +18,7 @@ var TreeConflict = Immutable.Record({
 
 // ---- Properties Getter ----
 function getter(property) {
-    return function () { return this.get(property); };
+    return function() { return this.get(property); };
 }
 TreeConflict.prototype.getBase = getter('base');
 TreeConflict.prototype.getHead = getter('head');
@@ -31,12 +31,12 @@ TreeConflict.prototype.getConflicts = getter('conflicts');
  * Returns the status of the tree conflict. Possible values are
  * described in TreeConflict.STATUS.
  */
-TreeConflict.prototype.getStatus = function () {
-    var base = this.getBase().getHead();
-    var head = this.getHead().getHead();
-    var parent = this.getParent().getHead();
+TreeConflict.prototype.getStatus = function() {
+    const base = this.getBase().getHead();
+    const head = this.getHead().getHead();
+    const parent = this.getParent().getHead();
 
-    if(base === head) {
+    if (base === head) {
         return TreeConflict.STATUS.IDENTICAL;
     } else if (base === parent) {
         return TreeConflict.STATUS.AHEAD;
