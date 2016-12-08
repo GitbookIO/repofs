@@ -1,53 +1,59 @@
 const _ = require('lodash');
-const Immutable = require('immutable');
+const { Record, Map, OrderedMap } = require('immutable');
 
 const TreeEntry = require('./treeEntry');
 const Change = require('./change');
 
-const WorkingState = Immutable.Record({
+const DEFAULTS = {
     head: String(), // SHA
-    treeEntries: new Immutable.Map(), // Map<Path, TreeEntry>
-    changes: new Immutable.OrderedMap() // OrderedMap<Path, Change>
-}, 'WorkingState');
-
-// ---- Properties Getter ----
-WorkingState.prototype.getTreeEntries = function() {
-    return this.get('treeEntries');
-};
-
-WorkingState.prototype.getChanges = function() {
-    return this.get('changes');
-};
-
-WorkingState.prototype.getHead = function() {
-    return this.get('head');
-};
-
-// ---- Methods ----
-
-/**
- * Return true if working directory has no changes
- */
-WorkingState.prototype.isClean = function() {
-    return this.getChanges().size == 0;
+    treeEntries: new Map(), // Map<Path, TreeEntry>
+    changes: new OrderedMap() // OrderedMap<Path, Change>
 };
 
 /**
- * Return a change for a specific path
- * @return {Change}
+ * @type {Class}
  */
-WorkingState.prototype.getChange = function(filePath) {
-    const changes = this.getChanges();
-    return changes.get(filePath);
-};
+class WorkingState extends Record(DEFAULTS) {
+    // ---- Properties Getter ----
 
-/**
- * Return this working state as clean.
- * @return {WorkingState}
- */
-WorkingState.prototype.asClean = function(filePath) {
-    return this.set('changes', new Immutable.OrderedMap());
-};
+    getTreeEntries() {
+        return this.get('treeEntries');
+    }
+
+    getChanges() {
+        return this.get('changes');
+    }
+
+    getHead() {
+        return this.get('head');
+    }
+
+    // ---- Methods ----
+
+    /**
+     * Return true if working directory has no changes
+     */
+    isClean() {
+        return this.getChanges().size == 0;
+    }
+
+    /**
+     * Return a change for a specific path
+     * @return {Change}
+     */
+    getChange(filePath) {
+        const changes = this.getChanges();
+        return changes.get(filePath);
+    }
+
+    /**
+     * Return this working state as clean.
+     * @return {WorkingState}
+     */
+    asClean(filePath) {
+        return this.set('changes', new OrderedMap());
+    }
+}
 
 // ---- Statics ----
 
@@ -80,8 +86,8 @@ WorkingState.encode = function(workingState) {
 };
 
 WorkingState.decode = function(json) {
-    const treeEntries = new Immutable.Map(_.mapValues(json.treeEntries, TreeEntry.decode));
-    const changes = new Immutable.OrderedMap(_.mapValues(json.changes, Change.decode));
+    const treeEntries = new Map(_.mapValues(json.treeEntries, TreeEntry.decode));
+    const changes = new OrderedMap(_.mapValues(json.changes, Change.decode));
 
     return new WorkingState({
         head: json.head,
