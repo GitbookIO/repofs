@@ -1,13 +1,7 @@
-const Immutable = require('immutable');
-
+const { Record, List, Map } = require('immutable');
 const Author = require('./author');
 
-/**
- * CommitBuilder instance are created before creating the new commit
- * using the driver.
- */
-
-const CommitBuilder = Immutable.Record({
+const DEFAULTS = {
     // Commiter / Author
     committer: new Author(),
     author: new Author(),
@@ -19,33 +13,53 @@ const CommitBuilder = Immutable.Record({
     empty: true,
 
     // Parents
-    parents: new Immutable.List(), // List<SHA>
+    parents: new List(), // List<SHA>
 
     // Tree entries
-    treeEntries: new Immutable.Map(), // Map<Path, TreeEntry>
+    treeEntries: new Map(), // Map<Path, TreeEntry>
 
     // New blobs to create
-    blobs: new Immutable.Map() // Map<Path, Blob>
-}, 'CommitBuilder');
-
-// ---- Properties Getter ----
-function getter(property) {
-    return function() { return this.get(property); };
-}
-
-CommitBuilder.prototype.getMessage = getter('message');
-CommitBuilder.prototype.getParents = getter('parents');
-CommitBuilder.prototype.getAuthor = getter('author');
-CommitBuilder.prototype.getTreeEntries = getter('treeEntries');
-CommitBuilder.prototype.getBlobs = getter('blobs');
-CommitBuilder.prototype.getCommitter = getter('committer');
+    blobs: new Map() // Map<Path, Blob>
+};
 
 /**
- * Returns true if the commit does not contain any change.
+ * CommitBuilder instance are created before creating the new commit
+ * using the driver.
+ *
+ * @type {Class}
  */
-CommitBuilder.prototype.isEmpty = function() {
-    return this.get('empty');
-};
+class CommitBuilder extends Record(DEFAULTS) {
+    getMessage() {
+        return this.get('message');
+    }
+
+    getParents() {
+        return this.get('parents');
+    }
+
+    getAuthor() {
+        return this.get('author');
+    }
+
+    getTreeEntries() {
+        return this.get('treeEntries');
+    }
+
+    getBlobs() {
+        return this.get('blobs');
+    }
+
+    getCommitter() {
+        return this.get('committer');
+    }
+
+    /**
+     * Returns true if the commit does not contain any change.
+     */
+    isEmpty() {
+        return this.get('empty');
+    }
+}
 
 // ---- Statics
 
