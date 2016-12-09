@@ -135,6 +135,7 @@ class Driver {
      * @throws {Promise<ERROR.NOT_FAST_FORWARD>}
      * @throws {Promise<ERROR.AUTHENTICATION_FAILED>}
      * @throws {Promise<ERROR.UNKNOWN_REMOTE>}
+     * @throws {Promise<ERROR.REF_NOT_FOUND>}
      */
     pull(opts) {}
 

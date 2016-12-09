@@ -8,8 +8,20 @@ echo "Prepare tests for uhub"
 
 # Create temporary repository for uhub
 REPO_PATH=$(pwd)/.tmp/repo/
+REMOTE_PATH=$(pwd)/.tmp/repo-remote.git/
 rm -rf $REPO_PATH
 mkdir -p $REPO_PATH
+rm -rf $REMOTE_PATH
+mkdir -p $REMOTE_PATH
+
+# Initialize the remote
+function initRemote() {
+    cd $REMOTE_PATH
+    git --bare init .
+    cd -
+}
+initRemote >/dev/null
+
 # Initialize the repo like GitHub
 function initRepo() {
     cd $REPO_PATH
@@ -17,6 +29,7 @@ function initRepo() {
     echo "# Uhub test repository\n" > README.md
     git add README.md
     git commit -m "Initial commit"
+    git remote add origin $REMOTE_PATH
     cd -
 }
 initRepo >/dev/null
@@ -27,6 +40,7 @@ UHUBPID=$!
 function cleanUp() {
     kill -s 9 $UHUBPID
     rm -rf $REPO_PATH
+    rm -rf $REMOTE_PATH
 }
 # Cleanup on exit
 trap cleanUp EXIT
