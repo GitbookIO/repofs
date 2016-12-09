@@ -3,7 +3,6 @@ const Q = require('q');
 const { Record, List, Map } = require('immutable');
 const axios = require('axios');
 const urlJoin = require('urljoin.js');
-const util = require('util');
 
 const gravatar = require('../utils/gravatar');
 const base64 = require('../utils/base64');
