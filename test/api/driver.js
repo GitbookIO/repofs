@@ -1,3 +1,4 @@
+const should = require('should');
 const Immutable = require('immutable');
 const Q = require('q');
 const repofs = require('../../src/');
@@ -192,6 +193,31 @@ function testDriver(driver) {
                         file.changes.should.eql(1);
                         file.patch.should.be.ok();
                     });
+                });
+            });
+        });
+
+        describe('.fetchWorkingState', function() {
+            it('should not list directories as tree entries', function() {
+                // Create a directory for test
+                repoState = repofs.FileUtils.create(
+                    repoState, 'dir/file', 'content'
+                );
+
+                const commitBuilder = repofs.CommitUtils.prepare(repoState, {
+                    author: new repofs.Author.create('Shakespeare', 'shakespeare@hotmail.com'),
+                    message: 'Test directories'
+                });
+
+                return driver.flushCommit(commitBuilder)
+                // Not forwarding driverBranch, to avoid messing
+                // up with the rest of the tests
+                .then(function(commit) {
+                    return driver.fetchWorkingState(commit.getSha());
+                })
+                .then(function(workingState) {
+                    should(workingState.getTreeEntries().get('dir/file')).be.ok();
+                    should(workingState.getTreeEntries().get('dir')).be.undefined();
                 });
             });
         });
