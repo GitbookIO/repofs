@@ -63,10 +63,10 @@ class GitHubDriver extends Driver {
             recursive: 1
         })
         .then(function(tree) {
-            // TODO filter out entries of type 'tree'
             const treeEntries = new Map().withMutations(
                 function addEntries(map) {
                     _.map(tree.tree, function(entry) {
+                        if (entry.type === 'tree') return;
                         const treeEntry = new TreeEntry({
                             sha: entry.sha,
                             blobSize: entry.size,
