@@ -40,4 +40,4 @@ export REPOFS_DRIVER=uhub
 export REPOFS_HOST=http://localhost:6666
 export REPOFS_REPO=user/repo
 
-mocha --reporter spec --bail --timeout 15000
+mocha --reporter spec --compilers js:babel-register --bail --timeout 15000

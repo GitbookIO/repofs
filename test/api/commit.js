@@ -1,39 +1,39 @@
-var should = require('should');
-var repofs = require('../../');
+const should = require('should');
+const repofs = require('../../src/');
 
-module.exports = function (driver) {
+module.exports = function(driver) {
     return describe('CommitUtils', testCommit.bind(this, driver));
 };
 
 // Test the commit API on a basic repo
 function testCommit(driver) {
 
-    var repoState;
+    let repoState;
 
-    before(function () {
+    before(function() {
         return repofs.RepoUtils.initialize(driver)
-        .then(function (initRepo) {
+        .then(function(initRepo) {
             return repofs.BranchUtils.create(initRepo, driver, 'test-commit', {
                 checkout: true
             });
         })
-        .then(function (branchedRepo) {
+        .then(function(branchedRepo) {
             repoState = branchedRepo;
         });
     });
 
     describe('.flush', function() {
-        it('should flush a prepared commit', function () {
+        it('should flush a prepared commit', function() {
             // Create a file for test
             repoState = repofs.FileUtils.create(
                 repoState, 'flushCommitFile', 'Flush CommitContent');
-            var commitBuilder = repofs.CommitUtils.prepare(repoState, {
+            const commitBuilder = repofs.CommitUtils.prepare(repoState, {
                 author: repofs.Author.create('Shakespeare', 'shakespeare@hotmail.com'),
                 message: 'Test message'
             });
 
             return repofs.CommitUtils.flush(repoState, driver, commitBuilder)
-            .then(function (newState) {
+            .then(function(newState) {
                 repoState = newState;
                 // No more pending changes
                 repoState.getCurrentState().isClean().should.be.true();
@@ -43,22 +43,22 @@ function testCommit(driver) {
             });
         });
 
-        it('should detect not fast forward errors', function () {
+        it('should detect not fast forward errors', function() {
             // Simulate another person trying to commit
-            var otherState = repofs.FileUtils.create(
+            const otherState = repofs.FileUtils.create(
                 repoState, 'not_ff_detection', 'I will get a NOT_FAST_FORWARD');
             // Make a change
             repoState = repofs.FileUtils.create(
                 repoState, 'not_ff_detection', 'Not ff detection');
 
             return emptyCommitAndFlush(repoState, driver, 'Not ff detection')
-            .then(function (_repoState) {
+            .then(function(_repoState) {
                 repoState = _repoState;
                 return emptyCommitAndFlush(otherState, driver, 'Not ff detection');
             })
-            .then(function () {
+            .then(function() {
                 should.fail('NOT_FAST_FORWARD was not detected');
-            }, function (err) {
+            }, function(err) {
                 err.code.should.eql(repofs.ERRORS.NOT_FAST_FORWARD);
                 // Should have the created commit available for merging
                 err.commit.should.be.ok();
@@ -67,24 +67,24 @@ function testCommit(driver) {
     });
 
     describe('.fetchList', function() {
-        it('should list commits on current branch', function () {
+        it('should list commits on current branch', function() {
             // Work on a different branch
-            var listTestState = repofs.RepoUtils.checkout(repoState, 'master');
+            const listTestState = repofs.RepoUtils.checkout(repoState, 'master');
 
             return repofs.BranchUtils.create(listTestState, driver, 'test-list-commit', {
                 checkout: true
             })
-            .then(function (listTestState) {
+            .then(function(listTestState) {
                 return emptyCommitAndFlush(listTestState, driver, 'List commit test');
             })
-            .then(function (listTestState) {
+            .then(function(listTestState) {
                 return repofs.CommitUtils.fetchList(driver, {
                     branch: listTestState.getCurrentBranch()
                 });
             })
-            .then(function (commits) {
+            .then(function(commits) {
                 commits.count().should.be.greaterThan(1);
-                var commit = commits.first();
+                const commit = commits.first();
                 commit.getAuthor().getName().should.eql('Shakespeare');
                 commit.getMessage().should.eql('List commit test');
             });
@@ -94,9 +94,9 @@ function testCommit(driver) {
 }
 
 function emptyCommitAndFlush(repoState, driver, message) {
-    var commitBuilder = repofs.CommitUtils.prepare(repoState, {
+    const commitBuilder = repofs.CommitUtils.prepare(repoState, {
         author: repofs.Author.create('Shakespeare', 'shakespeare@hotmail.com'),
-        message: message
+        message
     });
 
     return repofs.CommitUtils.flush(repoState, driver, commitBuilder, {

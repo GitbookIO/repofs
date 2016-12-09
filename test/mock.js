@@ -1,24 +1,24 @@
-var _ = require('lodash');
-var Immutable = require('immutable');
+const _ = require('lodash');
+const Immutable = require('immutable');
 
 
-var CacheUtils = require('../lib/utils/cache');
-var TreeEntry = require('../lib/models/treeEntry');
-var Branch = require('../lib/models/branch');
-var Blob = require('../lib/models/blob');
-var WorkingState = require('../lib/models/workingState');
-var RepositoryState = require('../lib/models/repositoryState');
+const CacheUtils = require('../src/utils/cache');
+const TreeEntry = require('../src/models/treeEntry');
+const Branch = require('../src/models/branch');
+const Blob = require('../src/models/blob');
+const WorkingState = require('../src/models/workingState');
+const RepositoryState = require('../src/models/repositoryState');
 
 
 // Return empty repo with single master branch
 function emptyRepo() {
-    var masterBranch = new Branch({
+    const masterBranch = new Branch({
         name: 'master',
         sha: 'masterSha',
         remote: ''
     });
 
-    var workingState = new WorkingState({
+    const workingState = new WorkingState({
         head: 'sha.working.master',
         treeEntries: new Immutable.Map()
     });
@@ -43,30 +43,30 @@ function addFile(repoState, filepath, options) {
     });
     options.branch = repoState.getBranch(options.branch);
 
-    var treeEntry = new TreeEntry({
+    const treeEntry = new TreeEntry({
         blobSize: options.content.length,
-        sha: 'sha.'+options.content,
+        sha: 'sha.' + options.content,
         mode: '100644'
     });
-    var resultState = repoState;
+    let resultState = repoState;
 
     // Update working state
-    var workingState = resultState.getWorkingStateForBranch(options.branch);
+    let workingState = resultState.getWorkingStateForBranch(options.branch);
     workingState = workingState
         .set('treeEntries', workingState
              .getTreeEntries().set(filepath, treeEntry));
 
-    var workingStates = resultState.getWorkingStates();
+    const workingStates = resultState.getWorkingStates();
     resultState = resultState
         .set('workingStates', workingStates
              .set(options.branch.getFullName(), workingState));
 
     // Update cache
-    if(options.fetched) {
-        var cache = repoState.getCache();
+    if (options.fetched) {
+        let cache = repoState.getCache();
         cache = CacheUtils.addBlob(
             cache,
-            'sha.'+options.content,
+            'sha.' + options.content,
             Blob.createFromString(options.content)
         );
         resultState = resultState.set('cache', cache);
@@ -79,7 +79,7 @@ function addFile(repoState, filepath, options) {
 // * SUMMARY.md "# Summary"
 // * README.md "# Introduction"
 function defaultBook() {
-    var resultState = emptyRepo();
+    let resultState = emptyRepo();
     resultState = addFile(resultState, 'README.md', {
         content: '# Introduction'
     });
@@ -96,7 +96,7 @@ function defaultBook() {
 // dir.deep.oneItem/file1
 // dir.deep.oneItem/dir.oneItem/file1
 function directoryStructure(pathList) {
-    return pathList.reduce(function (repo, path) {
+    return pathList.reduce(function(repo, path) {
         return addFile(repo, path);
     }, emptyRepo());
 }
@@ -104,19 +104,19 @@ function directoryStructure(pathList) {
 // Make a big repo with 'n' files each in a directory at 'depth'
 function bigFileList(n, depth) {
     depth = depth || 1;
-    var indexes = Immutable.Range(1, n);
-    return indexes.map(function (index) {
-        var depths = Immutable.Range(0, depth);
-        return depths.map(function (depth) {
-            return index+'.'+depth;
+    const indexes = Immutable.Range(1, n);
+    return indexes.map(function(index) {
+        const depths = Immutable.Range(0, depth);
+        return depths.map(function(depth) {
+            return index + '.' + depth;
         }).toArray().join('/');
     }).toArray();
 }
 
 module.exports = {
-    emptyRepo: emptyRepo,
+    emptyRepo,
     DEFAULT_BOOK: defaultBook(),
-    bigFileList: bigFileList,
-    addFile: addFile,
-    directoryStructure: directoryStructure
+    bigFileList,
+    addFile,
+    directoryStructure
 };
