@@ -1,5 +1,6 @@
 const _ = require('lodash');
-
+const Q = require('q');
+const ERRORS = require('../constants/errors');
 const RepoUtils = require('./repo');
 
 /**
@@ -90,11 +91,58 @@ function edit(driver, name, url) {
     return driver.editRemotes(name, url);
 }
 
+/**
+ * Sync repository with remote by pulling / pushing to the remote.
+ * @param {RepositoryState} repoState
+ * @param {Driver} driver
+ * @param {Branch} [opts.branch] Branch to push. Default to current
+ * @param {String} [opts.remote.name=origin] Name of the remote
+ * @param {String} [opts.remote.url] URL if the remote needs to be created
+ * @param {Boolean} [opts.force=false] Ignore non fast forward
+ * @param {String} [opts.auth.username] Authentication username
+ * @param {String} [opts.auth.password] Authentication password
+ * @return {Promise<RepositoryState>}
+ * @throws {Promise<ERROR.NOT_FAST_FORWARD>}
+ * @throws {Promise<ERROR.AUTHENTICATION_FAILED>}
+ * @throws {Promise<ERROR.UNKNOWN_REMOTE>}
+ */
+function sync(repoState, driver, opts) {
+    opts = _.defaults({}, opts || {}, {
+        branch: repoState.getCurrentBranch(),
+        force: false,
+        remote: {
+            name: 'origin'
+        }
+    });
+
+    return pull(repoState, driver, opts)
+        .fail(normRefNotFound)
+        .fail((err) => {
+            if (err.code === ERRORS.REF_NOT_FOUND) {
+                return Q(repoState);
+            }
+
+            return Q.reject(err);
+        })
+        .then((newRepoState) => {
+            return push(newRepoState, driver, opts);
+        });
+}
+
+function normRefNotFound(err) {
+    const msg = err.message;
+    if (/^Reference/.test(msg) && /not found$/.test(msg)) {
+        err.code = ERRORS.REF_NOT_FOUND;
+    }
+    return Q.reject(err);
+}
+
 const RemoteUtils = {
     push,
     pull,
     list,
-    edit
+    edit,
+    sync
 };
-module.exports = RemoteUtils;
 
+module.exports = RemoteUtils;
