@@ -30,7 +30,6 @@ function initRepo() {
     git add README.md
     git commit -m "Initial commit"
     git remote add origin $REMOTE_PATH
-    git remote add test $REMOTE_PATH
     cd -
 }
 initRepo >/dev/null

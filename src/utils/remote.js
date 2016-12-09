@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const Q = require('q');
+const Promise = require('q');
 const ERRORS = require('../constants/errors');
 const RepoUtils = require('./repo');
 
@@ -116,25 +116,16 @@ function sync(repoState, driver, opts) {
     });
 
     return pull(repoState, driver, opts)
-        .fail(normRefNotFound)
         .fail((err) => {
             if (err.code === ERRORS.REF_NOT_FOUND) {
-                return Q(repoState);
+                return Promise(repoState);
             }
 
-            return Q.reject(err);
+            return Promise.reject(err);
         })
         .then((newRepoState) => {
             return push(newRepoState, driver, opts);
         });
-}
-
-function normRefNotFound(err) {
-    const msg = err.message;
-    if (/^Reference/.test(msg) && /not found$/.test(msg)) {
-        err.code = ERRORS.REF_NOT_FOUND;
-    }
-    return Q.reject(err);
 }
 
 const RemoteUtils = {

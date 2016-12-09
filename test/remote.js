@@ -1,4 +1,5 @@
-const should = require('should');
+require('should');
+
 const path = require('path');
 
 const repofs = require('../src/');
@@ -14,7 +15,7 @@ const mock = require('./mock');
 describe('RemoteUtils', function() {
     if (process.env.REPOFS_DRIVER !== 'uhub') return;
 
-    let DEFAULT_BOOK = mock.DEFAULT_BOOK;
+    const DEFAULT_BOOK = mock.DEFAULT_BOOK;
 
     const driver = new GitHubDriver({
         repository: REPO,
@@ -28,7 +29,10 @@ describe('RemoteUtils', function() {
         });
 
         it('should push remote repository', (done) => {
-            RemoteUtils.push(DEFAULT_BOOK, driver)
+            RemoteUtils.edit(driver, 'origin', REMOTE_PATH)
+                .then(() => {
+                    return RemoteUtils.push(DEFAULT_BOOK, driver);
+                })
                 .then((repoState) => {
                     done();
                 })

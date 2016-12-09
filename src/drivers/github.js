@@ -280,7 +280,8 @@ class GitHubDriver extends Driver {
         return this.post('pull', opts)
         .fail(normNotFF)
         .fail(normAuth)
-        .fail(normUnknownRemote);
+        .fail(normUnknownRemote)
+        .fail(normRefNotFound);
     }
 
     push(opts) {
@@ -447,6 +448,14 @@ function normUnknownRemote(err) {
     return Q.reject(err);
 }
 
+function normRefNotFound(err) {
+    const msg = err.message;
+    if (/^Reference/.test(msg) && /not found$/.test(msg)) {
+        err.code = ERRORS.REF_NOT_FOUND;
+    }
+
+    return Q.reject(err);
+}
 
 /**
  * Normalize a commit coming from the GitHub commit creation API
