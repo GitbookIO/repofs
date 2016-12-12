@@ -2,7 +2,7 @@ const Immutable = require('immutable');
 
 const CHANGE_TYPE = require('../constants/changeType');
 const RepoUtils = require('./repo');
-const pathUtils = require('./path');
+const PathUtils = require('./path');
 
 /**
  * Returns the pending change of a file on the current branch
@@ -94,7 +94,7 @@ function revertForDir(repoState, dirPath) {
 
     // Remove all changes that are in the directory
     changes = changes.filter(function(change, filePath) {
-        return !pathUtils.contains(dirPath, filePath);
+        return !PathUtils.contains(dirPath, filePath);
     });
 
     // Update workingState and repoState

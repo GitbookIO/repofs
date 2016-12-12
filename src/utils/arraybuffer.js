@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const Buffer = require('buffer').Buffer;
 
 /**
@@ -77,7 +76,7 @@ function enforceArrayBuffer(b, encoding) {
  * Force conversion to string with specific encoding
  */
 function enforceString(b, encoding) {
-    if (_.isString(b)) return b;
+    if (typeof b === 'string') return b;
     if (isArrayBuffer(b)) b = toBuffer(b);
 
     return b.toString(encoding);

@@ -1,9 +1,9 @@
-const _ = require('lodash');
 const Q = require('q');
 const { Record, List, Map } = require('immutable');
 const axios = require('axios');
 const urlJoin = require('urljoin.js');
 
+const fromPairs = require('../utils/fromPairs');
 const gravatar = require('../utils/gravatar');
 const base64 = require('../utils/base64');
 const Driver = require('./driver');
@@ -65,7 +65,7 @@ class GitHubDriver extends Driver {
         .then(function(tree) {
             const treeEntries = new Map().withMutations(
                 function addEntries(map) {
-                    _.map(tree.tree, function(entry) {
+                    tree.tree.map((entry) => {
                         if (entry.type === 'tree') return;
                         const treeEntry = new TreeEntry({
                             sha: entry.sha,
@@ -83,7 +83,7 @@ class GitHubDriver extends Driver {
     fetchBranches() {
         return this.get('branches')
         .then(function(branches) {
-            branches = _.map(branches, function(branch) {
+            branches = branches.map((branch) => {
                 // TODO properly detect remote
                 return new Branch({
                     name: branch.name,
@@ -116,8 +116,8 @@ class GitHubDriver extends Driver {
         // Wait for all request to finish
         return Q.all(blobPromises.toArray())
         .then(function(result) {
-            // Recrgeate an object map from the list of [path, sha]
-            return _.fromPairs(result);
+            // Recreate an object map from the list of [path, sha]
+            return fromPairs(result);
         })
         // Create new tree
         .then(function(blobSHAs) {
@@ -270,10 +270,11 @@ class GitHubDriver extends Driver {
         });
     }
 
-    pull(opts) {
-        opts = _.defaults({}, opts, {
+    pull(opts = {}) {
+        opts = Object.assign({
             force: false
-        });
+        }, opts);
+
         // Convert to ref
         opts.branch = opts.branch.getName();
 
@@ -284,10 +285,11 @@ class GitHubDriver extends Driver {
         .fail(normRefNotFound);
     }
 
-    push(opts) {
-        opts = _.defaults({}, opts, {
+    push(opts = {}) {
+        opts = Object.assign({
             force: false
-        });
+        }, opts);
+
         // Convert to ref
         opts.branch = opts.branch.getName();
 

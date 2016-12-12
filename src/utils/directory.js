@@ -1,5 +1,6 @@
-const _ = require('lodash');
 const Path = require('path');
+const flatten = require('array-flatten');
+const uniqueBy = require('unique-by');
 
 const FILETYPE = require('../constants/filetype');
 const File = require('../models/file');
@@ -42,7 +43,7 @@ function read(repoState, dirName) {
     });
 
     // Remove duplicate from entries within directories
-    return _.uniq(files, function(file) {
+    return uniqueBy(files, (file) => {
         return file.getName();
     });
 }
@@ -57,15 +58,17 @@ function read(repoState, dirName) {
 function readRecursive(repoState, dirName) {
     // TODO improve performance and don't use .read() directly
     const files = read(repoState, dirName);
-    const filesInDirs = _.chain(files)
-            .filter(function(file) {
-                return file.isDirectory();
-            })
-            .map(function(dir) {
-                return readRecursive(repoState, dir.path);
-            })
-            .flatten()
-            .value();
+
+    let filesInDirs = files
+        .filter((file) => {
+            return file.isDirectory();
+        })
+        .map((dir) => {
+            return readRecursive(repoState, dir.path);
+        });
+
+    filesInDirs = flatten(filesInDirs);
+
     return Array.prototype.concat(files, filesInDirs);
 }
 
@@ -78,11 +81,9 @@ function readRecursive(repoState, dirName) {
 function readFilenames(repoState, dirName) {
     const files = read(repoState, dirName);
 
-    return _.chain(files)
-        .map(function(file) {
-            return file.getPath();
-        })
-        .value();
+    return files.map((file) => {
+        return file.getPath();
+    });
 }
 
 /**

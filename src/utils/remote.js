@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const Promise = require('q');
 const ERRORS = require('../constants/errors');
 const RepoUtils = require('./repo');
@@ -18,14 +17,14 @@ const RepoUtils = require('./repo');
  * @throws {Promise<ERROR.AUTHENTICATION_FAILED>}
  * @throws {Promise<ERROR.UNKNOWN_REMOTE>}
  */
-function push(repoState, driver, opts) {
-    opts = _.defaults({}, opts || {}, {
+function push(repoState, driver, opts = {}) {
+    opts = Object.assign({
         branch: repoState.getCurrentBranch(),
         force: false,
         remote: {
             name: 'origin'
         }
-    });
+    }, opts);
 
     return driver.push(opts) // Can fail with NOT_FAST_FORWARD
     // TODO update remote branch in repoState list of branches
@@ -48,14 +47,14 @@ function push(repoState, driver, opts) {
  * @throws {Promise<ERROR.AUTHENTICATION_FAILED>}
  * @throws {Promise<ERROR.UNKNOWN_REMOTE>}
  */
-function pull(repoState, driver, opts) {
-    opts = _.defaults({}, opts || {}, {
+function pull(repoState, driver, opts = {}) {
+    opts = Object.assign({
         branch: repoState.getCurrentBranch(),
         force: false,
         remote: {
             name: 'origin'
         }
-    });
+    }, opts);
 
     return driver.pull(opts)
     // Update branch SHA
@@ -106,14 +105,14 @@ function edit(driver, name, url) {
  * @throws {Promise<ERROR.AUTHENTICATION_FAILED>}
  * @throws {Promise<ERROR.UNKNOWN_REMOTE>}
  */
-function sync(repoState, driver, opts) {
-    opts = _.defaults({}, opts || {}, {
+function sync(repoState, driver, opts = {}) {
+    opts = Object.assign({
         branch: repoState.getCurrentBranch(),
         force: false,
         remote: {
             name: 'origin'
         }
-    });
+    }, opts);
 
     return pull(repoState, driver, opts)
         .fail((err) => {

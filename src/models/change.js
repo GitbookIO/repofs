@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const { Record } = require('immutable');
 const CHANGE_TYPE = require('../constants/changeType');
 const Blob = require('./blob');
@@ -89,11 +88,11 @@ class Change extends Record(DEFAULTS) {
 
     static decode(json) {
         // Useless optimization to use the original String reference
-        const typeKey = _.findKey(CHANGE_TYPE, _.eq.bind(null, json.type));
-        if (!typeKey) {
+        const type = CHANGE_TYPE[json.type.toUpperCase()];
+
+        if (!type) {
             throw new Error('Unrecognized change type');
         }
-        const type = CHANGE_TYPE[typeKey];
 
         const content = Blob.createFromBase64(json.content);
 

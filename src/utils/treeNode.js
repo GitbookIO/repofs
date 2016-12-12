@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const Immutable = require('immutable');
 
 /**
@@ -110,11 +109,11 @@ function getIn(tree, keySeq) {
  * @return {TreeNode<K, V>}
  */
 TreeNode.setIn = setIn;
-function setIn(tree, keySeq, node, options) {
-    options = _.defaults({}, options || {}, {
+function setIn(tree, keySeq, node, options = {}) {
+    options = Object.assign({
         mutable: false,
-        createValue: _.constant(null)
-    });
+        createValue: () => null
+    }, options);
     const initialKeySeq = keySeq;
 
     return (function auxSetIn(tree, keySeq) {
