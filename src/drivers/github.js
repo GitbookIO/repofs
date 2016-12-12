@@ -3,7 +3,6 @@ const { Record, List, Map } = require('immutable');
 const axios = require('axios');
 const urlJoin = require('urljoin.js');
 
-const fromPairs = require('../utils/fromPairs');
 const gravatar = require('../utils/gravatar');
 const base64 = require('../utils/base64');
 const Driver = require('./driver');
@@ -117,7 +116,10 @@ class GitHubDriver extends Driver {
         return Q.all(blobPromises.toArray())
         .then(function(result) {
             // Recreate an object map from the list of [path, sha]
-            return fromPairs(result);
+            return result.reduce((res, [key, value]) => {
+                res[key] = value;
+                return res;
+            }, {});
         })
         // Create new tree
         .then(function(blobSHAs) {

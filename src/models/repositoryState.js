@@ -1,6 +1,6 @@
 const { Record, Map, List } = require('immutable');
 
-const mapValues = require('../utils/mapValues');
+const modifyValues = require('modify-values');
 const Normalize = require('../utils/normalize');
 const WorkingState = require('./workingState');
 const Branch = require('./branch');
@@ -162,7 +162,7 @@ RepositoryState.encode = function(repoState) {
 };
 
 RepositoryState.decode = function(json) {
-    const workingStates = new Map(mapValues(json.workingStates, WorkingState.decode));
+    const workingStates = new Map(modifyValues(json.workingStates, WorkingState.decode));
     const branches = new List(json.branches.map(Branch.decode));
 
     return new RepositoryState({
