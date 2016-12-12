@@ -1,6 +1,6 @@
-const _ = require('lodash');
 const { Record, Map, List } = require('immutable');
 
+const modifyValues = require('modify-values');
 const Normalize = require('../utils/normalize');
 const WorkingState = require('./workingState');
 const Branch = require('./branch');
@@ -162,8 +162,8 @@ RepositoryState.encode = function(repoState) {
 };
 
 RepositoryState.decode = function(json) {
-    const workingStates = new Map(_.mapValues(json.workingStates, WorkingState.decode));
-    const branches = new List(_.map(json.branches, Branch.decode));
+    const workingStates = new Map(modifyValues(json.workingStates, WorkingState.decode));
+    const branches = new List(json.branches.map(Branch.decode));
 
     return new RepositoryState({
         currentBranchName: json.currentBranchName,

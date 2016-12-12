@@ -1,5 +1,4 @@
 const Q = require('q');
-const _ = require('lodash');
 const Immutable = require('immutable');
 
 const ERRORS = require('../constants/errors');
@@ -54,11 +53,11 @@ function prepare(repoState, opts) {
  * branch cannot be fast forwarded to the created commit, fails with
  * NOT_FAST_FORWARD. The error will contains the created Commit.
  */
-function flush(repoState, driver, commitBuilder, options) {
-    options = _.defaults({}, options || {}, {
+function flush(repoState, driver, commitBuilder, options = {}) {
+    options = Object.assign({
         branch: repoState.getCurrentBranch(),
         ignoreEmpty: true
-    });
+    }, options);
 
     if (options.ignoreEmpty
         && commitBuilder.isEmpty()

@@ -1,6 +1,6 @@
-const _ = require('lodash');
 const { Record, Map, OrderedMap } = require('immutable');
 
+const modifyValues = require('modify-values');
 const TreeEntry = require('./treeEntry');
 const Change = require('./change');
 
@@ -86,8 +86,8 @@ WorkingState.encode = function(workingState) {
 };
 
 WorkingState.decode = function(json) {
-    const treeEntries = new Map(_.mapValues(json.treeEntries, TreeEntry.decode));
-    const changes = new OrderedMap(_.mapValues(json.changes, Change.decode));
+    const treeEntries = new Map(modifyValues(json.treeEntries, TreeEntry.decode));
+    const changes = new OrderedMap(modifyValues(json.changes, Change.decode));
 
     return new WorkingState({
         head: json.head,

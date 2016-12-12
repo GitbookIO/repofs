@@ -1,5 +1,3 @@
-const _ = require('lodash');
-
 const Normalize = require('./normalize');
 const RepoUtils = require('./repo');
 
@@ -100,10 +98,11 @@ function remove(repoState, driver, branch) {
  * @return {Promise<RepositoryState, ERRORS.CONFLICT>} Fails with
  * CONFLICT error if automatic merge is not possible
  */
-function merge(repoState, driver, from, into, options) {
-    options = _.defaults({}, options || {}, {
+function merge(repoState, driver, from, into, options = {}) {
+    options = Object.assign({
         fetch: true
-    });
+    }, options);
+
     let updatedInto; // closure
 
     return driver.merge(from, into, {
