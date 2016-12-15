@@ -256,17 +256,17 @@ class GitHubDriver extends Driver {
 
     // ---- Only supported by uhub ----
     checkout(branch) {
-        return this.post('checkout', {
+        return this.post('local/checkout', {
             branch: branch ? branch.getFullName() : 'HEAD'
         });
     }
 
     listRemotes() {
-        return this.get('remotes');
+        return this.get('local/remotes');
     }
 
     editRemotes(name, url) {
-        return this.post('remotes', {
+        return this.post('local/remotes', {
             name,
             url
         });
@@ -280,7 +280,7 @@ class GitHubDriver extends Driver {
         // Convert to ref
         opts.branch = opts.branch.getName();
 
-        return this.post('pull', opts)
+        return this.post('local/pull', opts)
         .fail(normNotFF)
         .fail(normAuth)
         .fail(normUnknownRemote)
@@ -295,14 +295,14 @@ class GitHubDriver extends Driver {
         // Convert to ref
         opts.branch = opts.branch.getName();
 
-        return this.post('push', opts)
+        return this.post('local/push', opts)
         .fail(normNotFF)
         .fail(normAuth)
         .fail(normUnknownRemote);
     }
 
     status(opts) {
-        return this.get('status')
+        return this.get('local/status')
             .then(function(status) {
                 return {
                     files: new List(status.files).map(function(file) {
@@ -344,7 +344,7 @@ class GitHubDriver extends Driver {
             };
         }
 
-        return this.post('track', params);
+        return this.post('local/track', params);
     }
 
     // API utilities
