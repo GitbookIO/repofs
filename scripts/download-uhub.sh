@@ -4,6 +4,8 @@ IFS=$'\n\t'
 
 UHUB_VERSION=3.1.0
 
+echo "Downloading uhub..."
+
 # Download Uhub
 if [ "$(uname)" == "Darwin" ]; then
     UHUB_NAME=uhub_darwin_amd64
@@ -15,10 +17,8 @@ fi
 
 if [ -f uhub ];
 then
-    echo "uhub already exist."
+    echo "uhub already downloaded."
 else
-    echo "Downloading uhub"
-
     if [[ -z "$GITHUB_TOKEN" ]]; then
         cat <<EOF
 To download uhub, you need to provide the following env:
