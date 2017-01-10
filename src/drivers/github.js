@@ -65,9 +65,12 @@ class GitHubDriver extends Driver {
             const treeEntries = new Map().withMutations(
                 function addEntries(map) {
                     tree.tree.map((entry) => {
+                        // We ignore trees for now (we flatten the git tree)
                         if (entry.type === 'tree') return;
+
                         const treeEntry = new TreeEntry({
                             sha: entry.sha,
+                            type: entry.type,
                             blobSize: entry.size,
                             mode: entry.mode
                         });
@@ -127,7 +130,7 @@ class GitHubDriver extends Driver {
                 return {
                     path: filePath,
                     mode: treeEntry.getMode(),
-                    type: 'blob',
+                    type: treeEntry.getType(),
                     sha: blobSHAs[filePath] || treeEntry.getSha()
                 };
             }).toArray();
