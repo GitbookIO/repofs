@@ -3,6 +3,7 @@ const GitHubDriver = require('./drivers/github');
 
 const RepositoryState = require('./models/repositoryState');
 const WorkingState = require('./models/workingState');
+const TreeEntry = require('./models/treeEntry');
 const Author = require('./models/author');
 const Branch = require('./models/branch');
 const CommitBuilder = require('./models/commitBuilder');
@@ -34,6 +35,7 @@ module.exports = {
     // Models
     RepositoryState,
     WorkingState,
+    TreeEntry,
     File,
     Blob,
     Author,

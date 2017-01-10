@@ -2,7 +2,9 @@
 set -eo pipefail
 IFS=$'\n\t'
 
-UHUB_VERSION=3.1.0
+UHUB_VERSION=3.1.2
+
+echo "Downloading uhub..."
 
 # Download Uhub
 if [ "$(uname)" == "Darwin" ]; then
@@ -15,10 +17,8 @@ fi
 
 if [ -f uhub ];
 then
-    echo "uhub already exist."
+    echo "uhub already downloaded."
 else
-    echo "Downloading uhub"
-
     if [[ -z "$GITHUB_TOKEN" ]]; then
         cat <<EOF
 To download uhub, you need to provide the following env:

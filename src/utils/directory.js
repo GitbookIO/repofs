@@ -4,13 +4,14 @@ const uniqueBy = require('unique-by');
 
 const FILETYPE = require('../constants/filetype');
 const File = require('../models/file');
+const TreeEntry = require('../models/treeEntry');
 
 const PathUtils = require('./path');
 const WorkingUtils = require('./working');
 const FileUtils = require('./file');
 
 /**
- * List entries in a directory (shallow)
+ * List files in a directory (shallow)
  * @param {RepositoryState} repoState
  * @param {Path} dirName
  * @return {Array<File>}
@@ -25,6 +26,8 @@ function read(repoState, dirName) {
     const files = [];
 
     treeEntries.forEach(function(treeEntry, filepath) {
+        // Ignore git submodules
+        if (treeEntry.getType() !== TreeEntry.TYPES.BLOB) return;
         if (!PathUtils.contains(dirName, filepath)) return;
 
         const innerPath = PathUtils.norm(filepath.replace(dirName, ''));

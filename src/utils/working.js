@@ -10,12 +10,15 @@ const CHANGES = require('../constants/changeType');
  * @return {Set<Path>}
  */
 function getMergedFileSet(workingState) {
-    return Immutable.Set.fromKeys(getMergedTreeEntries(workingState));
+    return Immutable.Set.fromKeys(
+        getMergedTreeEntries(workingState).filter(
+            treeEntry => treeEntry.getType() === TreeEntry.TYPES.BLOB
+        )
+    );
 }
 
 /**
  * Returns a Map of TreeEntry, with sha null when the content is not available as sha.
- * The size of the TreeEntries
  * @param {WorkingState}
  * @return {Map<TreeEntries>}
  */
