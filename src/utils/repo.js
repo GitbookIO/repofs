@@ -130,8 +130,19 @@ function syncFilesystem(driver, branch) {
     return driver.checkout(branch);
 }
 
+/**
+ * @param {RepositoryState} repoState
+ * @return {Boolean} True if the repository has some changes on any branch
+ */
+function isClean(repoState) {
+    return repoState
+        .getWorkingStates()
+        .every((workingState) => workingState.isClean());
+}
+
 const RemoteUtils = {
     initialize,
+    isClean,
     checkout,
     syncFilesystem,
     fetchTree,
