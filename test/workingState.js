@@ -17,8 +17,6 @@ describe('WorkingState', function() {
             repoState = repofs.FileUtils.write(repoState, 'README.md', 'New content');
             repoState.getCurrentState().isClean().should.equal(false);
         });
-
     });
-
 });
 
