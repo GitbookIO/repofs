@@ -47,6 +47,15 @@ class Author extends Record(DEFAULTS) {
             avatar: avatar || ''
         });
     }
+
+    static encode(author) {
+        return author.toJS();
+    }
+
+    static decode(json) {
+        const { name, email, date, avatar } = json;
+        return Author.create(name, email, date, avatar);
+    }
 }
 
 module.exports = Author;

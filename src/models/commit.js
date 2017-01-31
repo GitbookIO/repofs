@@ -57,28 +57,46 @@ class Commit extends Record(DEFAULTS) {
     getParents() {
         return this.get('parents');
     }
+
+
+    // ---- Statics
+
+    /**
+     * @param {SHA} opts.sha
+     * @param {Array<SHA>} opts.parents
+     * @param {String} [opts.message]
+     * @param {String} [opts.date]
+     * @param {Author} [opts.author]
+     * @param {Array<JSON>} [opts.files] Modified files objects, as returned by the GitHub API
+     * @return {Commit}
+     */
+    static create(opts) {
+        return new Commit({
+            sha: opts.sha,
+            message: opts.message,
+            author: new Author(opts.author),
+            date: opts.date,
+            files: new List(opts.files),
+            parents: new List(opts.parents)
+        });
+    }
+
+    static encode(commit) {
+        const { message, sha, date, author, parents } = commit;
+
+        return {
+            message,
+            sha,
+            date,
+            parents: parents.toJS(),
+            author: Author.encode(author)
+        };
+    }
+
+    static decode(json) {
+        return Commit.create(json);
+    }
 }
 
-// ---- Statics
-
-/**
- * @param {SHA} opts.sha
- * @param {Array<SHA>} opts.parents
- * @param {String} [opts.message]
- * @param {String} [opts.date]
- * @param {Author} [opts.author]
- * @param {Array<JSON>} [opts.files] Modified files objects, as returned by the GitHub API
- * @return {Commit}
- */
-Commit.create = function(opts) {
-    return new Commit({
-        sha: opts.sha,
-        message: opts.message,
-        author: opts.author,
-        date: opts.date,
-        files: new List(opts.files),
-        parents: new List(opts.parents)
-    });
-};
 
 module.exports = Commit;

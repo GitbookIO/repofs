@@ -4,8 +4,10 @@ const _ = require('lodash');
 
 const repofs = require('../src/');
 
+const Author = require('../src/models/author');
 const Blob = require('../src/models/blob');
 const Change = require('../src/models/change');
+const Commit = require('../src/models/commit');
 const TreeEntry = require('../src/models/treeEntry');
 const Branch = require('../src/models/branch');
 const WorkingState = require('../src/models/workingState');
@@ -21,10 +23,23 @@ describe('Decoding, encoding', function() {
         sha: 'changeSha'
     });
 
+    const author = new Author({
+        name: 'John Doe',
+        email: 'john@gitbook.com',
+        date: new Date(),
+        avatar: 'avatarUrl'
+    });
+
+    const commit = new Commit({
+        sha: 'commitSha',
+        message: 'Commit message',
+        author
+    });
+
     const branch = new Branch({
         name: 'branchShortName',
-        sha: 'branchSha',
-        remote: 'branchRemote'
+        remote: 'branchRemote',
+        commit
     });
 
     const treeEntry = new TreeEntry({
@@ -69,6 +84,8 @@ describe('Decoding, encoding', function() {
         blob.getAsString().should.eql(decoded.getAsString());
     });
 
+    it('should encode and decode back a Author', testDecodeEncode(Author, author));
+    it('should encode and decode back a Commit', testDecodeEncode(Commit, commit));
     it('should encode and decode back a Change', testDecodeEncode(Change, change));
     it('should encode and decode back a TreeEntry', testDecodeEncode(TreeEntry, treeEntry));
     it('should encode and decode back a Branch', testDecodeEncode(Branch, branch));
@@ -77,4 +94,3 @@ describe('Decoding, encoding', function() {
 
     it('should encode and decode an empty RepositoryState', testDecodeEncode(RepositoryState, RepositoryState.createEmpty()));
 });
-

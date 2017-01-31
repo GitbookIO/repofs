@@ -22,17 +22,17 @@ function compareRefs(driver, base, head) {
     const headRef = head instanceof Branch ? head.getFullName() : head;
 
     return driver.findParentCommit(baseRef, headRef)
-    .then(function(parentCommit) {
+    .then((parentCommit) => {
         // There can be no parent commit
         return Q.all([
             parentCommit ? parentCommit.getSha() : null,
             baseRef,
             headRef
-        ].map(function(ref) {
+        ].map((ref) => {
             return ref ? driver.fetchWorkingState(ref) : WorkingState.createEmpty();
         }));
     })
-    .spread(function(parent, base, head) {
+    .spread((parent, base, head) => {
         const conflicts = _compareTrees(parent.getTreeEntries(),
                                      base.getTreeEntries(),
                                      head.getTreeEntries());
@@ -95,9 +95,9 @@ function mergeCommit(treeConflict, parents, options) {
 
     // Create map of blobs that needs to be created
     const solvedConflicts = treeConflict.getConflicts();
-    opts.blobs = solvedEntries.filter(function(treeEntry) {
+    opts.blobs = solvedEntries.filter((treeEntry) => {
         return !treeEntry.hasSha();
-    }).map(function(treeEntry, path) {
+    }).map((treeEntry, path) => {
         return solvedConflicts.get(path).getSolvedContent();
     });
 
@@ -120,14 +120,14 @@ function _compareTrees(parentEntries, baseEntries, headEntries) {
     // ... modified by both branches
     const headSet = Immutable.Set.fromKeys(headDiff);
     const baseSet = Immutable.Set.fromKeys(baseDiff);
-    const conflictSet = headSet.intersect(baseSet).filter(function(filepath) {
+    const conflictSet = headSet.intersect(baseSet).filter((filepath) => {
         // ...in different manners
         return !Immutable.is(headDiff.get(filepath), baseDiff.get(filepath));
     });
 
     // Create the map of Conflict
-    return (new Immutable.Map()).withMutations(function(map) {
-        return conflictSet.reduce(function(map, filepath) {
+    return (new Immutable.Map()).withMutations((map) => {
+        return conflictSet.reduce((map, filepath) => {
             const shas = [
                 parentEntries,
                 baseEntries,
@@ -158,8 +158,8 @@ function _diffEntries(parent, child) {
         return !Immutable.is(parent.get(path), child.get(path));
     });
 
-    return (new Immutable.Map()).withMutations(function(map) {
-        return changes.reduce(function(map, path) {
+    return (new Immutable.Map()).withMutations((map) => {
+        return changes.reduce((map, path) => {
             // Add new TreeEntry or null when deleted
             const treeEntry = child.get(path) || null;
             return map.set(path, treeEntry);
@@ -181,7 +181,7 @@ function _getSolvedEntries(treeConflict) {
     const baseDiff = _diffEntries(parentEntries, baseEntries);
     const headDiff = _diffEntries(parentEntries, headEntries);
 
-    const resolvedEntries = treeConflict.getConflicts().map(function(solvedConflict) {
+    const resolvedEntries = treeConflict.getConflicts().map((solvedConflict) => {
         // Convert to TreeEntries (or null for deletion)
         if (solvedConflict.isDeleted()) {
             return null;

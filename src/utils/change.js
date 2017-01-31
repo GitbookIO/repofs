@@ -93,7 +93,7 @@ function revertForDir(repoState, dirPath) {
     let changes = workingState.getChanges();
 
     // Remove all changes that are in the directory
-    changes = changes.filter(function(change, filePath) {
+    changes = changes.filter((change, filePath) => {
         return !PathUtils.contains(dirPath, filePath);
     });
 
@@ -111,7 +111,7 @@ function revertAllRemoved(repoState) {
     let workingState = repoState.getCurrentState();
     const changes = workingState.getChanges().filter(
         // Remove all changes that are in the directory
-        function(change) {
+        (change) => {
             return change.getType() === CHANGE_TYPE.REMOVE;
         }
     );

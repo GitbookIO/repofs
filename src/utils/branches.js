@@ -15,7 +15,7 @@ function create(repositoryState, driver, name, opts) {
     let createdBranch;
     const result = driver.createBranch(base, name)
     // Update list of branches
-    .then(function(branch) {
+    .then((branch) => {
         createdBranch = branch;
         let branches = repositoryState.getBranches();
         branches = branches.push(createdBranch);
@@ -41,7 +41,7 @@ function create(repositoryState, driver, name, opts) {
             }
         })
         // Checkout
-        .then(function(repoState) {
+        .then((repoState) => {
             return RepoUtils.checkout(repoState, createdBranch);
         });
     }
@@ -59,8 +59,8 @@ function update(repoState, driver, branchName) {
     branchName = Normalize.branchName(branchName || repoState.getCurrentBranch());
 
     return driver.fetchBranches()
-    .then(function(branches) {
-        const newBranch = branches.find(function(branch) {
+    .then((branches) => {
+        const newBranch = branches.find((branch) => {
             return branch.getFullName() === branchName;
         });
 
@@ -81,7 +81,7 @@ function update(repoState, driver, branchName) {
  */
 function remove(repoState, driver, branch) {
     return driver.deleteBranch(branch)
-    .then(function() {
+    .then(() => {
         return repoState.updateBranch(branch, null);
     });
 }

@@ -30,9 +30,9 @@ function prepare(repoState, opts) {
     opts.treeEntries = WorkingUtils.getMergedTreeEntries(workingState);
 
     // Create map of blobs that needs to be created
-    opts.blobs = changes.filter(function(change) {
+    opts.blobs = changes.filter((change) => {
         return !change.hasSha();
-    }).map(function(change) {
+    }).map((change) => {
         return change.getContent();
     });
 
@@ -68,7 +68,7 @@ function flush(repoState, driver, commitBuilder, options = {}) {
     // Create new commit
     return driver.flushCommit(commitBuilder)
     // Forward the branch
-    .then(function(commit) {
+    .then((commit) => {
         return driver.forwardBranch(options.branch, commit.getSha())
         // Fetch new workingState and replace old one
         .then(function updateBranch() {

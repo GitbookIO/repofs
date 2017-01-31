@@ -42,7 +42,7 @@ function updateCurrentWorkingState(repoState, workingState) {
 function fetchTree(repoState, driver, branch) {
     // Fetch a working tree for this branch
     return WorkingUtils.fetch(driver, branch)
-    .then(function(newWorkingState) {
+    .then((newWorkingState) => {
         return updateWorkingState(repoState, branch, newWorkingState);
     });
 }
@@ -79,12 +79,12 @@ function checkout(repoState, branch) {
 function fetchBranches(repoState, driver) {
     const oldBranches = repoState.getBranches();
     return driver.fetchBranches()
-    .then(function(branches) {
+    .then((branches) => {
         return repoState.set('branches', branches);
     })
     .then(function refreshWorkingStates(repoState) {
         // Remove outdated WorkingStates
-        return oldBranches.reduce(function(repoState, oldBranch) {
+        return oldBranches.reduce((repoState, oldBranch) => {
             const fullName = oldBranch.getFullName();
             const newBranch = repoState.getBranch(fullName);
             if (newBranch === null || newBranch.getSha() !== oldBranch.getSha()) {
@@ -107,7 +107,7 @@ function fetchBranches(repoState, driver) {
 function initialize(driver) {
     const repoState = RepositoryState.createEmpty();
     return fetchBranches(repoState, driver)
-    .then(function(repoState) {
+    .then((repoState) => {
         const branches = repoState.getBranches();
         const master = branches.find(function isMaster(branch) {
             return branch.getFullName() === 'master';
@@ -115,7 +115,7 @@ function initialize(driver) {
         const branch = master || branches.first();
 
         return fetchTree(repoState, driver, branch)
-        .then(function(repoState) {
+        .then((repoState) => {
             return checkout(repoState, branch);
         });
     });
@@ -137,7 +137,7 @@ function syncFilesystem(driver, branch) {
 function isClean(repoState) {
     return repoState
         .getWorkingStates()
-        .every((workingState) => workingState.isClean());
+        .every(workingState => workingState.isClean());
 }
 
 const RemoteUtils = {
