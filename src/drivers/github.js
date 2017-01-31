@@ -89,7 +89,7 @@ class GitHubDriver extends Driver {
                 // TODO properly detect remote
                 return new Branch({
                     name: branch.name,
-                    sha: branch.commit.sha,
+                    commit: normListedCommit(branch.commit),
                     // branch.is_local is undefined for GitHub
                     remote: branch.is_local === false ? 'origin' : ''
                 });
@@ -493,7 +493,7 @@ function normListedCommit(ghCommit) {
         author: getCompleteAuthor(ghCommit),
         date: ghCommit.commit.author.date,
         files: ghCommit.files,
-        parents: ghCommit.parents.map(function getSha(o) { return o.sha; })
+        parents: ghCommit.parents.map(c => c.sha)
     });
 
     return commit;
