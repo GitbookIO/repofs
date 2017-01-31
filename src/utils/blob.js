@@ -28,7 +28,7 @@ function fetch(repoState, driver, sha) {
     // Fetch the blob
     return driver.fetchBlob(sha)
     // Then store it in the cache
-    .then(function(blob) {
+    .then((blob) => {
         const newCache = CacheUtils.addBlob(cache, sha, blob);
         return repoState.set('cache', newCache);
     });

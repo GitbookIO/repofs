@@ -58,11 +58,11 @@ function pull(repoState, driver, opts = {}) {
 
     return driver.pull(opts)
     // Update branch SHA
-    .then(function() {
+    .then(() => {
         return driver.fetchBranches();
     })
-    .then(function(branches) {
-        const updatedBranch = branches.find(function(br) {
+    .then((branches) => {
+        const updatedBranch = branches.find((br) => {
             return br.getFullName() === opts.branch.getFullName();
         });
         repoState = repoState.updateBranch(opts.branch, updatedBranch);

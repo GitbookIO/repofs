@@ -49,7 +49,7 @@ class RepositoryState extends Record(DEFAULTS) {
      */
     getBranch(branchName) {
         const branch = this.getBranches()
-                .find(function(_branch) {
+                .find((_branch) => {
                     return branchName == _branch.getFullName();
                 });
         return branch || null;
@@ -103,7 +103,7 @@ class RepositoryState extends Record(DEFAULTS) {
      * @param {String} fullname Such as 'origin/master' or 'develop'
      */
     hasBranch(fullname) {
-        return this.getBranches().some(function(branch) {
+        return this.getBranches().some((branch) => {
             return branch.getFullName() === fullname;
         });
     }
@@ -124,7 +124,7 @@ class RepositoryState extends Record(DEFAULTS) {
         branchName = Normalize.branchName(branchName);
 
         let branches = this.getBranches();
-        const index = branches.findIndex(function(branch) {
+        const index = branches.findIndex((branch) => {
             return branch.getFullName() === branchName;
         });
         if (value === null) {
