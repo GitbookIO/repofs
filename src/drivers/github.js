@@ -200,7 +200,7 @@ class GitHubDriver extends Driver {
             return Compare.create({
                 commits: res.commits.map(normListedCommit),
                 files: res.files,
-                closest: normListedCommit(res.base_commit),
+                closest: normListedCommit(res.merge_base_commit),
                 base,
                 head
             });
