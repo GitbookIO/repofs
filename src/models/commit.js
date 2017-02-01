@@ -1,5 +1,6 @@
 const { Record, List } = require('immutable');
 const Author = require('./author');
+const FileDiff = require('./fileDiff');
 
 /**
  * Represents a Commit in the history (already created)
@@ -15,16 +16,7 @@ const DEFAULTS = {
     // String formatted date of the commit
     date:    String(),
     // List of files modified with their SHA and patch.
-    // File: {
-    //   sha: '...',
-    //   filename: README.md,
-    //   status: modified,
-    //   additions: 2,
-    //   deletions: 0,
-    //   changes: 2,
-    //   patch: ''
-    // }
-    files:   List(), // List<JSON>
+    files:   List(), // List<FileDiff>
     // Parents of the commit (List<SHA>)
     parents: List()
 };
@@ -57,28 +49,30 @@ class Commit extends Record(DEFAULTS) {
     getParents() {
         return this.get('parents');
     }
+
+    /**
+     * @param {SHA} opts.sha
+     * @param {Array<SHA>} opts.parents
+     * @param {String} [opts.message]
+     * @param {String} [opts.date]
+     * @param {Author} [opts.author]
+     * @param {Array<JSON>} [opts.files] Modified files objects, as returned by the GitHub API
+     * @return {Commit}
+     */
+    static create(opts) {
+        if (opts instanceof Commit) {
+            return opts;
+        }
+
+        return new Commit({
+            sha: opts.sha,
+            message: opts.message,
+            author: opts.author,
+            date: opts.date,
+            files: List(opts.files).map(file => FileDiff.create(file)),
+            parents: List(opts.parents)
+        });
+    }
 }
-
-// ---- Statics
-
-/**
- * @param {SHA} opts.sha
- * @param {Array<SHA>} opts.parents
- * @param {String} [opts.message]
- * @param {String} [opts.date]
- * @param {Author} [opts.author]
- * @param {Array<JSON>} [opts.files] Modified files objects, as returned by the GitHub API
- * @return {Commit}
- */
-Commit.create = function(opts) {
-    return new Commit({
-        sha: opts.sha,
-        message: opts.message,
-        author: opts.author,
-        date: opts.date,
-        files: new List(opts.files),
-        parents: new List(opts.parents)
-    });
-};
 
 module.exports = Commit;

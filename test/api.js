@@ -31,11 +31,11 @@ const TOKEN = process.env.REPOFS_TOKEN;
 // Commit "Initial commit\n"
 // 1 addition README.md:
 // "# <name of the repo>"
-describe('API tests', function() {
+describe('API tests', () => {
 
     const shouldSkip = process.env.REPOFS_SKIP_API_TEST;
     if (shouldSkip) {
-        it('WAS SKIPPED', function() {
+        it('WAS SKIPPED', () => {
         });
         return;
     }

@@ -49,7 +49,10 @@ class Driver {
      * @param {Ref} ref2
      * @return {Promise<Commit | Null>}
      */
-    findParentCommit(ref1, ref2) {}
+    findParentCommit(ref1, ref2) {
+        return this.compare(ref1, ref2)
+        .then(compare => compare.closest.sha ? compare.closest : null);
+    }
 
     /**
      * List all the commits reachable from head, but not from base. Most
@@ -58,7 +61,18 @@ class Driver {
      * @param {Branch | SHA} head
      * @return {Promise<List<Commit>>}
      */
-    fetchOwnCommits(base, head) {}
+    fetchOwnCommits(base, head) {
+        return this.compare(base, head)
+        .then(compare => compare.commits);
+    }
+
+    /**
+     * Compare two commits.
+     * @param {Branch | SHA} base
+     * @param {Branch | SHA} head
+     * @return {Promise<Compare>}
+     */
+    compare(base, head) {}
 
     /**
      * Update a branch forward to a given commit

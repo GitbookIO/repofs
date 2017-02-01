@@ -16,16 +16,16 @@ function testDriver(driver) {
     function findBranch(driver, fullname) {
         return driver.fetchBranches()
         .then(function find(branches) {
-            return branches.find(function(br) {
+            return branches.find((br) => {
                 return br.getFullName() === fullname;
             });
         });
     }
 
-    describe('.fetchBranches', function() {
-        it('should list existing branches', function() {
+    describe('.fetchBranches', () => {
+        it('should list existing branches', () => {
             return driver.fetchBranches()
-            .then(function(branches) {
+            .then((branches) => {
                 (branches instanceof Immutable.List).should.be.true();
                 branches.count().should.eql(1);
                 const branch = branches.first();
@@ -34,18 +34,18 @@ function testDriver(driver) {
         });
     });
 
-    describe('.createBranch', function() {
-        it('should clone a branch', function() {
+    describe('.createBranch', () => {
+        it('should clone a branch', () => {
             return findBranch(driver, 'master')
-            .then(function(master) {
+            .then((master) => {
                 return driver.createBranch(master, 'driver-test')
-                .then(function(branch) {
+                .then((branch) => {
                     return Q.all([
                         branch,
                         findBranch(driver, 'driver-test')
                     ]);
                 })
-                .spread(function(returned, fetched) {
+                .spread((returned, fetched) => {
                     Immutable.is(returned, fetched).should.be.true();
                     fetched.getSha().should.eql(master.getSha());
                 });
@@ -53,13 +53,13 @@ function testDriver(driver) {
         });
     });
 
-    describe('.fetchWorkingState', function() {
-        it('should fetch a WorkingState of a basic repo', function() {
+    describe('.fetchWorkingState', () => {
+        it('should fetch a WorkingState of a basic repo', () => {
             return Q.all([
                 findBranch(driver, 'master'),
                 driver.fetchWorkingState('master')
             ])
-            .spread(function(master, workingState) {
+            .spread((master, workingState) => {
                 workingState.getHead().should.eql(master.getSha());
                 const readme = workingState.getTreeEntries().get('README.md');
                 readme.should.be.ok();
@@ -71,38 +71,38 @@ function testDriver(driver) {
 
     // ---------------------------------------------------------
     // We tested all functions needed to initalize a repo so far
-    describe('... we can now init a repo', function() {
+    describe('... we can now init a repo', () => {
 
         let repoState;
         let driverBranch;
 
-        before(function() {
+        before(() => {
             return repofs.RepoUtils.initialize(driver)
-            .then(function(newState) {
+            .then((newState) => {
                 driverBranch = newState.getBranch('driver-test');
                 return repofs.RepoUtils.fetchTree(newState, driver, driverBranch);
             })
-            .then(function(newState) {
+            .then((newState) => {
                 repoState = repofs.RepoUtils.checkout(newState, driverBranch);
             });
         });
 
-        describe('.fetchBlob', function() {
-            it('should fetch a blob obviously', function() {
+        describe('.fetchBlob', () => {
+            it('should fetch a blob obviously', () => {
                 const workingState = repoState.getCurrentState();
                 const readme = workingState.getTreeEntries().get('README.md');
                 const sha = readme.getSha();
                 return driver.fetchBlob(sha)
-                .then(function(blob) {
+                .then((blob) => {
                     blob.should.be.ok();
                 });
             });
         });
 
-        describe('.flushCommit', function() {
+        describe('.flushCommit', () => {
             let createdCommit;
 
-            it('should flush a commit from a CommitBuilder', function() {
+            it('should flush a commit from a CommitBuilder', () => {
                 // Create a file for test
                 repoState = repofs.FileUtils.create(
                     repoState, 'flushCommitFile', 'flushCommitContent');
@@ -112,7 +112,7 @@ function testDriver(driver) {
                 });
 
                 return driver.flushCommit(commitBuilder)
-                .then(function(commit) {
+                .then((commit) => {
                     createdCommit = commit;
                     createdCommit.getAuthor().getName().should.eql('Shakespeare');
                     createdCommit.getAuthor().getEmail().should.eql('shakespeare@hotmail.com');
@@ -123,25 +123,25 @@ function testDriver(driver) {
                 });
             });
 
-            describe('.forwardBranch', function() {
-                it('should update a branch reference to a given commit', function() {
+            describe('.forwardBranch', () => {
+                it('should update a branch reference to a given commit', () => {
                     return driver.forwardBranch(driverBranch, createdCommit.getSha())
-                    .then(function() {
+                    .then(() => {
                         // Ref flushed
                         return repofs.RepoUtils.fetchBranches(repoState, driver);
                     })
-                    .then(function(repoState) {
+                    .then((repoState) => {
                         repoState.getCurrentBranch().getSha().should.eql(createdCommit.getSha());
                     });
                 });
             });
 
-            describe('.listCommits', function() {
-                it('should list commits on a branch', function() {
+            describe('.listCommits', () => {
+                it('should list commits on a branch', () => {
                     return driver.listCommits({
                         ref: driverBranch.getFullName()
                     })
-                    .then(function(commits) {
+                    .then((commits) => {
                         commits.count().should.eql(2);
                         // Initial commit, should not have
                         commits.last().getParents().isEmpty().should.be.true();
@@ -150,24 +150,24 @@ function testDriver(driver) {
                     });
                 });
 
-                it('should list commits on a branch, filtering by modified file', function() {
+                it('should list commits on a branch, filtering by modified file', () => {
                     return driver.listCommits({
                         ref: driverBranch.getFullName(),
                         path: 'flushCommitFile'
                     })
-                    .then(function(commits) {
+                    .then((commits) => {
                         commits.count().should.eql(1);
                         // Only created commit
                         Immutable.is(commits.first(), createdCommit);
                     });
                 });
 
-                it('should list commits on a branch, filtering by author', function() {
+                it('should list commits on a branch, filtering by author', () => {
                     return driver.listCommits({
                         ref: driverBranch.getFullName(),
                         author: 'shakespeare@hotmail.com'
                     })
-                    .then(function(commits) {
+                    .then((commits) => {
                         commits.count().should.eql(1);
                         // Only created commit
                         Immutable.is(commits.first(), createdCommit);
@@ -175,10 +175,10 @@ function testDriver(driver) {
                 });
             });
 
-            describe('.fetchCommit', function() {
-                it('should fetch a commit, complete with files', function() {
+            describe('.fetchCommit', () => {
+                it('should fetch a commit, complete with files', () => {
                     return driver.fetchCommit(createdCommit.getSha())
-                    .then(function(commit) {
+                    .then((commit) => {
                         commit.getAuthor().getName().should.eql('Shakespeare');
                         commit.getAuthor().getEmail().should.eql('shakespeare@hotmail.com');
                         commit.getMessage().should.eql('Test message');
@@ -197,8 +197,8 @@ function testDriver(driver) {
             });
         });
 
-        describe('.fetchWorkingState', function() {
-            it('should not list directories as tree entries', function() {
+        describe('.fetchWorkingState', () => {
+            it('should not list directories as tree entries', () => {
                 // Create a directory for test
                 repoState = repofs.FileUtils.create(
                     repoState, 'dir/file', 'content'
@@ -212,26 +212,26 @@ function testDriver(driver) {
                 return driver.flushCommit(commitBuilder)
                 // Not forwarding driverBranch, to avoid messing
                 // up with the rest of the tests
-                .then(function(commit) {
+                .then((commit) => {
                     return driver.fetchWorkingState(commit.getSha());
                 })
-                .then(function(workingState) {
+                .then((workingState) => {
                     should(workingState.getTreeEntries().get('dir/file')).be.ok();
                     should(workingState.getTreeEntries().get('dir')).be.undefined();
                 });
             });
         });
 
-        describe('UHUB specific', function() {
+        describe('UHUB specific', () => {
             if (process.env.REPOFS_DRIVER !== 'uhub') return;
 
-            describe('.editRemotes', function() {
-                it('should add a remote', function() {
+            describe('.editRemotes', () => {
+                it('should add a remote', () => {
                     return driver.editRemotes('origin', 'url')
-                    .then(function() {
+                    .then(() => {
                         return driver.listRemotes();
                     })
-                    .then(function(remotes) {
+                    .then((remotes) => {
                         remotes.should.eql([
                             {
                                 name: 'origin',
@@ -242,8 +242,8 @@ function testDriver(driver) {
                 });
             });
 
-            describe('.checkout', function() {
-                it('should update filesystem to reflect a branch', function() {
+            describe('.checkout', () => {
+                it('should update filesystem to reflect a branch', () => {
                     fs.readdirSync(REPO_DIR).should.eql([
                         '.git',
                         'README.md'
@@ -263,14 +263,14 @@ function testDriver(driver) {
         });
 
         // Better do this one last...
-        describe('.deleteBranch', function() {
-            it('should remove a branch', function() {
+        describe('.deleteBranch', () => {
+            it('should remove a branch', () => {
                 return driver.deleteBranch(driverBranch)
-                .then(function() {
+                .then(() => {
                     return driver.fetchBranches();
                 })
-                .then(function(branches) {
-                    branches.some(function(br) {
+                .then((branches) => {
+                    branches.some((br) => {
                         return br.getFullName() === driverBranch.getFullName();
                     }).should.be.false();
                 });

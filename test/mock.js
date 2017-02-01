@@ -96,7 +96,7 @@ function defaultBook() {
 // dir.deep.oneItem/file1
 // dir.deep.oneItem/dir.oneItem/file1
 function directoryStructure(pathList) {
-    return pathList.reduce(function(repo, path) {
+    return pathList.reduce((repo, path) => {
         return addFile(repo, path);
     }, emptyRepo());
 }
@@ -105,9 +105,9 @@ function directoryStructure(pathList) {
 function bigFileList(n, depth) {
     depth = depth || 1;
     const indexes = Immutable.Range(1, n);
-    return indexes.map(function(index) {
+    return indexes.map((index) => {
         const depths = Immutable.Range(0, depth);
-        return depths.map(function(depth) {
+        return depths.map((depth) => {
             return index + '.' + depth;
         }).toArray().join('/');
     }).toArray();

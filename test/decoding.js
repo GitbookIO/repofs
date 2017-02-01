@@ -11,7 +11,7 @@ const Branch = require('../src/models/branch');
 const WorkingState = require('../src/models/workingState');
 const RepositoryState = require('../src/models/repositoryState');
 
-describe('Decoding, encoding', function() {
+describe('Decoding, encoding', () => {
 
     const blob = Blob.createFromString('Test');
 
@@ -61,7 +61,7 @@ describe('Decoding, encoding', function() {
         };
     }
 
-    it('should encode and decode back a Blob', function() {
+    it('should encode and decode back a Blob', () => {
         const encoded = Blob.encode(blob);
         const decoded = Blob.decode(encoded);
 

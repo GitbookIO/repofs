@@ -6,7 +6,7 @@ const ChangeUtils = repofs.ChangeUtils;
 
 const mock = require('./mock');
 
-describe('ChangeUtils', function() {
+describe('ChangeUtils', () => {
     const DEFAULT_BOOK = mock.DEFAULT_BOOK;
 
     const create = new Change({
@@ -18,9 +18,9 @@ describe('ChangeUtils', function() {
         type: repofs.CHANGE.REMOVE
     });
 
-    describe('.setChange', function() {
+    describe('.setChange', () => {
 
-        it('should resolve REMOVE after a CREATE', function() {
+        it('should resolve REMOVE after a CREATE', () => {
             let state = DEFAULT_BOOK;
 
             state = ChangeUtils.setChange(DEFAULT_BOOK, 'new', create);
@@ -32,7 +32,7 @@ describe('ChangeUtils', function() {
                 .should.equal(false);
         });
 
-        it('should resolve CREATE after a REMOVE', function() {
+        it('should resolve CREATE after a REMOVE', () => {
             let state = DEFAULT_BOOK;
 
             state = ChangeUtils.setChange(DEFAULT_BOOK, 'README.md', remove);
