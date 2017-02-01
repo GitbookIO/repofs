@@ -50,7 +50,7 @@ class Driver {
      * @return {Promise<Commit | Null>}
      */
     findParentCommit(ref1, ref2) {
-        return this.compare(ref1, ref2)
+        return this.fetchCompare(ref1, ref2)
         .then(compare => compare.closest.sha ? compare.closest : null);
     }
 
@@ -62,7 +62,7 @@ class Driver {
      * @return {Promise<List<Commit>>}
      */
     fetchOwnCommits(base, head) {
-        return this.compare(base, head)
+        return this.fetchCompare(base, head)
         .then(compare => compare.commits);
     }
 
@@ -72,7 +72,7 @@ class Driver {
      * @param {Branch | SHA} head
      * @return {Promise<Compare>}
      */
-    compare(base, head) {}
+    fetchCompare(base, head) {}
 
     /**
      * Update a branch forward to a given commit

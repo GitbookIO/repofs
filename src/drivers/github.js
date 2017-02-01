@@ -190,7 +190,7 @@ class GitHubDriver extends Driver {
      * @param {Branch | SHA} head
      * @return {Promise<Compare>}
      */
-    compare(base, head) {
+    fetchCompare(base, head) {
         const refs = [base, head].map((x) => {
             return (x instanceof Branch) ? x.getFullName() : x;
         });
