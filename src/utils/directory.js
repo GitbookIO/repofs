@@ -25,7 +25,7 @@ function read(repoState, dirName) {
 
     const files = [];
 
-    treeEntries.forEach(function(treeEntry, filepath) {
+    treeEntries.forEach((treeEntry, filepath) => {
         // Ignore git submodules
         if (treeEntry.getType() !== TreeEntry.TYPES.BLOB) return;
         if (!PathUtils.contains(dirName, filepath)) return;
@@ -101,7 +101,7 @@ function readFilenamesRecursive(repoState, dirName) {
     const workingState = repoState.getCurrentState();
     const fileSet = WorkingUtils.getMergedFileSet(workingState);
 
-    return fileSet.filter(function(path) {
+    return fileSet.filter((path) => {
         return PathUtils.contains(dirName, path);
     }).toArray();
 }
@@ -114,7 +114,7 @@ function move(repoState, dirName, newDirName) {
     const filesToMove = readFilenamesRecursive(repoState, dirName);
 
     // Push change to remove all entries
-    return filesToMove.reduce(function(repoState, oldPath) {
+    return filesToMove.reduce((repoState, oldPath) => {
         const newPath = Path.join(
             newDirName,
             Path.relative(dirName, oldPath)
@@ -132,7 +132,7 @@ function remove(repoState, dirName) {
     const filesToRemove = readFilenamesRecursive(repoState, dirName);
 
     // Push change to remove all entries
-    return filesToRemove.reduce(function(repoState, path) {
+    return filesToRemove.reduce((repoState, path) => {
         return FileUtils.remove(repoState, path);
     }, repoState);
 }

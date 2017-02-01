@@ -10,20 +10,20 @@ function testCommit(driver) {
 
     let repoState;
 
-    before(function() {
+    before(() => {
         return repofs.RepoUtils.initialize(driver)
-        .then(function(initRepo) {
+        .then((initRepo) => {
             return repofs.BranchUtils.create(initRepo, driver, 'test-commit', {
                 checkout: true
             });
         })
-        .then(function(branchedRepo) {
+        .then((branchedRepo) => {
             repoState = branchedRepo;
         });
     });
 
-    describe('.flush', function() {
-        it('should flush a prepared commit', function() {
+    describe('.flush', () => {
+        it('should flush a prepared commit', () => {
             // Create a file for test
             repoState = repofs.FileUtils.create(
                 repoState, 'flushCommitFile', 'Flush CommitContent');
@@ -33,7 +33,7 @@ function testCommit(driver) {
             });
 
             return repofs.CommitUtils.flush(repoState, driver, commitBuilder)
-            .then(function(newState) {
+            .then((newState) => {
                 repoState = newState;
                 // No more pending changes
                 repoState.getCurrentState().isClean().should.be.true();
@@ -43,7 +43,7 @@ function testCommit(driver) {
             });
         });
 
-        it('should detect not fast forward errors', function() {
+        it('should detect not fast forward errors', () => {
             // Simulate another person trying to commit
             const otherState = repofs.FileUtils.create(
                 repoState, 'not_ff_detection', 'I will get a NOT_FAST_FORWARD');
@@ -52,13 +52,13 @@ function testCommit(driver) {
                 repoState, 'not_ff_detection', 'Not ff detection');
 
             return emptyCommitAndFlush(repoState, driver, 'Not ff detection')
-            .then(function(_repoState) {
+            .then((_repoState) => {
                 repoState = _repoState;
                 return emptyCommitAndFlush(otherState, driver, 'Not ff detection');
             })
-            .then(function() {
+            .then(() => {
                 should.fail('NOT_FAST_FORWARD was not detected');
-            }, function(err) {
+            }, (err) => {
                 err.code.should.eql(repofs.ERRORS.NOT_FAST_FORWARD);
                 // Should have the created commit available for merging
                 err.commit.should.be.ok();
@@ -66,23 +66,23 @@ function testCommit(driver) {
         });
     });
 
-    describe('.fetchList', function() {
-        it('should list commits on current branch', function() {
+    describe('.fetchList', () => {
+        it('should list commits on current branch', () => {
             // Work on a different branch
             const listTestState = repofs.RepoUtils.checkout(repoState, 'master');
 
             return repofs.BranchUtils.create(listTestState, driver, 'test-list-commit', {
                 checkout: true
             })
-            .then(function(listTestState) {
+            .then((listTestState) => {
                 return emptyCommitAndFlush(listTestState, driver, 'List commit test');
             })
-            .then(function(listTestState) {
+            .then((listTestState) => {
                 return repofs.CommitUtils.fetchList(driver, {
                     branch: listTestState.getCurrentBranch()
                 });
             })
-            .then(function(commits) {
+            .then((commits) => {
                 commits.count().should.be.greaterThan(1);
                 const commit = commits.first();
                 commit.getAuthor().getName().should.eql('Shakespeare');

@@ -80,7 +80,7 @@ function stat(repoState, filepath) {
         fileSize = blob.getByteLength();
     } else {
         // It might have been moved (but not fetched)
-        const originalEntry = workingState.getTreeEntries().find(function(entry) {
+        const originalEntry = workingState.getTreeEntries().find((entry) => {
             return entry.getSha() === blobSHA;
         });
         fileSize = originalEntry.getBlobSize();

@@ -16,6 +16,7 @@ const TreeEntry = require('../models/treeEntry');
 const WorkingState = require('../models/workingState');
 const LocalFile = require('../models/localFile');
 const Reference = require('../models/reference');
+const Comparison = require('../models/comparison');
 
 /**
  * Options for the GitHub Driver
@@ -51,7 +52,7 @@ class GitHubDriver extends Driver {
 
     fetchBlob(sha) {
         return this.get('git/blobs/' + sha)
-        .then(function(r) {
+        .then((r) => {
             return Blob.createFromBase64(r.content);
         });
     }
@@ -61,7 +62,7 @@ class GitHubDriver extends Driver {
         return this.get('git/trees/' + ref, {
             recursive: 1
         })
-        .then(function(tree) {
+        .then((tree) => {
             const treeEntries = new Map().withMutations(
                 function addEntries(map) {
                     tree.tree.map((entry) => {
@@ -84,7 +85,7 @@ class GitHubDriver extends Driver {
 
     fetchBranches() {
         return this.get('branches')
-        .then(function(branches) {
+        .then((branches) => {
             branches = branches.map((branch) => {
                 // TODO properly detect remote
                 return new Branch({
@@ -105,19 +106,19 @@ class GitHubDriver extends Driver {
         const that = this;
 
         // Create blobs required
-        const blobPromises = commitBuilder.getBlobs().map(function(blob, filePath) {
+        const blobPromises = commitBuilder.getBlobs().map((blob, filePath) => {
             return that.post('git/blobs', {
                 content: blob.getAsBase64(),
                 encoding: 'base64'
             })
-            .then(function(ghBlob) {
+            .then((ghBlob) => {
                 return [filePath, ghBlob.sha];
             });
         });
 
         // Wait for all request to finish
         return Q.all(blobPromises.toArray())
-        .then(function(result) {
+        .then((result) => {
             // Recreate an object map from the list of [path, sha]
             return result.reduce((res, [key, value]) => {
                 res[key] = value;
@@ -125,8 +126,8 @@ class GitHubDriver extends Driver {
             }, {});
         })
         // Create new tree
-        .then(function(blobSHAs) {
-            const entries = commitBuilder.getTreeEntries().map(function(treeEntry, filePath) {
+        .then((blobSHAs) => {
+            const entries = commitBuilder.getTreeEntries().map((treeEntry, filePath) => {
                 return {
                     path: filePath,
                     mode: treeEntry.getMode(),
@@ -140,7 +141,7 @@ class GitHubDriver extends Driver {
         })
 
         // Create the new commit
-        .then(function(ghTree) {
+        .then((ghTree) => {
             const committer = commitBuilder.getCommitter();
             const author = commitBuilder.getAuthor();
             const payload = {
@@ -172,7 +173,7 @@ class GitHubDriver extends Driver {
         };
 
         return this.get('commits', apiOpts)
-        .then(function(commits) {
+        .then((commits) => {
             return new List(commits).map(normListedCommit);
         });
     }
@@ -183,28 +184,26 @@ class GitHubDriver extends Driver {
         .then(normListedCommit);
     }
 
-    // https://developer.github.com/v3/repos/commits/#compare-two-commits
-    findParentCommit(ref1, ref2) {
-        return this.get('compare/' + ref1 + '...' + ref2)
-        .then(function(res) {
-            const commit = res.merge_base_commit;
-            if (!commit || !commit.sha) {
-                return null;
-            } else {
-                return normListedCommit(commit);
-            }
-        });
-    }
-
-    // https://developer.github.com/v3/repos/commits/#compare-two-commits
-    fetchOwnCommits(base, head) {
-        const refs = [base, head].map(function(x) {
+    /**
+     * Compare two commits.
+     * @param {Branch | SHA} base
+     * @param {Branch | SHA} head
+     * @return {Promise<Comparison>}
+     */
+    fetchComparison(base, head) {
+        const refs = [base, head].map((x) => {
             return (x instanceof Branch) ? x.getFullName() : x;
         });
 
         return this.get('compare/' + refs[0] + '...' + refs[1])
-        .then(function(res) {
-            return new List(res.commits).map(normListedCommit);
+        .then((res) => {
+            return Comparison.create({
+                commits: res.commits.map(normListedCommit),
+                files: res.files,
+                closest: normListedCommit(res.merge_base_commit),
+                base,
+                head
+            });
         });
     }
 
@@ -244,7 +243,7 @@ class GitHubDriver extends Driver {
             head,
             commit_message: opts.message
         })
-        .then(function(ghCommit) {
+        .then((ghCommit) => {
             if (!ghCommit) {
                 // No commit was needed
                 return null;
@@ -306,9 +305,9 @@ class GitHubDriver extends Driver {
 
     status(opts) {
         return this.get('local/status')
-            .then(function(status) {
+            .then((status) => {
                 return {
-                    files: new List(status.files).map(function(file) {
+                    files: new List(status.files).map((file) => {
                         return LocalFile.create(file);
                     }),
 
@@ -323,7 +322,7 @@ class GitHubDriver extends Driver {
     track(opts) {
         const params = {
             message: opts.message,
-            files: opts.files.map(function(file) {
+            files: opts.files.map((file) => {
                 return {
                     name: file.getFilename(),
                     status: file.getStatus()
@@ -386,7 +385,7 @@ class GitHubDriver extends Driver {
         // console.log('API', httpMethod.toUpperCase(), method);
         return Q(axios(axiosOpts))
         .get('data')
-        .fail(function(response) {
+        .fail((response) => {
             if (response instanceof Error) throw response;
 
             const e = new Error(response.data.message || 'Error ' + response.status + ': ' + response.data);
