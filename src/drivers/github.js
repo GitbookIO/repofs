@@ -16,7 +16,7 @@ const TreeEntry = require('../models/treeEntry');
 const WorkingState = require('../models/workingState');
 const LocalFile = require('../models/localFile');
 const Reference = require('../models/reference');
-const Compare = require('../models/Compare');
+const Compare = require('../models/compare');
 
 /**
  * Options for the GitHub Driver
