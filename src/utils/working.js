@@ -23,7 +23,7 @@ function getMergedFileSet(workingState) {
  * @return {Map<TreeEntries>}
  */
 function getMergedTreeEntries(workingState) {
-    const removedOrModified = workingState.getChanges().groupBy(function(change, path) {
+    const removedOrModified = workingState.getChanges().groupBy((change, path) => {
         if (change.getType() === CHANGES.REMOVE) {
             return 'remove';
         } else {
@@ -34,7 +34,7 @@ function getMergedTreeEntries(workingState) {
 
     const setToRemove = Immutable.Set.fromKeys(removedOrModified.get('remove', []));
 
-    const withoutRemoved = workingState.getTreeEntries().filter(function(treeEntry, path) {
+    const withoutRemoved = workingState.getTreeEntries().filter((treeEntry, path) => {
         return !setToRemove.contains(path);
     });
 

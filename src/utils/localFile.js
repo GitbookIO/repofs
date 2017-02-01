@@ -22,7 +22,7 @@ LocalUtils.status = function status(driver) {
  * @return {Promise}
  */
 LocalUtils.track = function track(driver, files, message, author) {
-    files = files.map(function(file) {
+    files = files.map((file) => {
         return LocalFile.create(file);
     });
 
