@@ -142,10 +142,10 @@ function fetch(driver, sha) {
  * @param {Driver} driver
  * @param {SHA or Branch} base
  * @param {SHA or Branch} head
- * @return {Promise<Compare>}
+ * @return {Promise<Comparison>}
  */
-function fetchCompare(driver, base, head) {
-    return driver.fetchCompare(base, head);
+function fetchComparison(driver, base, head) {
+    return driver.fetchComparison(base, head);
 }
 
 const CommitUtils = {
@@ -154,6 +154,6 @@ const CommitUtils = {
     fetchList,
     fetchOwnCommits,
     fetch,
-    fetchCompare
+    fetchComparison
 };
 module.exports = CommitUtils;

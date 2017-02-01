@@ -16,7 +16,7 @@ const TreeEntry = require('../models/treeEntry');
 const WorkingState = require('../models/workingState');
 const LocalFile = require('../models/localFile');
 const Reference = require('../models/reference');
-const Compare = require('../models/compare');
+const Comparison = require('../models/comparison');
 
 /**
  * Options for the GitHub Driver
@@ -188,16 +188,16 @@ class GitHubDriver extends Driver {
      * Compare two commits.
      * @param {Branch | SHA} base
      * @param {Branch | SHA} head
-     * @return {Promise<Compare>}
+     * @return {Promise<Comparison>}
      */
-    fetchCompare(base, head) {
+    fetchComparison(base, head) {
         const refs = [base, head].map((x) => {
             return (x instanceof Branch) ? x.getFullName() : x;
         });
 
         return this.get('compare/' + refs[0] + '...' + refs[1])
         .then((res) => {
-            return Compare.create({
+            return Comparison.create({
                 commits: res.commits.map(normListedCommit),
                 files: res.files,
                 closest: normListedCommit(res.merge_base_commit),

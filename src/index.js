@@ -12,7 +12,7 @@ const TreeConflict = require('./models/treeConflict');
 const File = require('./models/file');
 const Blob = require('./models/blob');
 const FileDiff = require('./models/fileDiff');
-const Compare = require('./models/compare');
+const Comparison = require('./models/comparison');
 
 const CHANGE = require('./constants/changeType');
 const ERRORS = require('./constants/errors');
@@ -46,7 +46,7 @@ module.exports = {
     Conflict,
     TreeConflict,
     FileDiff,
-    Compare,
+    Comparison,
 
     // Constants
     CHANGE,

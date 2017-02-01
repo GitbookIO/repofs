@@ -3,7 +3,7 @@ const FileDiff = require('./fileDiff');
 const Commit = require('./commit');
 
 /**
- * Represents a compare in the history.
+ * Represents a comparison in the history.
  */
 
 const DEFAULTS = {
@@ -20,17 +20,17 @@ const DEFAULTS = {
 /**
  * @type {Class}
  */
-class Compare extends Record(DEFAULTS) {
+class Comparison extends Record(DEFAULTS) {
 
     /**
      * @return {Commit}
      */
     static create(opts) {
-        if (opts instanceof Compare) {
+        if (opts instanceof Comparison) {
             return opts;
         }
 
-        return new Compare({
+        return new Comparison({
             base:    opts.base,
             head:    opts.head,
             closest: Commit.create(opts.closest),
@@ -41,4 +41,4 @@ class Compare extends Record(DEFAULTS) {
 
 }
 
-module.exports = Compare;
+module.exports = Comparison;
