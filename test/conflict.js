@@ -10,7 +10,7 @@ const TreeConflict = repofs.TreeConflict;
 const Conflict = repofs.Conflict;
 const WorkingState = repofs.WorkingState;
 
-describe('ConflictUtils', function() {
+describe('ConflictUtils', () => {
 
     const parentEntries = new Immutable.Map({
         bothDeleted: entry('bothDeleted'),
@@ -80,9 +80,9 @@ describe('ConflictUtils', function() {
 
     // ---- TESTS ----
 
-    describe('._diffEntries', function() {
+    describe('._diffEntries', () => {
 
-        it('should detect modified entries, added entries, and deleted entries', function() {
+        it('should detect modified entries, added entries, and deleted entries', () => {
             const result = ConflictUtils._diffEntries(parentEntries, baseEntries);
 
             const expectedDiff = new Immutable.Map({
@@ -101,9 +101,9 @@ describe('ConflictUtils', function() {
 
     });
 
-    describe('._compareTrees', function() {
+    describe('._compareTrees', () => {
 
-        it('should detect minimum set of conflicts', function() {
+        it('should detect minimum set of conflicts', () => {
             const result = ConflictUtils._compareTrees(parentEntries, baseEntries, headEntries);
             const expected = treeConflict.getConflicts();
 
@@ -112,9 +112,9 @@ describe('ConflictUtils', function() {
 
     });
 
-    describe('.solveTree', function() {
+    describe('.solveTree', () => {
 
-        it('should merge back solved conflicts into a TreeConflict, defaulting to base version', function() {
+        it('should merge back solved conflicts into a TreeConflict, defaulting to base version', () => {
             const solvedTreeConflict = ConflictUtils.solveTree(treeConflict, solvedConflicts);
 
             // Expect tree to be unchanged outside of conflicts
@@ -129,9 +129,9 @@ describe('ConflictUtils', function() {
         });
     });
 
-    describe('._getSolvedEntries', function() {
+    describe('._getSolvedEntries', () => {
 
-        it('should generate the solved tree entries', function() {
+        it('should generate the solved tree entries', () => {
             const solvedTreeConflict = ConflictUtils.solveTree(treeConflict, solvedConflicts);
             const result = ConflictUtils._getSolvedEntries(solvedTreeConflict);
 
@@ -150,7 +150,7 @@ describe('ConflictUtils', function() {
 
     });
 
-    describe('.mergeCommit', function() {
+    describe('.mergeCommit', () => {
         const solvedTreeConflict = ConflictUtils.solveTree(treeConflict, solvedConflicts);
         const mergeCommit = ConflictUtils.mergeCommit(solvedTreeConflict, [
             'parentCommitSha1',
@@ -159,23 +159,23 @@ describe('ConflictUtils', function() {
             author: 'Shakespeare'
         });
 
-        it('should create a merge CommitBuilder with two parents', function() {
+        it('should create a merge CommitBuilder with two parents', () => {
             mergeCommit.getParents().toJS().should.eql([
                 'parentCommitSha1',
                 'parentCommitSha2'
             ]);
         });
 
-        it('should create a merge CommitBuilder with an author', function() {
+        it('should create a merge CommitBuilder with an author', () => {
             mergeCommit.getAuthor().should.eql('Shakespeare');
         });
 
-        it('should create a merge CommitBuilder with solved content as blob', function() {
+        it('should create a merge CommitBuilder with solved content as blob', () => {
             mergeCommit.getBlobs().get('bothModified').getAsString().should.eql('Solved content');
             mergeCommit.getBlobs().count().should.eql(1);
         });
 
-        it('should create a merge CommitBuilder with final solved entries', function() {
+        it('should create a merge CommitBuilder with final solved entries', () => {
             const solvedEntries = new Immutable.Map({
                 deletedModified: entry('deletedModified-head'), // keeped head
                 bothAddedSame: entry('bothAddedSame'),

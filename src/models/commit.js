@@ -1,5 +1,6 @@
 const { Record, List } = require('immutable');
 const Author = require('./author');
+const FileDiff = require('./fileDiff');
 
 /**
  * Represents a Commit in the history (already created)
@@ -15,16 +16,7 @@ const DEFAULTS = {
     // String formatted date of the commit
     date:    String(),
     // List of files modified with their SHA and patch.
-    // File: {
-    //   sha: '...',
-    //   filename: README.md,
-    //   status: modified,
-    //   additions: 2,
-    //   deletions: 0,
-    //   changes: 2,
-    //   patch: ''
-    // }
-    files:   List(), // List<JSON>
+    files:   List(), // List<FileDiff>
     // Parents of the commit (List<SHA>)
     parents: List()
 };
@@ -58,7 +50,6 @@ class Commit extends Record(DEFAULTS) {
         return this.get('parents');
     }
 
-
     // ---- Statics
 
     /**
@@ -71,13 +62,17 @@ class Commit extends Record(DEFAULTS) {
      * @return {Commit}
      */
     static create(opts) {
+        if (opts instanceof Commit) {
+            return opts;
+        }
+
         return new Commit({
             sha: opts.sha,
             message: opts.message,
-            author: new Author(opts.author),
+            author: opts.author,
             date: opts.date,
-            files: new List(opts.files),
-            parents: new List(opts.parents)
+            files: List(opts.files).map(file => FileDiff.create(file)),
+            parents: List(opts.parents)
         });
     }
 
@@ -97,6 +92,5 @@ class Commit extends Record(DEFAULTS) {
         return Commit.create(json);
     }
 }
-
 
 module.exports = Commit;

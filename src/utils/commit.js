@@ -137,11 +137,23 @@ function fetch(driver, sha) {
     return driver.fetchCommit(sha);
 }
 
+/**
+ * Compare two commits/branch
+ * @param {Driver} driver
+ * @param {SHA or Branch} base
+ * @param {SHA or Branch} head
+ * @return {Promise<Comparison>}
+ */
+function fetchComparison(driver, base, head) {
+    return driver.fetchComparison(base, head);
+}
+
 const CommitUtils = {
     prepare,
     flush,
     fetchList,
     fetchOwnCommits,
-    fetch
+    fetch,
+    fetchComparison
 };
 module.exports = CommitUtils;

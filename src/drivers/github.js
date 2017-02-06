@@ -16,6 +16,7 @@ const TreeEntry = require('../models/treeEntry');
 const WorkingState = require('../models/workingState');
 const LocalFile = require('../models/localFile');
 const Reference = require('../models/reference');
+const Comparison = require('../models/comparison');
 
 /**
  * Options for the GitHub Driver
@@ -183,28 +184,26 @@ class GitHubDriver extends Driver {
         .then(normListedCommit);
     }
 
-    // https://developer.github.com/v3/repos/commits/#compare-two-commits
-    findParentCommit(ref1, ref2) {
-        return this.get('compare/' + ref1 + '...' + ref2)
-        .then((res) => {
-            const commit = res.merge_base_commit;
-            if (!commit || !commit.sha) {
-                return null;
-            } else {
-                return normListedCommit(commit);
-            }
-        });
-    }
-
-    // https://developer.github.com/v3/repos/commits/#compare-two-commits
-    fetchOwnCommits(base, head) {
+    /**
+     * Compare two commits.
+     * @param {Branch | SHA} base
+     * @param {Branch | SHA} head
+     * @return {Promise<Comparison>}
+     */
+    fetchComparison(base, head) {
         const refs = [base, head].map((x) => {
             return (x instanceof Branch) ? x.getFullName() : x;
         });
 
         return this.get('compare/' + refs[0] + '...' + refs[1])
         .then((res) => {
-            return new List(res.commits).map(normListedCommit);
+            return Comparison.create({
+                commits: res.commits.map(normListedCommit),
+                files: res.files,
+                closest: normListedCommit(res.merge_base_commit),
+                base,
+                head
+            });
         });
     }
 

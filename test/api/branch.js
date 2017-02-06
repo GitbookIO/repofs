@@ -12,19 +12,19 @@ function testBranch(driver) {
 
     let repoState;
 
-    before(function() {
+    before(() => {
         return repofs.RepoUtils.initialize(driver)
-        .then(function(initRepo) {
+        .then((initRepo) => {
             repoState = initRepo;
         });
     });
 
-    describe('.create', function() {
-        it('should create a branch and optionally checkout on it', function() {
+    describe('.create', () => {
+        it('should create a branch and optionally checkout on it', () => {
             return repofs.BranchUtils.create(repoState, driver, 'test-branch-create', {
                 checkout: true
             })
-            .then(function(_repoState) {
+            .then((_repoState) => {
                 // Update for next test
                 repoState = _repoState;
                 const master = repoState.getBranch('master');
@@ -36,9 +36,9 @@ function testBranch(driver) {
 
     });
 
-    describe('.merge', function() {
+    describe('.merge', () => {
         // Depends on previous test
-        it('should merge two branches', function() {
+        it('should merge two branches', () => {
             let intoBranch;
             let fromBranch;
             return Q()
@@ -72,19 +72,19 @@ function testBranch(driver) {
                     fetch: true
                 });
             })
-            .then(function(repoState) {
+            .then((repoState) => {
                 repoState = repofs.RepoUtils.checkout(repoState, intoBranch);
                 repofs.FileUtils.exists(repoState, 'merge_branch_file1');
                 repofs.FileUtils.exists(repoState, 'merge_branch_file2');
                 return repofs.FileUtils.fetch(repoState, driver, 'merge_branch_file1');
             })
-            .then(function(repoState) {
+            .then((repoState) => {
                 repofs.FileUtils.read(repoState, 'merge_branch_file1').getAsString()
                     .should.eql('File 1');
             });
         });
 
-        it('should fail with merge conflict', function() {
+        it('should fail with merge conflict', () => {
             let intoBranch;
             let fromBranch;
             return Q()
@@ -118,42 +118,42 @@ function testBranch(driver) {
                     fetch: true
                 });
             })
-            .then(function() {
+            .then(() => {
                 should.fail('CONFLICT was not detected');
-            }, function(err) {
+            }, (err) => {
                 err.code.should.eql(repofs.ERRORS.CONFLICT);
             });
         });
     });
 
-    describe('.update', function() {
-        it('should update an old branch that was updated on the repo', function() {
+    describe('.update', () => {
+        it('should update an old branch that was updated on the repo', () => {
             let oldBranchState;
             let updatedBranch;
 
             return repofs.BranchUtils.create(repoState, driver, 'test-branch-update', {
                 checkout: true
             })
-            .then(function(_repoState) {
+            .then((_repoState) => {
                 oldBranchState = _repoState;
                 return commitAndFlush(_repoState, driver, 'New commit');
             })
-            .then(function(_repoState) {
+            .then((_repoState) => {
                 updatedBranch = _repoState.getCurrentBranch();
                 return repofs.BranchUtils.update(oldBranchState, driver, 'test-branch-update');
             })
-            .then(function(_repoState) {
+            .then((_repoState) => {
                 Immutable.is(updatedBranch, _repoState.getCurrentBranch()).should.be.true();
             });
         });
     });
 
-    describe('.remove', function() {
+    describe('.remove', () => {
         // Depends on previous
-        it('should delete a branch', function() {
+        it('should delete a branch', () => {
             const createdBr = repoState.getBranch('test-branch-create');
             return repofs.BranchUtils.remove(repoState, driver, createdBr)
-            .then(function(_repoState) {
+            .then((_repoState) => {
                 should(_repoState.getBranch('test-branch-create')).be.null();
             });
         });

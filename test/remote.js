@@ -12,7 +12,7 @@ const REMOTE_PATH = path.resolve('.tmp/repo-remote.git') + '/';
 
 const mock = require('./mock');
 
-describe('RemoteUtils', function() {
+describe('RemoteUtils', () => {
     if (process.env.REPOFS_DRIVER !== 'uhub') return;
 
     const DEFAULT_BOOK = mock.DEFAULT_BOOK;
@@ -105,9 +105,9 @@ describe('RemoteUtils', function() {
     describe('.sync', () => {
         let repoState;
 
-        before(function() {
+        before(() => {
             return repofs.RepoUtils.initialize(driver)
-            .then(function(initRepo) {
+            .then((initRepo) => {
                 repoState = initRepo;
             });
         });

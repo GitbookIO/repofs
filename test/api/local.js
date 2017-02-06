@@ -16,7 +16,7 @@ module.exports = function(driver) {
 };
 
 function testLocal(driver) {
-    describe('.status', function() {
+    describe('.status', () => {
 
         before(function() {
             this.initialReadme = fs.readFileSync(path.join(REPO_DIR, 'README.md'), 'utf8');
@@ -29,9 +29,9 @@ function testLocal(driver) {
             fs.unlinkSync(path.join(REPO_DIR, 'readme2.md'));
         });
 
-        it('should return list of changed files', function(done) {
+        it('should return list of changed files', (done) => {
             LocalUtils.status(driver)
-                .then(function(result) {
+                .then((result) => {
                     const localFiles = result.files;
 
                     // is an immutable list
