@@ -32,6 +32,7 @@ describe('Decoding, encoding', () => {
 
     const commit = new Commit({
         sha: 'commitSha',
+        date: new Date(),
         message: 'Commit message',
         author
     });

@@ -69,10 +69,10 @@ class Commit extends Record(DEFAULTS) {
         return new Commit({
             sha: opts.sha,
             message: opts.message,
-            author: opts.author,
-            date: opts.date,
-            files: List(opts.files).map(file => FileDiff.create(file)),
-            parents: List(opts.parents)
+            author: Author.create(opts.author),
+            date: new Date(opts.date),
+            files: List(opts.files || []).map(file => FileDiff.create(file)),
+            parents: List(opts.parents || [])
         });
     }
 

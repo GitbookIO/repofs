@@ -500,11 +500,11 @@ function normListedCommit(ghCommit) {
 
 // Get author from created commit (no avatar)
 function getSimpleAuthor(author) {
-    return Author.create(
-        author.name,
-        author.email,
-        new Date(author.date)
-    );
+    return Author.create({
+        name: author.name,
+        email: author.email,
+        date: author.date
+    });
 }
 
 // Get author from a listed commit (with avatar)
