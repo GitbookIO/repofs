@@ -297,7 +297,8 @@ class GitHubDriver extends Driver {
         return this.post('local/push', opts)
         .fail(normNotFF)
         .fail(normAuth)
-        .fail(normUnknownRemote);
+        .fail(normUnknownRemote)
+        .fail(normRefNotFound);
     }
 
     status(opts) {
@@ -453,7 +454,7 @@ function normUnknownRemote(err) {
 
 function normRefNotFound(err) {
     const msg = err.message;
-    if (/^Reference/.test(msg) && /not found$/.test(msg)) {
+    if (/^Reference/.test(msg) && /not found$/.test(msg) || err.statusCode == 404) {
         err.code = ERRORS.REF_NOT_FOUND;
     }
 

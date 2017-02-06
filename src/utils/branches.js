@@ -10,7 +10,7 @@ const RepoUtils = require('./repo');
  * @param {Boolean} [opts.checkout=false] Directly fetch and checkout the branch
  * @return {Promise<RepositoryState>}
  */
-function create(repositoryState, driver, name, opts) {
+function create(repositoryState, driver, name, opts = {}) {
     const base = opts.base || repositoryState.getCurrentBranch();
     let createdBranch;
     const result = driver.createBranch(base, name)

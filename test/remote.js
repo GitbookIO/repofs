@@ -116,26 +116,22 @@ describe('RemoteUtils', () => {
             RemoteUtils.sync.should.be.a.Function();
         });
 
-        it('should sync to remote test-remote branch name', (done) => {
-            BranchUtils.create(repoState, driver, 'test-remote', {})
+        it('should sync to remote test-remote branch name', () => {
+            return BranchUtils.create(repoState, driver, 'test-remote', {})
                 .then((newRepoState) => {
                     newRepoState = newRepoState.set('currentBranchName', 'test-remote');
                     return RemoteUtils.sync(newRepoState, driver);
                 })
                 .then((newRepoState) => {
                     newRepoState.currentBranchName.should.equal('test-remote');
-                    done();
-                })
-                .catch(done);
+                });
         });
 
-        it('should sync to remote master branch name which exists', (done) => {
-            RemoteUtils.sync(repoState, driver)
+        it('should sync to remote master branch name which exists', () => {
+            return RemoteUtils.sync(repoState, driver)
                 .then((newRepoState) => {
                     newRepoState.currentBranchName.should.equal('master');
-                    done();
-                })
-                .catch(done);
+                });
         });
     });
 
