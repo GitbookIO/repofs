@@ -162,10 +162,12 @@ function testBranch(driver) {
 
 function commitAndFlush(repoState, driver, message) {
     const commitBuilder = repofs.CommitUtils.prepare(repoState, {
-        author: repofs.Author.create('Shakespeare', 'shakespeare@hotmail.com'),
+        author: repofs.Author.create({
+            name: 'Shakespeare',
+            email: 'shakespeare@hotmail.com'
+        }),
         message
     });
 
     return repofs.CommitUtils.flush(repoState, driver, commitBuilder);
 }
-

@@ -223,11 +223,8 @@ class GitHubDriver extends Driver {
     }
 
     createBranch(base, name) {
-        return this.createRef(name, base.getSha())
-        .thenResolve(new Branch({
-            name,
-            sha: base.getSha()
-        }));
+        return this.createRef(name, base.sha)
+        .thenResolve(base.merge({ name }));
     }
 
     deleteBranch(branch) {

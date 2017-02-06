@@ -113,7 +113,7 @@ function merge(repoState, driver, from, into, options = {}) {
             // Was a no op
             return repoState;
         } else {
-            updatedInto = into.set('sha', mergeCommit.getSha());
+            updatedInto = into.merge({ commit: mergeCommit });
             repoState = repoState.updateBranch(into, updatedInto);
             // invalidate working state
             return RepoUtils.updateWorkingState(repoState, into, null);
