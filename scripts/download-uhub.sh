@@ -2,7 +2,7 @@
 set -eo pipefail
 IFS=$'\n\t'
 
-UHUB_VERSION=3.2.0
+UHUB_VERSION=3.2.1
 
 echo "Downloading uhub..."
 
