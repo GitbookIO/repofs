@@ -28,7 +28,10 @@ function testCommit(driver) {
             repoState = repofs.FileUtils.create(
                 repoState, 'flushCommitFile', 'Flush CommitContent');
             const commitBuilder = repofs.CommitUtils.prepare(repoState, {
-                author: repofs.Author.create('Shakespeare', 'shakespeare@hotmail.com'),
+                author: repofs.Author.create({
+                    name: 'Shakespeare',
+                    email: 'shakespeare@hotmail.com'
+                }),
                 message: 'Test message'
             });
 
@@ -95,7 +98,10 @@ function testCommit(driver) {
 
 function emptyCommitAndFlush(repoState, driver, message) {
     const commitBuilder = repofs.CommitUtils.prepare(repoState, {
-        author: repofs.Author.create('Shakespeare', 'shakespeare@hotmail.com'),
+        author: repofs.Author.create({
+            name: 'Shakespeare',
+            email: 'shakespeare@hotmail.com'
+        }),
         message
     });
 

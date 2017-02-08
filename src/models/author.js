@@ -33,19 +33,28 @@ class Author extends Record(DEFAULTS) {
 
     /**
      * Create a new author
-     * @param {String}
-     * @param {String}
-     * @param {Date}
-     * @param {String} avatar
+     * @param {Object} infos
      * @return {Author}
      */
-    static create(name, email, date, avatar) {
+    static create(opts) {
+        if (opts instanceof Author) {
+            return opts;
+        }
+
         return new Author({
-            name,
-            email,
-            date: date || new Date(),
-            avatar: avatar || ''
+            name: opts.name,
+            email: opts.email,
+            avatar: opts.avatar,
+            date: new Date(opts.date)
         });
+    }
+
+    static encode(author) {
+        return author.toJS();
+    }
+
+    static decode(json) {
+        return Author.create(json);
     }
 }
 

@@ -1,10 +1,11 @@
 const { Record } = require('immutable');
+const Commit = require('./commit');
 
 const DEFAULTS = {
     // Such as 'master'
     name:   '',
-    // SHA for the pointing commit
-    sha:    '',
+    // Pointing commit
+    commit: new Commit(),
     // Potential remote name such as 'origin'. Empty for no remote
     remote: ''
 };
@@ -12,15 +13,19 @@ const DEFAULTS = {
 class Branch extends Record(DEFAULTS) {
     // ---- Properties Getter ----
 
+    get sha() {
+        return this.commit.sha;
+    }
+
     /**
      * Returns the full name for the branch, such as 'origin/master'
      * This is used as key and should be unique
      */
     getFullName() {
         if (this.isRemote()) {
-            return this.getRemote() + '/' + this.getName();
+            return `${this.remote}/${this.name}`;
         } else {
-            return this.getName();
+            return this.name;
         }
     }
 
@@ -29,7 +34,7 @@ class Branch extends Record(DEFAULTS) {
     }
 
     isRemote() {
-        return this.getRemote() !== '';
+        return this.remote !== '';
     }
 
     getName() {
@@ -37,7 +42,7 @@ class Branch extends Record(DEFAULTS) {
     }
 
     getSha() {
-        return this.get('sha');
+        return this.sha;
     }
 
     setRemote(name) {
@@ -47,11 +52,21 @@ class Branch extends Record(DEFAULTS) {
     // ---- Static ----
 
     static encode(branch) {
-        return branch.toJS();
+        return {
+            name: branch.name,
+            remote: branch.remote,
+            commit: Commit.encode(branch.commit)
+        };
     }
 
     static decode(json) {
-        return new Branch(json);
+        const { name, remote, commit } = json;
+
+        return new Branch({
+            name,
+            remote,
+            commit: Commit.decode(commit)
+        });
     }
 }
 

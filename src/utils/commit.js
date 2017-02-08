@@ -72,7 +72,7 @@ function flush(repoState, driver, commitBuilder, options = {}) {
         return driver.forwardBranch(options.branch, commit.getSha())
         // Fetch new workingState and replace old one
         .then(function updateBranch() {
-            const updated = options.branch.set('sha', commit.getSha());
+            const updated = options.branch.merge({ commit });
             return repoState.updateBranch(options.branch, updated);
 
         }, function nonFF(err) {

@@ -107,7 +107,10 @@ function testDriver(driver) {
                 repoState = repofs.FileUtils.create(
                     repoState, 'flushCommitFile', 'flushCommitContent');
                 const commitBuilder = repofs.CommitUtils.prepare(repoState, {
-                    author: new repofs.Author.create('Shakespeare', 'shakespeare@hotmail.com'),
+                    author: repofs.Author.create({
+                        name: 'Shakespeare',
+                        email: 'shakespeare@hotmail.com'
+                    }),
                     message: 'Test message'
                 });
 
@@ -205,7 +208,10 @@ function testDriver(driver) {
                 );
 
                 const commitBuilder = repofs.CommitUtils.prepare(repoState, {
-                    author: new repofs.Author.create('Shakespeare', 'shakespeare@hotmail.com'),
+                    author: repofs.Author.create({
+                        name: 'Shakespeare',
+                        email: 'shakespeare@hotmail.com'
+                    }),
                     message: 'Test directories'
                 });
 

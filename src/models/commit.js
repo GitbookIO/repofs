@@ -50,6 +50,8 @@ class Commit extends Record(DEFAULTS) {
         return this.get('parents');
     }
 
+    // ---- Statics
+
     /**
      * @param {SHA} opts.sha
      * @param {Array<SHA>} opts.parents
@@ -67,11 +69,27 @@ class Commit extends Record(DEFAULTS) {
         return new Commit({
             sha: opts.sha,
             message: opts.message,
-            author: opts.author,
-            date: opts.date,
-            files: List(opts.files).map(file => FileDiff.create(file)),
-            parents: List(opts.parents)
+            author: Author.create(opts.author),
+            date: new Date(opts.date),
+            files: List(opts.files || []).map(file => FileDiff.create(file)),
+            parents: List(opts.parents || [])
         });
+    }
+
+    static encode(commit) {
+        const { message, sha, date, author, parents } = commit;
+
+        return {
+            message,
+            sha,
+            date,
+            parents: parents.toJS(),
+            author: Author.encode(author)
+        };
+    }
+
+    static decode(json) {
+        return Commit.create(json);
     }
 }
 

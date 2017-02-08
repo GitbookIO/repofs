@@ -90,7 +90,7 @@ class GitHubDriver extends Driver {
                 // TODO properly detect remote
                 return new Branch({
                     name: branch.name,
-                    sha: branch.commit.sha,
+                    commit: normListedCommit(branch.commit),
                     // branch.is_local is undefined for GitHub
                     remote: branch.is_local === false ? 'origin' : ''
                 });
@@ -223,11 +223,8 @@ class GitHubDriver extends Driver {
     }
 
     createBranch(base, name) {
-        return this.createRef(name, base.getSha())
-        .thenResolve(new Branch({
-            name,
-            sha: base.getSha()
-        }));
+        return this.createRef(name, base.sha)
+        .thenResolve(base.merge({ name }));
     }
 
     deleteBranch(branch) {
@@ -300,7 +297,8 @@ class GitHubDriver extends Driver {
         return this.post('local/push', opts)
         .fail(normNotFF)
         .fail(normAuth)
-        .fail(normUnknownRemote);
+        .fail(normUnknownRemote)
+        .fail(normRefNotFound);
     }
 
     status(opts) {
@@ -456,7 +454,7 @@ function normUnknownRemote(err) {
 
 function normRefNotFound(err) {
     const msg = err.message;
-    if (/^Reference/.test(msg) && /not found$/.test(msg)) {
+    if (/^Reference/.test(msg) && /not found$/.test(msg) || err.statusCode == 404) {
         err.code = ERRORS.REF_NOT_FOUND;
     }
 
@@ -492,7 +490,7 @@ function normListedCommit(ghCommit) {
         author: getCompleteAuthor(ghCommit),
         date: ghCommit.commit.author.date,
         files: ghCommit.files,
-        parents: ghCommit.parents.map(function getSha(o) { return o.sha; })
+        parents: ghCommit.parents.map(c => c.sha)
     });
 
     return commit;
@@ -500,11 +498,11 @@ function normListedCommit(ghCommit) {
 
 // Get author from created commit (no avatar)
 function getSimpleAuthor(author) {
-    return Author.create(
-        author.name,
-        author.email,
-        new Date(author.date)
-    );
+    return Author.create({
+        name: author.name,
+        email: author.email,
+        date: author.date
+    });
 }
 
 // Get author from a listed commit (with avatar)

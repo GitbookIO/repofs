@@ -10,7 +10,7 @@ const RepoUtils = require('./repo');
  * @param {Boolean} [opts.checkout=false] Directly fetch and checkout the branch
  * @return {Promise<RepositoryState>}
  */
-function create(repositoryState, driver, name, opts) {
+function create(repositoryState, driver, name, opts = {}) {
     const base = opts.base || repositoryState.getCurrentBranch();
     let createdBranch;
     const result = driver.createBranch(base, name)
@@ -113,7 +113,7 @@ function merge(repoState, driver, from, into, options = {}) {
             // Was a no op
             return repoState;
         } else {
-            updatedInto = into.set('sha', mergeCommit.getSha());
+            updatedInto = into.merge({ commit: mergeCommit });
             repoState = repoState.updateBranch(into, updatedInto);
             // invalidate working state
             return RepoUtils.updateWorkingState(repoState, into, null);
