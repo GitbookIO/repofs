@@ -135,6 +135,20 @@ describe('FileUtils', () => {
         });
     });
 
+    describe('.move', () => {
+        it('should move a file if it exists', () => {
+            const repoState = FileUtils.remove(DEFAULT_BOOK, 'README.md', 'README_NEW.md');
+            FileUtils.exists(repoState, 'README.md').should.equal(false);
+            FileUtils.exists(repoState, 'README_NEW.md').should.equal(false);
+        });
+
+        it('should throw File Not Found when file does not exist', () => {
+            (function removeAbsent() {
+                FileUtils.move(DEFAULT_BOOK, 'Notexist.md', 'Notexist_new.md');
+            }).should.throw(Error, { code: repofs.ERRORS.NOT_FOUND });
+        });
+    });
+
     describe('.hasChanged', () => {
         it('should detect that an existing file has not changed', () => {
             const state1 = DEFAULT_BOOK;
