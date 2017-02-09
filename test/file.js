@@ -148,7 +148,17 @@ describe('FileUtils', () => {
             }).should.throw(Error, { code: repofs.ERRORS.NOT_FOUND });
         });
 
-        it('should correctly move new files (text)', () => {
+        it('should correctly move existing files', () => {
+            const repoState = FileUtils.move(DEFAULT_BOOK, 'README.md', 'README_NEW.md');
+            FileUtils.exists(repoState, 'README.md').should.equal(false);
+            FileUtils.exists(repoState, 'README_NEW.md').should.equal(true);
+
+            FileUtils.readAsString(DEFAULT_BOOK, 'README.md').should.equal(
+                FileUtils.readAsString(repoState, 'README_NEW.md')
+            );
+        });
+
+        it('should correctly move new files', () => {
             const content = 'Hello world';
 
             const withNewFile = FileUtils.create(DEFAULT_BOOK, 'aNewFile.txt', content);
