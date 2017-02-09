@@ -35,7 +35,8 @@ function initRepo() {
 initRepo >/dev/null
 
 # Start uhub
-./uhub --mode=single --root=$REPO_PATH --port=127.0.0.1:6666 > /dev/null  &
+UHUB_VERSION=$(node -pe "require('./package.json').engines.uhub")
+./.tmp/uhub-$UHUB_VERSION --mode=single --root=$REPO_PATH --port=127.0.0.1:6666 > /dev/null  &
 UHUBPID=$!
 function cleanUp() {
     kill -s 9 $UHUBPID

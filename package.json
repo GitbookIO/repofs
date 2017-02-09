@@ -7,7 +7,8 @@
   "bugs": "https://github.com/GitbookIO/repofs/issues",
   "license": "Apache-2.0",
   "engines": {
-    "node": ">=0.12"
+    "node": ">=0.12",
+    "uhub": "3.2.1"
   },
   "dependencies": {
     "array-flatten": "^2.1.0",
