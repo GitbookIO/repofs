@@ -183,7 +183,8 @@ function move(repoState, filepath, newFilepath) {
         changeNewFile = Change.createCreateFromSha(sha);
     } else {
         // Content not available as blob
-        const contentBuffer = bufferUtils.toBuffer(read(repoState, filepath));
+        const blob = read(repoState, filepath);
+        const contentBuffer = blob.getAsBuffer();
         changeNewFile = Change.createCreate(contentBuffer);
     }
 
