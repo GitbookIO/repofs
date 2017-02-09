@@ -51,7 +51,7 @@ class Blob extends Record(DEFAULTS) {
     /**
      * @return {Buffer} the blob as Buffer
      */
-    getAsBuffer(encoding) {
+    getAsBuffer() {
         return arrayBuffer.enforceBuffer(this.getContent());
     }
 

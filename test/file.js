@@ -135,6 +135,42 @@ describe('FileUtils', () => {
         });
     });
 
+    describe('.move', () => {
+        it('should move a file if it exists', () => {
+            const repoState = FileUtils.move(DEFAULT_BOOK, 'README.md', 'README_NEW.md');
+            FileUtils.exists(repoState, 'README.md').should.equal(false);
+            FileUtils.exists(repoState, 'README_NEW.md').should.equal(true);
+        });
+
+        it('should throw File Not Found when file does not exist', () => {
+            (function removeAbsent() {
+                FileUtils.move(DEFAULT_BOOK, 'Notexist.md', 'Notexist_new.md');
+            }).should.throw(Error, { code: repofs.ERRORS.NOT_FOUND });
+        });
+
+        it('should correctly move existing files', () => {
+            const repoState = FileUtils.move(DEFAULT_BOOK, 'README.md', 'README_NEW.md');
+            FileUtils.exists(repoState, 'README.md').should.equal(false);
+            FileUtils.exists(repoState, 'README_NEW.md').should.equal(true);
+
+            FileUtils.readAsString(DEFAULT_BOOK, 'README.md').should.equal(
+                FileUtils.readAsString(repoState, 'README_NEW.md')
+            );
+        });
+
+        it('should correctly move new files', () => {
+            const content = 'Hello world';
+
+            const withNewFile = FileUtils.create(DEFAULT_BOOK, 'aNewFile.txt', content);
+            const repoState = FileUtils.move(withNewFile, 'aNewFile.txt', 'aNewFile2.txt');
+
+            FileUtils.exists(repoState, 'aNewFile.txt').should.equal(false);
+            FileUtils.exists(repoState, 'aNewFile2.txt').should.equal(true);
+
+            FileUtils.readAsString(repoState, 'aNewFile2.txt').should.equal(content);
+        });
+    });
+
     describe('.hasChanged', () => {
         it('should detect that an existing file has not changed', () => {
             const state1 = DEFAULT_BOOK;
