@@ -18,49 +18,48 @@ function create(repositoryState, driver, name, opts = {}) {
         checkout = true,
         // Drop changes from base branch the new working state ?
         clean = true,
-        // Drop changes from the bae branch ?
+        // Drop changes from the base branch ?
         cleanBase = false
     } = opts;
 
     let createdBranch;
-    const result = driver.createBranch(base, name)
+
+    return driver.createBranch(base, name)
     // Update list of branches
     .then((branch) => {
         createdBranch = branch;
         let branches = repositoryState.getBranches();
         branches = branches.push(createdBranch);
         return repositoryState.set('branches', branches);
+    })
+
+    // Update working state or fetch it if needed
+    .then((repoState) => {
+        let baseWk = repoState.getWorkingStateForBranch(base);
+
+        if (!baseWk) {
+            return checkout ? RepoUtils.fetchTree(repoState, driver, createdBranch) : repoState;
+        }
+
+        // Reuse base WorkingState clean
+        const headWk = clean ? baseWk.asClean() : baseWk;
+        repoState = RepoUtils.updateWorkingState(repoState, createdBranch, headWk);
+
+        // Clean base WorkingState
+        baseWk = cleanBase ? baseWk.asClean() : baseWk;
+        repoState = RepoUtils.updateWorkingState(repoState, base, baseWk);
+
+        return repoState;
+    })
+
+    // Checkout the branch
+    .then((repoState) => {
+        if (!checkout) {
+            return repoState;
+        }
+
+        return RepoUtils.checkout(repoState, createdBranch);
     });
-
-    if (!checkout) {
-        return result;
-    } else {
-        return result
-        .then(function fetchBaseTree(repoState) {
-            if (!checkout) {
-                return repoState;
-            }
-            let baseWk = repoState.getWorkingStateForBranch(base);
-            if (baseWk !== null) {
-                // Reuse base WorkingState clean
-                const headWk = clean ? baseWk.asClean() : baseWk;
-                repoState = RepoUtils.updateWorkingState(repoState, createdBranch, headWk);
-
-                // Clean base WorkingState
-                baseWk = cleanBase ? baseWk.asClean() : baseWk;
-                repoState = RepoUtils.updateWorkingState(repoState, base, baseWk);
-
-                return repoState;
-            } else {
-                // Fetch it
-                return RepoUtils.fetchTree(repoState, driver, createdBranch);
-            }
-        })
-        // Checkout
-        .then((repoState) => {
-            return RepoUtils.checkout(repoState, createdBranch);
-        });
-    }
 }
 
 /**
