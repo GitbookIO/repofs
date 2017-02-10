@@ -34,6 +34,27 @@ function testBranch(driver) {
             });
         });
 
+        it('should drop changes if option "clean" is at true', () => {
+            repoState = repofs.RepoUtils.checkout(repoState, 'master');
+            const withChange = repofs.FileUtils.create(repoState, 'New', 'New Content');
+            const branchName = 'test-branch-create-clean';
+
+            return repofs.BranchUtils.create(withChange, driver, branchName, {
+                checkout: true,
+                clean: true
+            })
+            .then((resultRepoState) => {
+                const master = resultRepoState.getBranch('master');
+                const createdBr = resultRepoState.getBranch(branchName);
+
+                const wkMaster = resultRepoState.getWorkingStateForBranch(master);
+                const wk = resultRepoState.getWorkingStateForBranch(createdBr);
+
+                wkMaster.getChange('New').should.be.ok();
+                should.not.exist(wk.getChange('New'));
+            });
+        });
+
         it('should preserve changes if option "clean" is at false', () => {
             repoState = repofs.RepoUtils.checkout(repoState, 'master');
             const withChange = repofs.FileUtils.create(repoState, 'New', 'New Content');
