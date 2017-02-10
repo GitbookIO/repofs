@@ -71,8 +71,32 @@ function testBranch(driver) {
                 const wkMaster = resultRepoState.getWorkingStateForBranch(master);
                 const wk = resultRepoState.getWorkingStateForBranch(createdBr);
 
+                // Both should have the change and be identical
                 wk.getChange('New').should.be.ok();
                 Immutable.is(wkMaster, wk).should.be.true();
+            });
+        });
+
+        it('should transfer changes if option "clean" is at false and "cleanBase" at true', () => {
+            repoState = repofs.RepoUtils.checkout(repoState, 'master');
+            const withChange = repofs.FileUtils.create(repoState, 'New', 'New Content');
+            const branchName = 'test-branch-create-not-clean';
+
+            return repofs.BranchUtils.create(withChange, driver, branchName, {
+                checkout: true,
+                clean: false,
+                cleanBase: true
+            })
+            .then((resultRepoState) => {
+                const master = resultRepoState.getBranch('master');
+                const createdBr = resultRepoState.getBranch(branchName);
+
+                const wkMaster = resultRepoState.getWorkingStateForBranch(master);
+                const wk = resultRepoState.getWorkingStateForBranch(createdBr);
+
+                // Only the new branch should have the change
+                wk.getChange('New').should.be.ok();
+                should.not.exist(wkMaster.getChange('New'));
             });
         });
 

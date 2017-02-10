@@ -11,18 +11,19 @@ const RepoUtils = require('./repo');
  * @return {Promise<RepositoryState>}
  */
 function create(repositoryState, driver, name, opts = {}) {
-    opts = {
+    const {
         // Base branch for the new branch
-        base:  repositoryState.getCurrentBranch(),
+        base = repositoryState.getCurrentBranch(),
         // Fetch the working state and switch to it ?
-        checkout: true,
-        // Drop changes from base branch working state ?
-        clean: true,
-        ...opts
-    };
+        checkout = true,
+        // Drop changes from base branch the new working state ?
+        clean = true,
+        // Drop changes from the bae branch ?
+        cleanBase = false
+    } = opts;
 
     let createdBranch;
-    const result = driver.createBranch(opts.base, name)
+    const result = driver.createBranch(base, name)
     // Update list of branches
     .then((branch) => {
         createdBranch = branch;
@@ -31,19 +32,25 @@ function create(repositoryState, driver, name, opts = {}) {
         return repositoryState.set('branches', branches);
     });
 
-    if (!opts.checkout) {
+    if (!checkout) {
         return result;
     } else {
         return result
         .then(function fetchBaseTree(repoState) {
-            if (!opts.checkout) {
+            if (!checkout) {
                 return repoState;
             }
-            let baseWk = repoState.getWorkingStateForBranch(opts.base);
+            let baseWk = repoState.getWorkingStateForBranch(base);
             if (baseWk !== null) {
                 // Reuse base WorkingState clean
-                baseWk = opts.clean ? baseWk.asClean() : baseWk;
-                return RepoUtils.updateWorkingState(repoState, createdBranch, baseWk);
+                const headWk = clean ? baseWk.asClean() : baseWk;
+                repoState = RepoUtils.updateWorkingState(repoState, createdBranch, headWk);
+
+                // Clean base WorkingState
+                baseWk = cleanBase ? baseWk.asClean() : baseWk;
+                repoState = RepoUtils.updateWorkingState(repoState, base, baseWk);
+
+                return repoState;
             } else {
                 // Fetch it
                 return RepoUtils.fetchTree(repoState, driver, createdBranch);
