@@ -50,7 +50,7 @@ class WorkingState extends Record(DEFAULTS) {
      * Return this working state as clean.
      * @return {WorkingState}
      */
-    asClean(filePath) {
+    asClean() {
         return this.set('changes', new OrderedMap());
     }
 
