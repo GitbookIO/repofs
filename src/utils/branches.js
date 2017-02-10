@@ -11,9 +11,15 @@ const RepoUtils = require('./repo');
  * @return {Promise<RepositoryState>}
  */
 function create(repositoryState, driver, name, opts = {}) {
-    const base = opts.base || repositoryState.getCurrentBranch();
+    opts = {
+        // Base branch for the new branch
+        base:  repositoryState.getCurrentBranch(),
+        clean: true,
+        ...opts
+    };
+
     let createdBranch;
-    const result = driver.createBranch(base, name)
+    const result = driver.createBranch(opts.base, name)
     // Update list of branches
     .then((branch) => {
         createdBranch = branch;
@@ -30,10 +36,10 @@ function create(repositoryState, driver, name, opts = {}) {
             if (!opts.checkout) {
                 return repoState;
             }
-            let baseWk = repoState.getWorkingStateForBranch(base);
+            let baseWk = repoState.getWorkingStateForBranch(opts.base);
             if (baseWk !== null) {
                 // Reuse base WorkingState clean
-                baseWk = baseWk.asClean();
+                baseWk = opts.clean ? baseWk.asClean() : baseWk;
                 return RepoUtils.updateWorkingState(repoState, createdBranch, baseWk);
             } else {
                 // Fetch it
