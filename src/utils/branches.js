@@ -14,6 +14,9 @@ function create(repositoryState, driver, name, opts = {}) {
     opts = {
         // Base branch for the new branch
         base:  repositoryState.getCurrentBranch(),
+        // Fetch the working state and switch to it ?
+        checkout: true,
+        // Drop changes from base branch working state ?
         clean: true,
         ...opts
     };
