@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+### 8.1.0
+
+- Add options `clean` and `cleanBase` on `BranchUtils.create` to transfer changes to the new branch
+
 ### 8.0.1
 
 - Fix corruption of files when using `FileUtils.move` on a modified/created file
