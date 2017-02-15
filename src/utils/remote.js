@@ -63,7 +63,7 @@ function pull(repoState, driver, opts = {}) {
     })
     .then((branches) => {
         const updatedBranch = branches.find((br) => {
-            return br.getFullName() === opts.branch.getFullName();
+            return br.name === opts.branch.name;
         });
         repoState = repoState.updateBranch(opts.branch, updatedBranch);
 
