@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+### 8.1.1
+
+- Fix `RemoteUtils.pull` for a branch that doesn't exist locally
+
 ### 8.1.0
 
 - Add options `clean` and `cleanBase` on `BranchUtils.create` to transfer changes to the new branch
