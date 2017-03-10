@@ -215,7 +215,7 @@ class GitHubDriver extends Driver {
     }
 
     forwardBranch(branch, sha) {
-        return this.patch('git/refs/heads/' + branch.getFullName(), {
+        return this.patch('git/refs/heads/' + branch.getName(), {
             sha
         })
         // Normalize cannot fast forward errors

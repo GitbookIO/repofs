@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+### 8.1.2
+
+- Fix branch forwarding when branch object has a remote.
+
 ### 8.1.1
 
 - Fix `RemoteUtils.pull` for a branch that doesn't exist locally
